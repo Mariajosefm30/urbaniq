@@ -99,17 +99,21 @@ export default function Guests() {
         }
       });
       
-      if (error || !data?.verify_url) {
+      if (error || !data?.token) {
         console.error('create-guest-pass', { error, data });
-        alert(`Create guest failed: ${error?.message ?? 'Missing verify_url'}`);
+        alert(`Create guest failed: ${error?.message ?? 'Missing token'}`);
         setSubmitting(false);
         return;
       }
 
-      // Store token for optional debug
+      // Build verify URL on client side
+      const url = new URL('/verify', window.location.origin);
+      url.searchParams.set('token', data.token);
+      const verify_url = url.toString();
+
       console.log('Guest pass created:', { 
         token: data.token, 
-        verify_url: data.verify_url 
+        verify_url 
       });
 
       toast.success("Guest pass created successfully");
@@ -120,13 +124,13 @@ export default function Guests() {
       loadGuests();
       
       // Generate QR code from verify URL
-      const qrDataUrl = await QRCode.toDataURL(data.verify_url, {
+      const qrDataUrl = await QRCode.toDataURL(verify_url, {
         width: 300,
         margin: 2,
         errorCorrectionLevel: 'H',
       });
       setSelectedQr(qrDataUrl);
-      setSelectedVerifyUrl(data.verify_url);
+      setSelectedVerifyUrl(verify_url);
       setQrDialogOpen(true);
     } catch (error: any) {
       console.error('create-guest-pass error:', { error });

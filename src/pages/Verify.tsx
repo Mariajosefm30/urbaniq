@@ -27,14 +27,35 @@ export default function Verify() {
     verifyToken();
   }, [searchParams]);
 
+  const getToken = () => {
+    // Primary: query parameter
+    let t = searchParams.get('token');
+    
+    // Fallback 1: hash fragment
+    if (!t && window.location.hash.startsWith('#token=')) {
+      t = decodeURIComponent(window.location.hash.slice(7));
+    }
+    
+    // Fallback 2: path segment
+    if (!t) {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const idx = parts.indexOf('verify');
+      if (idx >= 0 && parts[idx + 1]) {
+        t = parts[idx + 1];
+      }
+    }
+    
+    return t || '';
+  };
+
   const verifyToken = async () => {
-    const token = searchParams.get("token");
+    const token = getToken();
     
     if (!token) {
       setResult({
         valid: false,
         state: 'INVALID',
-        message: "No verification token provided"
+        message: "No verification token provided. Make sure you opened the link from a guest QR code."
       });
       setLoading(false);
       return;
@@ -45,9 +66,13 @@ export default function Verify() {
         body: { token }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('verify-guest-pass error', error);
+        throw error;
+      }
       setResult(data);
     } catch (error: any) {
+      console.error('verify-guest-pass error', error);
       setResult({
         valid: false,
         state: 'INVALID',
