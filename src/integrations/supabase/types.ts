@@ -122,7 +122,6 @@ export type Database = {
           full_name: string | null
           id: string
           name: string | null
-          role: string
           unit: string | null
         }
         Insert: {
@@ -131,7 +130,6 @@ export type Database = {
           full_name?: string | null
           id: string
           name?: string | null
-          role?: string
           unit?: string | null
         }
         Update: {
@@ -140,7 +138,6 @@ export type Database = {
           full_name?: string | null
           id?: string
           name?: string | null
-          role?: string
           unit?: string | null
         }
         Relationships: []

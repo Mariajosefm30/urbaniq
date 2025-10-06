@@ -37,14 +37,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile in background
+          // Fetch profile and role in background
           setTimeout(async () => {
-            const { data } = await supabase
+            const { data: profileData } = await supabase
               .from("profiles")
               .select("*")
               .eq("id", session.user.id)
               .single();
-            setProfile(data);
+            
+            const { data: roleData } = await supabase
+              .from("user_roles")
+              .select("role")
+              .eq("user_id", session.user.id)
+              .single();
+            
+            setProfile({
+              ...profileData,
+              role: roleData?.role || 'resident'
+            });
           }, 0);
         } else {
           setProfile(null);
@@ -58,15 +68,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single()
-          .then(({ data }) => {
-            setProfile(data);
-            setLoading(false);
+        Promise.all([
+          supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single(),
+          supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", session.user.id)
+            .single()
+        ]).then(([{ data: profileData }, { data: roleData }]) => {
+          setProfile({
+            ...profileData,
+            role: roleData?.role || 'resident'
           });
+          setLoading(false);
+        });
       } else {
         setLoading(false);
       }
