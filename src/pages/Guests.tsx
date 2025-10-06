@@ -21,11 +21,26 @@ const guestSchema = z.object({
 interface Guest {
   id: string;
   name: string;
+  unit?: string;
   arrival_at: string;
+  valid_from: string;
   qr_token_hash: string;
   qr_expires_at: string;
+  redeemed_at?: string;
   status: "scheduled" | "expired" | "revoked";
   created_at: string;
+}
+
+interface GuestPassResponse {
+  guest_id: string;
+  name: string;
+  unit?: string;
+  verify_url: string;
+  token: string;
+  arrival_at: string;
+  valid_from: string;
+  expires_at: string;
+  status: string;
 }
 
 export default function Guests() {
@@ -36,8 +51,10 @@ export default function Guests() {
   const [submitting, setSubmitting] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [selectedQr, setSelectedQr] = useState<string>("");
+  const [selectedVerifyUrl, setSelectedVerifyUrl] = useState<string>("");
   
   const [name, setName] = useState("");
+  const [unit, setUnit] = useState("");
   const [arrivalAt, setArrivalAt] = useState("");
 
   useEffect(() => {
@@ -73,50 +90,64 @@ export default function Guests() {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke("create-guest-pass", {
-        body: { name, arrival_at: arrivalAt }
+      const { data, error } = await supabase.functions.invoke<GuestPassResponse>("create-guest-pass", {
+        body: { 
+          name, 
+          arrival_at: new Date(arrivalAt).toISOString(),
+          unit: unit || undefined
+        }
       });
 
       if (error) throw error;
 
-      toast.success("Guest registered successfully");
+      toast.success("Guest pass created successfully");
       setDialogOpen(false);
       setName("");
+      setUnit("");
       setArrivalAt("");
       loadGuests();
       
-      // Show QR code
-      const qrUrl = `${window.location.origin}/verify?token=${data.token}`;
-      const qrDataUrl = await QRCode.toDataURL(qrUrl, {
+      // Generate QR code from verify URL
+      const qrDataUrl = await QRCode.toDataURL(data.verify_url, {
         width: 300,
         margin: 2,
+        errorCorrectionLevel: 'H',
       });
       setSelectedQr(qrDataUrl);
+      setSelectedVerifyUrl(data.verify_url);
       setQrDialogOpen(true);
     } catch (error: any) {
-      toast.error(error.message || "Failed to create guest");
+      toast.error(error.message || "Failed to create guest pass");
     }
     setSubmitting(false);
   };
 
-  const showQr = async (guest: Guest) => {
-    const qrUrl = `${window.location.origin}/verify?token=${guest.qr_token_hash}`;
-    const qrDataUrl = await QRCode.toDataURL(qrUrl, {
-      width: 300,
-      margin: 2,
-    });
-    setSelectedQr(qrDataUrl);
-    setQrDialogOpen(true);
+  const copyLink = () => {
+    navigator.clipboard.writeText(selectedVerifyUrl);
+    toast.success("Link copied to clipboard");
+  };
+
+  const downloadQr = () => {
+    const link = document.createElement('a');
+    link.download = 'guest-pass-qr.png';
+    link.href = selectedQr;
+    link.click();
+    toast.success("QR code downloaded");
   };
 
   const getStatusBadge = (guest: Guest) => {
     const now = new Date();
+    const validFrom = new Date(guest.valid_from);
     const expires = new Date(guest.qr_expires_at);
     
     if (guest.status === "revoked") {
       return <Badge variant="destructive">Revoked</Badge>;
+    } else if (now < validFrom) {
+      return <Badge variant="secondary">Not Yet Valid</Badge>;
     } else if (now > expires || guest.status === "expired") {
       return <Badge variant="secondary">Expired</Badge>;
+    } else if (guest.redeemed_at) {
+      return <Badge variant="outline">Used</Badge>;
     } else {
       return <Badge variant="outline" className="border-accent text-accent">Valid</Badge>;
     }
@@ -141,7 +172,7 @@ export default function Guests() {
               <DialogHeader>
                 <DialogTitle>Register New Guest</DialogTitle>
                 <DialogDescription>
-                  Create a 24-hour QR pass for your visitor
+                  Create a time-windowed QR pass for your visitor
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={createGuest} className="space-y-4">
@@ -156,6 +187,15 @@ export default function Guests() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="unit">Unit (Optional)</Label>
+                  <Input
+                    id="unit"
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
+                    placeholder="Apt 101"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="arrival">Arrival Date & Time</Label>
                   <Input
                     id="arrival"
@@ -164,6 +204,9 @@ export default function Guests() {
                     onChange={(e) => setArrivalAt(e.target.value)}
                     required
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Pass valid 12h before and after this time
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
                   {submitting ? "Creating..." : "Generate Pass"}
@@ -178,13 +221,23 @@ export default function Guests() {
             <DialogHeader>
               <DialogTitle>Guest QR Pass</DialogTitle>
               <DialogDescription>
-                Share this QR code with your guest. Valid for 24 hours.
+                Share this QR code or link with your guest
               </DialogDescription>
             </DialogHeader>
-            <div className="flex justify-center py-4">
-              {selectedQr && (
-                <img src={selectedQr} alt="QR Code" className="rounded-lg shadow-lg" />
-              )}
+            <div className="space-y-4">
+              <div className="flex justify-center py-4">
+                {selectedQr && (
+                  <img src={selectedQr} alt="QR Code" className="rounded-lg shadow-lg" />
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={copyLink} variant="outline" className="flex-1 gap-2">
+                  Copy Link
+                </Button>
+                <Button onClick={downloadQr} variant="outline" className="flex-1 gap-2">
+                  Download QR
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -215,19 +268,25 @@ export default function Guests() {
                     {getStatusBadge(guest)}
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3">
+                  {guest.unit && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Unit:</span> {guest.unit}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    Valid: {new Date(guest.valid_from).toLocaleString()}
+                  </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
                     Expires: {new Date(guest.qr_expires_at).toLocaleString()}
                   </div>
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={() => showQr(guest)}
-                  >
-                    <QrCode className="h-4 w-4" />
-                    View QR Code
-                  </Button>
+                  {guest.redeemed_at && (
+                    <div className="text-xs text-muted-foreground">
+                      Used: {new Date(guest.redeemed_at).toLocaleString()}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
