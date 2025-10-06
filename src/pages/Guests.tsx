@@ -91,15 +91,26 @@ export default function Guests() {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke<GuestPassResponse>("create-guest-pass", {
-        body: { 
+      const res = await fetch('/api/guests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // send session cookie
+        body: JSON.stringify({ 
           name, 
-          arrival_at: new Date(arrivalAt).toISOString(),
-          unit: unit || undefined
-        }
+          unit: unit || undefined,
+          arrival_at: new Date(arrivalAt).toISOString() // ISO string
+        })
       });
-
-      if (error) throw error;
+      
+      const text = await res.text();
+      if (!res.ok) {
+        console.error('Create guest failed', res.status, text);
+        toast.error(`Create guest failed (${res.status}): ${text}`);
+        setSubmitting(false);
+        return;
+      }
+      
+      const data: GuestPassResponse = JSON.parse(text);
 
       toast.success("Guest pass created successfully");
       setDialogOpen(false);
@@ -118,6 +129,7 @@ export default function Guests() {
       setSelectedVerifyUrl(data.verify_url);
       setQrDialogOpen(true);
     } catch (error: any) {
+      console.error('Create guest error:', error);
       toast.error(error.message || "Failed to create guest pass");
     }
     setSubmitting(false);
