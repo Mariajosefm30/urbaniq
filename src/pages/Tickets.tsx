@@ -1,18 +1,13 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, AlertCircle, Wrench, CheckCircle2, Clock } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import Layout from "@/components/Layout";
+import { TicketCard } from "@/components/tickets/TicketCard";
+import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
 
 const ticketSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(100),
@@ -29,10 +24,16 @@ interface Ticket {
   status: "open" | "in_progress" | "resolved";
   reporter_id: string;
   created_at: string;
+  technician_id: string | null;
   profiles: {
     name: string;
     unit: string | null;
   };
+  technicians?: {
+    name: string;
+    phone: string;
+    rating: number;
+  } | null;
 }
 
 export default function Tickets() {
@@ -41,10 +42,6 @@ export default function Tickets() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
 
   useEffect(() => {
     loadTickets();
@@ -55,7 +52,7 @@ export default function Tickets() {
     
     const { data, error } = await supabase
       .from("maintenance_tickets")
-      .select("*, profiles(name, unit)")
+      .select("*, profiles(name, unit), technicians(name, phone, rating)")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -66,8 +63,7 @@ export default function Tickets() {
     setLoading(false);
   };
 
-  const createTicket = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const createTicket = async (title: string, description: string, category: string) => {
     setSubmitting(true);
 
     const validation = ticketSchema.safeParse({ title, description, category });
@@ -91,9 +87,6 @@ export default function Tickets() {
     } else {
       toast.success("Ticket created successfully");
       setDialogOpen(false);
-      setTitle("");
-      setDescription("");
-      setCategory("");
       loadTickets();
     }
     setSubmitting(false);
@@ -113,14 +106,17 @@ export default function Tickets() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "open":
-        return <Badge variant="destructive" className="gap-1"><AlertCircle className="h-3 w-3" /> Open</Badge>;
-      case "in_progress":
-        return <Badge variant="outline" className="gap-1 border-warning text-warning"><Clock className="h-3 w-3" /> In Progress</Badge>;
-      case "resolved":
-        return <Badge variant="outline" className="gap-1 border-accent text-accent"><CheckCircle2 className="h-3 w-3" /> Resolved</Badge>;
+  const assignTechnician = async (ticketId: string, technicianId: string) => {
+    const { error } = await supabase
+      .from("maintenance_tickets")
+      .update({ technician_id: technicianId })
+      .eq("id", ticketId);
+
+    if (error) {
+      toast.error("Failed to assign technician");
+    } else {
+      toast.success("Technician assigned successfully");
+      loadTickets();
     }
   };
 
@@ -132,63 +128,12 @@ export default function Tickets() {
             <h2 className="text-3xl font-bold tracking-tight">Maintenance Tickets</h2>
             <p className="text-muted-foreground">Submit and track maintenance requests</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                New Ticket
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Maintenance Ticket</DialogTitle>
-                <DialogDescription>
-                  Submit a new maintenance request for your unit
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={createTicket} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Leaking faucet in bathroom"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select value={category} onValueChange={setCategory} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="plumbing">Plumbing</SelectItem>
-                      <SelectItem value="electrical">Electrical</SelectItem>
-                      <SelectItem value="hvac">HVAC</SelectItem>
-                      <SelectItem value="appliance">Appliance</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Detailed description of the issue..."
-                    rows={4}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={submitting}>
-                  {submitting ? "Creating..." : "Create Ticket"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <CreateTicketDialog
+            onSubmit={createTicket}
+            submitting={submitting}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+          />
         </div>
 
         {loading ? (
@@ -204,52 +149,13 @@ export default function Tickets() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {tickets.map((ticket) => (
-              <Card key={ticket.id} className="hover:shadow-[var(--shadow-elegant)] transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{ticket.title}</CardTitle>
-                      <CardDescription>
-                        {ticket.profiles.name} {ticket.profiles.unit && `• Unit ${ticket.profiles.unit}`}
-                      </CardDescription>
-                    </div>
-                    {getStatusBadge(ticket.status)}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Badge variant="secondary">{ticket.category}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{ticket.description}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(ticket.created_at).toLocaleDateString()}
-                  </p>
-                  {profile?.role === "manager" && ticket.status !== "resolved" && (
-                    <div className="flex gap-2 pt-2 border-t">
-                      {ticket.status === "open" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateStatus(ticket.id, "in_progress")}
-                          className="flex-1"
-                        >
-                          Start Work
-                        </Button>
-                      )}
-                      {ticket.status === "in_progress" && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateStatus(ticket.id, "resolved")}
-                          className="flex-1 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
-                        >
-                          Mark Resolved
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                isManager={profile?.role === "manager"}
+                onStatusUpdate={updateStatus}
+                onTechnicianAssign={assignTechnician}
+              />
             ))}
           </div>
         )}
