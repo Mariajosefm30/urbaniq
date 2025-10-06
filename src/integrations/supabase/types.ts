@@ -64,6 +64,7 @@ export type Database = {
           photo_url: string | null
           reporter_id: string
           status: Database["public"]["Enums"]["ticket_status"]
+          technician_id: string | null
           title: string
           updated_at: string
         }
@@ -75,6 +76,7 @@ export type Database = {
           photo_url?: string | null
           reporter_id: string
           status?: Database["public"]["Enums"]["ticket_status"]
+          technician_id?: string | null
           title: string
           updated_at?: string
         }
@@ -86,6 +88,7 @@ export type Database = {
           photo_url?: string | null
           reporter_id?: string
           status?: Database["public"]["Enums"]["ticket_status"]
+          technician_id?: string | null
           title?: string
           updated_at?: string
         }
@@ -95,6 +98,13 @@ export type Database = {
             columns: ["reporter_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_tickets_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
             referencedColumns: ["id"]
           },
         ]
@@ -120,6 +130,39 @@ export type Database = {
           name?: string
           role?: Database["public"]["Enums"]["app_role"]
           unit?: string | null
+        }
+        Relationships: []
+      }
+      technicians: {
+        Row: {
+          category: string
+          created_at: string
+          distance: number | null
+          id: string
+          maps_url: string | null
+          name: string
+          phone: string
+          rating: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          distance?: number | null
+          id?: string
+          maps_url?: string | null
+          name: string
+          phone: string
+          rating?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          distance?: number | null
+          id?: string
+          maps_url?: string | null
+          name?: string
+          phone?: string
+          rating?: number | null
         }
         Relationships: []
       }
