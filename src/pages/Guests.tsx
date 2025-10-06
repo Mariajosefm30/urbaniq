@@ -109,6 +109,8 @@ export default function Guests() {
       // Build verify URL on client side
       const url = new URL('/verify', window.location.origin);
       url.searchParams.set('token', data.token);
+      // Duplicate in hash as safety net for routers that strip queries
+      url.hash = `token=${encodeURIComponent(data.token)}`;
       const verify_url = url.toString();
 
       console.log('Guest pass created:', { 
@@ -248,6 +250,11 @@ export default function Guests() {
                   <img src={selectedQr} alt="QR Code" className="rounded-lg shadow-lg" />
                 )}
               </div>
+              {selectedVerifyUrl && (
+                <div className="text-xs text-muted-foreground bg-muted p-2 rounded break-all">
+                  🔍 {selectedVerifyUrl}
+                </div>
+              )}
               <div className="flex gap-2">
                 <Button onClick={copyLink} variant="outline" className="flex-1 gap-2">
                   Copy Link

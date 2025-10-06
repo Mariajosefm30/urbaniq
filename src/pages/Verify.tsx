@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, Clock, Building2 } from "lucide-react";
 
 interface VerificationResult {
@@ -22,8 +24,11 @@ export default function Verify() {
   const [searchParams] = useSearchParams();
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [manualToken, setManualToken] = useState("");
 
   useEffect(() => {
+    const token = getToken();
+    console.info('Verify page loaded:', { href: window.location.href, token });
     verifyToken();
   }, [searchParams]);
 
@@ -48,8 +53,8 @@ export default function Verify() {
     return t || '';
   };
 
-  const verifyToken = async () => {
-    const token = getToken();
+  const verifyToken = async (tokenOverride?: string) => {
+    const token = tokenOverride || getToken();
     
     if (!token) {
       setResult({
@@ -82,6 +87,12 @@ export default function Verify() {
     setLoading(false);
   };
 
+  const handleManualVerify = () => {
+    if (!manualToken.trim()) return;
+    setLoading(true);
+    verifyToken(manualToken.trim());
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
       <Card className="w-full max-w-md shadow-[var(--shadow-elegant)]">
@@ -99,6 +110,26 @@ export default function Verify() {
             <div className="text-center py-8">
               <Clock className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
               <p className="text-muted-foreground">Verifying pass...</p>
+            </div>
+          ) : !getToken() && result?.state === 'INVALID' ? (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold">No verification token found</h3>
+                <p className="text-sm text-muted-foreground">
+                  Paste a token below or open this page via a guest QR link
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Input
+                  value={manualToken}
+                  onChange={(e) => setManualToken(e.target.value)}
+                  placeholder="Paste verification token"
+                  className="font-mono text-sm"
+                />
+                <Button onClick={handleManualVerify} className="w-full" disabled={!manualToken.trim()}>
+                  Verify
+                </Button>
+              </div>
             </div>
           ) : result ? (
             <div className="text-center space-y-4">
