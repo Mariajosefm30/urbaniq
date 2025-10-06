@@ -7,13 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, UserPlus, QrCode, Calendar, Clock, Bug } from "lucide-react";
+import { Plus, UserPlus, QrCode, Calendar, Clock, Bug, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import Layout from "@/components/Layout";
 import QRCode from "qrcode";
 import { guestPassConfig } from "@/config/guestPassConfig";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const guestSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -255,99 +254,104 @@ export default function Guests() {
     <Layout>
       <div className="space-y-6">
         {/* Dev Panel - Staging Only */}
-        <Collapsible open={devPanelOpen} onOpenChange={setDevPanelOpen}>
-          <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
-            <CardHeader>
-              <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <Bug className="h-5 w-5 text-yellow-600" />
-                    <CardTitle className="text-lg text-yellow-800 dark:text-yellow-200">
-                      Dev Panel (Staging Only)
-                    </CardTitle>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    {devPanelOpen ? 'Hide' : 'Show'}
-                  </Button>
-                </div>
-              </CollapsibleTrigger>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => createDevGuest(2)} 
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Create Test Guest (now +2h)
-                  </Button>
-                  <Button 
-                    onClick={() => createDevGuest(-24)} 
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Create Yesterday Guest
-                  </Button>
-                </div>
+        <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+          <CardHeader>
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setDevPanelOpen(!devPanelOpen)}
+            >
+              <div className="flex items-center gap-2">
+                <Bug className="h-5 w-5 text-yellow-600" />
+                <CardTitle className="text-lg text-yellow-800 dark:text-yellow-200">
+                  Dev Panel (Staging Only)
+                </CardTitle>
+              </div>
+              <Button variant="ghost" size="sm" type="button">
+                {devPanelOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </div>
+          </CardHeader>
+          
+          {devPanelOpen && (
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => createDevGuest(2)} 
+                  variant="outline"
+                  className="flex-1"
+                  type="button"
+                >
+                  Create Test Guest (now +2h)
+                </Button>
+                <Button 
+                  onClick={() => createDevGuest(-24)} 
+                  variant="outline"
+                  className="flex-1"
+                  type="button"
+                >
+                  Create Yesterday Guest
+                </Button>
+              </div>
 
-                {devOutput && (
-                  <div className="space-y-2">
-                    <Label>Last Response:</Label>
-                    <pre className="bg-muted p-3 rounded text-xs font-mono overflow-x-auto">
-                      {JSON.stringify(devOutput, null, 2)}
-                    </pre>
-                    
-                    {devVerifyUrl && (
-                      <div className="space-y-2 pt-2 border-t">
-                        <div className="flex items-center justify-between">
-                          <Label>Verify URL:</Label>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => {
-                              navigator.clipboard.writeText(devVerifyUrl);
-                              toast.success("URL copied");
-                            }}
-                          >
-                            Copy
-                          </Button>
-                        </div>
-                        <div className="bg-muted p-2 rounded text-xs font-mono break-all">
-                          {devVerifyUrl}
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <Label>Token:</Label>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => {
-                              navigator.clipboard.writeText(devToken);
-                              toast.success("Token copied");
-                            }}
-                          >
-                            Copy
-                          </Button>
-                        </div>
-                        <div className="bg-muted p-2 rounded text-xs font-mono break-all">
-                          {devToken}
-                        </div>
-
+              {devOutput && (
+                <div className="space-y-2">
+                  <Label>Last Response:</Label>
+                  <pre className="bg-muted p-3 rounded text-xs font-mono overflow-x-auto">
+                    {JSON.stringify(devOutput, null, 2)}
+                  </pre>
+                  
+                  {devVerifyUrl && (
+                    <div className="space-y-2 pt-2 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label>Verify URL:</Label>
                         <Button 
-                          onClick={() => window.open(devVerifyUrl, '_blank')}
-                          className="w-full"
+                          variant="ghost" 
+                          size="sm"
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(devVerifyUrl);
+                            toast.success("URL copied");
+                          }}
                         >
-                          Open Verify Page
+                          Copy
                         </Button>
                       </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+                      <div className="bg-muted p-2 rounded text-xs font-mono break-all">
+                        {devVerifyUrl}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label>Token:</Label>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(devToken);
+                            toast.success("Token copied");
+                          }}
+                        >
+                          Copy
+                        </Button>
+                      </div>
+                      <div className="bg-muted p-2 rounded text-xs font-mono break-all">
+                        {devToken}
+                      </div>
+
+                      <Button 
+                        onClick={() => window.open(devVerifyUrl, '_blank')}
+                        className="w-full"
+                        type="button"
+                      >
+                        Open Verify Page
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          )}
+        </Card>
 
         <div className="flex items-center justify-between">
           <div>
