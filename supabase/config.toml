@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.verify-guest-pass]
 verify_jwt = false
+
+[functions.whoami]
+verify_jwt = false
