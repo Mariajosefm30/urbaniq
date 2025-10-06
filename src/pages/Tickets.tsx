@@ -126,14 +126,20 @@ export default function Tickets() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Maintenance Tickets</h2>
-            <p className="text-muted-foreground">Submit and track maintenance requests</p>
+            <p className="text-muted-foreground">
+              {profile?.role === "manager" 
+                ? "Review and manage maintenance requests" 
+                : "Submit and track maintenance requests"}
+            </p>
           </div>
-          <CreateTicketDialog
-            onSubmit={createTicket}
-            submitting={submitting}
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
-          />
+          {profile?.role !== "manager" && (
+            <CreateTicketDialog
+              onSubmit={createTicket}
+              submitting={submitting}
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+            />
+          )}
         </div>
 
         {loading ? (
