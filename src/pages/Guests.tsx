@@ -61,7 +61,7 @@ export default function Guests() {
 
   // Dev Panel state
   const [devPanelOpen, setDevPanelOpen] = useState(false);
-  const [devOutput, setDevOutput] = useState<any>(null);
+  const [devOutput, setDevOutput] = useState<{ status: number; text: string } | null>(null);
   const [devVerifyUrl, setDevVerifyUrl] = useState<string>("");
   const [devToken, setDevToken] = useState<string>("");
 
@@ -167,7 +167,7 @@ export default function Guests() {
     toast.success("QR code downloaded");
   };
 
-  // Dev Panel: Create test guest
+  // Dev Panel: Create test guest using fetch
   const createDevGuest = async (hoursOffset: number) => {
     const payload = {
       name: 'Test Guest',
@@ -176,58 +176,68 @@ export default function Guests() {
     };
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-guest-pass', {
-        body: payload
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const res = await fetch('/functions/v1/api-guests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload)
       });
 
-      const res = {
-        status: error?.status ?? 200,
-        data,
-        error: error ? {
-          message: error.message,
-          name: error.name,
-          status: error.status
-        } : null
-      };
+      const text = await res.text();
+      
+      setDevOutput({ 
+        status: res.status, 
+        text 
+      });
 
-      setDevOutput(res);
+      if (res.ok) {
+        try {
+          const data = JSON.parse(text);
+          
+          if (data.token) {
+            const url = new URL('/verify', window.location.origin);
+            url.searchParams.set('token', data.token);
+            url.hash = `token=${encodeURIComponent(data.token)}`;
+            const verify_url = url.toString();
+            
+            setDevVerifyUrl(verify_url);
+            setDevToken(data.token);
 
-      if (!error && data?.token) {
-        const url = new URL('/verify', window.location.origin);
-        url.searchParams.set('token', data.token);
-        url.hash = `token=${encodeURIComponent(data.token)}`;
-        const verify_url = url.toString();
-        
-        setDevVerifyUrl(verify_url);
-        setDevToken(data.token);
-
-        // Generate QR
-        const qrDataUrl = await QRCode.toDataURL(verify_url, {
-          width: 300,
-          margin: 2,
-          errorCorrectionLevel: 'H',
-        });
-        setSelectedQr(qrDataUrl);
-        setSelectedVerifyUrl(verify_url);
-        setSelectedToken(data.token);
-        setQrDialogOpen(true);
-        
-        loadGuests();
-        toast.success("Dev guest created successfully");
+            // Generate QR
+            const qrDataUrl = await QRCode.toDataURL(verify_url, {
+              width: 300,
+              margin: 2,
+              errorCorrectionLevel: 'H',
+            });
+            setSelectedQr(qrDataUrl);
+            setSelectedVerifyUrl(verify_url);
+            setSelectedToken(data.token);
+            setQrDialogOpen(true);
+            
+            loadGuests();
+            toast.success("Dev guest created successfully");
+          }
+        } catch (parseError) {
+          console.error('Failed to parse response', parseError);
+          toast.error("Response is not valid JSON");
+        }
       } else {
-        toast.error(`Failed: ${res.error?.message || 'Unknown error'}`);
+        toast.error(`Failed: status ${res.status}`);
       }
     } catch (err: any) {
-      const res = {
+      setDevOutput({
         status: 500,
-        data: null,
-        error: {
-          message: err.message || 'Unknown error',
-          name: err.name || 'Error',
-          status: 500
-        }
-      };
-      setDevOutput(res);
+        text: JSON.stringify({
+          error: 'fetch_failed',
+          message: err.message || 'Unknown error'
+        })
+      });
       toast.error(`Error: ${err.message}`);
     }
   };
@@ -295,10 +305,19 @@ export default function Guests() {
 
               {devOutput && (
                 <div className="space-y-2">
-                  <Label>Last Response:</Label>
-                  <pre className="bg-muted p-3 rounded text-xs font-mono overflow-x-auto">
-                    {JSON.stringify(devOutput, null, 2)}
-                  </pre>
+                  <div className="flex items-center gap-2">
+                    <Label>Status:</Label>
+                    <Badge variant={devOutput.status === 200 ? "default" : "destructive"}>
+                      {devOutput.status}
+                    </Badge>
+                  </div>
+                  
+                  <div>
+                    <Label>Body (text):</Label>
+                    <pre className="bg-muted p-3 rounded text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all mt-1">
+                      {devOutput.text}
+                    </pre>
+                  </div>
                   
                   {devVerifyUrl && (
                     <div className="space-y-2 pt-2 border-t">
