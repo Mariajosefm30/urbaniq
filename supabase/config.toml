@@ -1,0 +1,7 @@
+project_id = "nlkrylgakpugonsvnycj"
+
+[functions.create-guest-pass]
+verify_jwt = true
+
+[functions.verify-guest-pass]
+verify_jwt = false
