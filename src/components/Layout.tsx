@@ -10,12 +10,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Debug: Log profile and environment
-  console.log("Profile data:", profile);
-  console.log("Environment PROD:", import.meta.env.PROD);
-  console.log("Environment DEV:", import.meta.env.DEV);
-  console.log("Environment MODE:", import.meta.env.MODE);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
