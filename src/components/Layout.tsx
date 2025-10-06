@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ClipboardList, Users, LogOut, Shield } from "lucide-react";
+import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -53,6 +53,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 >
                   <Users className="h-4 w-4" />
                   <span className="hidden sm:inline">Guests</span>
+                </Button>
+              </Link>
+              <Link to="/messages">
+                <Button
+                  variant={isActive("/messages") ? "default" : "ghost"}
+                  size="sm"
+                  className="gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="hidden sm:inline">Messages</span>
                 </Button>
               </Link>
               <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">

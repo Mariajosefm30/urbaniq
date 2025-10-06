@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Tickets from "./pages/Tickets";
 import Guests from "./pages/Guests";
+import Messages from "./pages/Messages";
 import Verify from "./pages/Verify";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/verify" element={<Verify />} />
             <Route path="/" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
             <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

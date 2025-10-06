@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle2, Clock, User } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { TechnicianSuggestions } from "./TechnicianSuggestions";
+import { TicketMessages } from "./TicketMessages";
 
 interface Ticket {
   id: string;
@@ -172,6 +173,8 @@ export function TicketCard({ ticket, isManager, onStatusUpdate, onTechnicianAssi
                 )}
               </div>
             )}
+
+            <TicketMessages ticketId={ticket.id} />
           </div>
         </DialogContent>
       </Dialog>
