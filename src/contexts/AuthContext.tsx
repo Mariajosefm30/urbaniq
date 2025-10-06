@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 interface Profile {
   id: string;
-  role: "resident" | "manager";
-  name: string;
+  role: string;
+  name: string | null;
   unit: string | null;
+  email: string | null;
+  full_name: string | null;
 }
 
 interface AuthContextType {

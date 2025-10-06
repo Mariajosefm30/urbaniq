@@ -20,7 +20,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<"resident" | "manager">("resident");
+  const [unit, setUnit] = useState("");
+  const [role, setRole] = useState<string>("resident");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -64,7 +65,7 @@ export default function Auth() {
           password,
           options: {
             emailRedirectTo: redirectUrl,
-            data: { name, role }
+            data: { name, unit, role }
           }
         });
         
@@ -106,6 +107,16 @@ export default function Auth() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="unit">Unit (optional)</Label>
+                  <Input
+                    id="unit"
+                    type="text"
+                    placeholder="e.g. 101, A-5"
+                    value={unit}
+                    onChange={(e) => setUnit(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
