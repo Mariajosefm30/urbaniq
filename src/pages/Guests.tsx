@@ -53,6 +53,7 @@ export default function Guests() {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [selectedQr, setSelectedQr] = useState<string>("");
   const [selectedVerifyUrl, setSelectedVerifyUrl] = useState<string>("");
+  const [selectedToken, setSelectedToken] = useState<string>("");
   
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("");
@@ -133,6 +134,7 @@ export default function Guests() {
       });
       setSelectedQr(qrDataUrl);
       setSelectedVerifyUrl(verify_url);
+      setSelectedToken(data.token);
       setQrDialogOpen(true);
     } catch (error: any) {
       console.error('create-guest-pass error:', { error });
@@ -144,6 +146,11 @@ export default function Guests() {
   const copyLink = () => {
     navigator.clipboard.writeText(selectedVerifyUrl);
     toast.success("Link copied to clipboard");
+  };
+
+  const copyToken = () => {
+    navigator.clipboard.writeText(selectedToken);
+    toast.success("Token copied to clipboard");
   };
 
   const downloadQr = () => {
@@ -255,9 +262,17 @@ export default function Guests() {
                   🔍 {selectedVerifyUrl}
                 </div>
               )}
+              {selectedToken && (
+                <div className="text-xs text-muted-foreground bg-muted p-2 rounded break-all font-mono">
+                  🔑 Token: {selectedToken}
+                </div>
+              )}
               <div className="flex gap-2">
                 <Button onClick={copyLink} variant="outline" className="flex-1 gap-2">
                   Copy Link
+                </Button>
+                <Button onClick={copyToken} variant="outline" className="flex-1 gap-2">
+                  Copy Token
                 </Button>
                 <Button onClick={downloadQr} variant="outline" className="flex-1 gap-2">
                   Download QR
