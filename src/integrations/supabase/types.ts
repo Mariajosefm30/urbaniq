@@ -23,7 +23,9 @@ export type Database = {
           name: string
           qr_expires_at: string
           qr_token_hash: string
+          redeemed_at: string | null
           status: Database["public"]["Enums"]["guest_status"]
+          valid_from: string | null
         }
         Insert: {
           arrival_at: string
@@ -33,7 +35,9 @@ export type Database = {
           name: string
           qr_expires_at: string
           qr_token_hash: string
+          redeemed_at?: string | null
           status?: Database["public"]["Enums"]["guest_status"]
+          valid_from?: string | null
         }
         Update: {
           arrival_at?: string
@@ -43,7 +47,9 @@ export type Database = {
           name?: string
           qr_expires_at?: string
           qr_token_hash?: string
+          redeemed_at?: string | null
           status?: Database["public"]["Enums"]["guest_status"]
+          valid_from?: string | null
         }
         Relationships: [
           {
