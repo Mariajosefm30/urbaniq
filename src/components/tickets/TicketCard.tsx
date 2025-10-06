@@ -19,7 +19,7 @@ interface Ticket {
   profiles: {
     name: string;
     unit: string | null;
-  };
+  } | null;
   technicians?: {
     name: string;
     phone: string;
@@ -59,7 +59,7 @@ export function TicketCard({ ticket, isManager, onStatusUpdate, onTechnicianAssi
             <div className="flex-1">
               <CardTitle className="text-lg">{ticket.title}</CardTitle>
               <CardDescription>
-                {ticket.profiles.name} {ticket.profiles.unit && `• Unit ${ticket.profiles.unit}`}
+                {ticket.profiles?.name || "Unknown User"} {ticket.profiles?.unit && `• Unit ${ticket.profiles.unit}`}
               </CardDescription>
             </div>
             {getStatusBadge(ticket.status)}
@@ -103,7 +103,7 @@ export function TicketCard({ ticket, isManager, onStatusUpdate, onTechnicianAssi
               <div>
                 <p className="text-sm font-medium mb-1">Reported By</p>
                 <p className="text-sm text-muted-foreground">
-                  {ticket.profiles.name} {ticket.profiles.unit && `• Unit ${ticket.profiles.unit}`}
+                  {ticket.profiles?.name || "Unknown User"} {ticket.profiles?.unit && `• Unit ${ticket.profiles.unit}`}
                 </p>
               </div>
               <div>

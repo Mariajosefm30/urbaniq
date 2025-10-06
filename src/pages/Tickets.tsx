@@ -28,7 +28,7 @@ interface Ticket {
   profiles: {
     name: string;
     unit: string | null;
-  };
+  } | null;
   technicians?: {
     name: string;
     phone: string;
