@@ -7,12 +7,14 @@ import { CheckCircle2, XCircle, Clock, Building2 } from "lucide-react";
 interface VerificationResult {
   valid: boolean;
   state: 'VALID' | 'EXPIRED' | 'REVOKED' | 'INVALID';
+  guest?: {
+    name: string;
+    unit?: string;
+    arrival_at: string;
+    valid_from: string;
+    expires_at: string;
+  };
   guest_name?: string;
-  unit?: string;
-  arrival_at?: string;
-  valid_from?: string;
-  expires_at?: string;
-  redeemed_at?: string;
   message: string;
 }
 
@@ -84,19 +86,19 @@ export default function Verify() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-accent mb-2">VALID PASS</h3>
-                    {result.guest_name && (
-                      <p className="text-lg font-medium">{result.guest_name}</p>
+                    {(result.guest?.name || result.guest_name) && (
+                      <p className="text-lg font-medium">{result.guest?.name || result.guest_name}</p>
                     )}
-                    {result.unit && (
-                      <p className="text-sm text-muted-foreground">Unit: {result.unit}</p>
+                    {result.guest?.unit && (
+                      <p className="text-sm text-muted-foreground">Unit: {result.guest.unit}</p>
                     )}
                     <p className="text-sm text-muted-foreground mt-2">{result.message}</p>
                     <div className="mt-4 space-y-1 text-xs text-muted-foreground">
-                      {result.valid_from && (
-                        <p>Valid from: {new Date(result.valid_from).toLocaleString()}</p>
+                      {result.guest?.valid_from && (
+                        <p>Valid from: {new Date(result.guest.valid_from).toLocaleString()}</p>
                       )}
-                      {result.expires_at && (
-                        <p>Expires: {new Date(result.expires_at).toLocaleString()}</p>
+                      {result.guest?.expires_at && (
+                        <p>Expires: {new Date(result.guest.expires_at).toLocaleString()}</p>
                       )}
                     </div>
                   </div>

@@ -34,7 +34,20 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    const { token } = await req.json();
+    // Support both POST body and GET query params
+    let token: string | null = null;
+    
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      token = url.searchParams.get('token');
+    } else {
+      try {
+        const body = await req.json();
+        token = body.token;
+      } catch {
+        // Invalid JSON, token will be null
+      }
+    }
 
     if (!token) {
       console.error('[verify-guest-pass] No token provided');
@@ -44,7 +57,7 @@ serve(async (req) => {
           state: 'INVALID',
           message: 'No token provided' 
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -212,11 +225,13 @@ serve(async (req) => {
       JSON.stringify({ 
         valid: true,
         state: 'VALID',
-        guest_name: guest.name,
-        unit: guest.unit,
-        arrival_at: guest.arrival_at,
-        valid_from: guest.valid_from,
-        expires_at: guest.qr_expires_at,
+        guest: {
+          name: guest.name,
+          unit: guest.unit,
+          arrival_at: guest.arrival_at,
+          valid_from: guest.valid_from,
+          expires_at: guest.qr_expires_at,
+        },
         message: 'Access granted',
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

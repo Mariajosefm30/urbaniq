@@ -91,26 +91,27 @@ export default function Guests() {
     }
 
     try {
-      const res = await fetch('/api/guests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // send session cookie
-        body: JSON.stringify({ 
+      const { data, error } = await supabase.functions.invoke('create-guest-pass', {
+        body: { 
           name, 
           unit: unit || undefined,
-          arrival_at: new Date(arrivalAt).toISOString() // ISO string
-        })
+          arrival_at: new Date(arrivalAt).toISOString()
+        }
       });
       
-      const text = await res.text();
-      if (!res.ok) {
-        console.error('Create guest failed', res.status, text);
-        toast.error(`Create guest failed (${res.status}): ${text}`);
+      if (error) {
+        console.error('Create guest failed', error);
+        toast.error(`Failed to create guest pass: ${error.message}`);
         setSubmitting(false);
         return;
       }
       
-      const data: GuestPassResponse = JSON.parse(text);
+      if (!data) {
+        console.error('Create guest returned no data');
+        toast.error('Failed to create guest pass: no data returned');
+        setSubmitting(false);
+        return;
+      }
 
       toast.success("Guest pass created successfully");
       setDialogOpen(false);
