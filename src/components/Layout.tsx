@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Building2, ClipboardList, Users, LogOut, Shield } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -29,6 +30,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <nav className="flex items-center gap-2">
+              {!import.meta.env.PROD && profile && (
+                <Badge variant="outline" className="gap-1 text-xs">
+                  You are: <span className="font-semibold capitalize">{profile.role}</span>
+                </Badge>
+              )}
               <Link to="/">
                 <Button
                   variant={isActive("/") ? "default" : "ghost"}
