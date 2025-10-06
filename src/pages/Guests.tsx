@@ -106,23 +106,23 @@ export default function Guests() {
         }
       });
       
-      if (error || !data?.token) {
-        console.error('create-guest-pass', { error, data });
-        alert(`Create guest failed: ${error?.message ?? 'Missing token'}`);
+      if (error) {
+        console.error('create-guest-pass error', error);
+        alert(`Create failed ${error.status ?? ''}: ${error.message ?? 'Unknown'}`);
         setSubmitting(false);
         return;
       }
 
-      // Build verify URL on client side
-      const url = new URL('/verify', window.location.origin);
-      url.searchParams.set('token', data.token);
-      // Duplicate in hash as safety net for routers that strip queries
-      url.hash = `token=${encodeURIComponent(data.token)}`;
-      const verify_url = url.toString();
+      if (!data?.verify_url || !data?.token) {
+        console.error('create-guest-pass missing data', data);
+        alert('Create failed: Missing verify_url or token');
+        setSubmitting(false);
+        return;
+      }
 
       console.log('Guest pass created:', { 
-        token: data.token, 
-        verify_url 
+        verify_url: data.verify_url,
+        token: data.token 
       });
 
       toast.success("Guest pass created successfully");
@@ -132,18 +132,18 @@ export default function Guests() {
       setArrivalAt("");
       loadGuests();
       
-      // Generate QR code from verify URL
-      const qrDataUrl = await QRCode.toDataURL(verify_url, {
+      // Generate QR code from verify_url
+      const qrDataUrl = await QRCode.toDataURL(data.verify_url, {
         width: 300,
         margin: 2,
         errorCorrectionLevel: 'H',
       });
       setSelectedQr(qrDataUrl);
-      setSelectedVerifyUrl(verify_url);
+      setSelectedVerifyUrl(data.verify_url);
       setSelectedToken(data.token);
       setQrDialogOpen(true);
     } catch (error: any) {
-      console.error('create-guest-pass error:', { error });
+      console.error('create-guest-pass exception:', error);
       alert(`Failed to create guest pass: ${error.message || 'Unknown error'}`);
     }
     setSubmitting(false);
@@ -167,7 +167,7 @@ export default function Guests() {
     toast.success("QR code downloaded");
   };
 
-  // Dev Panel: Create test guest using fetch
+  // Dev Panel: Create test guest
   const createDevGuest = async (hoursOffset: number) => {
     const payload = {
       name: 'Test Guest',
@@ -176,69 +176,51 @@ export default function Guests() {
     };
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const res = await fetch('/functions/v1/api-guests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`,
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload)
+      const { data, error } = await supabase.functions.invoke('create-guest-pass', {
+        body: payload
       });
 
-      const text = await res.text();
-      
+      if (error) {
+        console.error('create-guest-pass error', error);
+        const errorMsg = `Create failed ${error.status ?? ''}: ${error.message ?? 'Unknown'}`;
+        alert(errorMsg);
+        setDevOutput({ 
+          status: error.status ?? 500, 
+          text: JSON.stringify({ error: error.message }, null, 2)
+        });
+        return;
+      }
+
       setDevOutput({ 
-        status: res.status, 
-        text 
+        status: 200, 
+        text: JSON.stringify(data, null, 2)
       });
 
-      if (res.ok) {
-        try {
-          const data = JSON.parse(text);
-          
-          if (data.token) {
-            const url = new URL('/verify', window.location.origin);
-            url.searchParams.set('token', data.token);
-            url.hash = `token=${encodeURIComponent(data.token)}`;
-            const verify_url = url.toString();
-            
-            setDevVerifyUrl(verify_url);
-            setDevToken(data.token);
+      if (data?.verify_url && data?.token) {
+        setDevVerifyUrl(data.verify_url);
+        setDevToken(data.token);
 
-            // Generate QR
-            const qrDataUrl = await QRCode.toDataURL(verify_url, {
-              width: 300,
-              margin: 2,
-              errorCorrectionLevel: 'H',
-            });
-            setSelectedQr(qrDataUrl);
-            setSelectedVerifyUrl(verify_url);
-            setSelectedToken(data.token);
-            setQrDialogOpen(true);
-            
-            loadGuests();
-            toast.success("Dev guest created successfully");
-          }
-        } catch (parseError) {
-          console.error('Failed to parse response', parseError);
-          toast.error("Response is not valid JSON");
-        }
-      } else {
-        toast.error(`Failed: status ${res.status}`);
+        // Generate QR from verify_url
+        const qrDataUrl = await QRCode.toDataURL(data.verify_url, {
+          width: 300,
+          margin: 2,
+          errorCorrectionLevel: 'H',
+        });
+        setSelectedQr(qrDataUrl);
+        setSelectedVerifyUrl(data.verify_url);
+        setSelectedToken(data.token);
+        setQrDialogOpen(true);
+        
+        loadGuests();
+        toast.success("Dev guest created successfully");
       }
     } catch (err: any) {
+      console.error('create-guest-pass exception', err);
       setDevOutput({
         status: 500,
-        text: JSON.stringify({
-          error: 'fetch_failed',
-          message: err.message || 'Unknown error'
-        })
+        text: JSON.stringify({ error: err.message || 'Unknown error' }, null, 2)
       });
-      toast.error(`Error: ${err.message}`);
+      alert(`Error: ${err.message}`);
     }
   };
 

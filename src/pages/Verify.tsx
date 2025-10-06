@@ -67,26 +67,22 @@ export default function Verify() {
     }
 
     try {
-      const res = await fetch('/functions/v1/api-qr-verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
-        },
-        body: JSON.stringify({ token })
+      const { data, error } = await supabase.functions.invoke('verify-guest-pass', {
+        body: { token }
       });
 
-      const text = await res.text();
-      console.info('[verify-guest-pass] Response:', { status: res.status, text });
-
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${text}`);
+      if (error) {
+        console.error('verify-guest-pass error', error);
+        setResult({
+          valid: false,
+          state: 'INVALID',
+          message: error.message || "Verification failed"
+        });
+      } else {
+        setResult(data);
       }
-
-      const data = JSON.parse(text);
-      setResult(data);
     } catch (error: any) {
-      console.error('verify-guest-pass error', error);
+      console.error('verify-guest-pass exception', error);
       setResult({
         valid: false,
         state: 'INVALID',

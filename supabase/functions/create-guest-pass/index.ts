@@ -6,13 +6,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Helper: JSON response with CORS
+// Helper: JSON response with CORS and Content-Type
 function json(data: any, options: { status: number } = { status: 200 }) {
   return new Response(
     JSON.stringify(data),
     { 
       status: options.status, 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/json' 
+      } 
     }
   );
 }
@@ -95,13 +98,13 @@ serve(async (req) => {
         has_name: !!name, 
         has_arrival: !!arrival_at 
       });
-      return json({ error: 'bad_request:missing_fields' }, { status: 400 });
+      return json({ error: 'bad_request:missing_or_invalid' }, { status: 400 });
     }
 
     const arrival = new Date(arrival_at);
     if (isNaN(+arrival)) {
       console.error('[create-guest-pass] Invalid date', { arrival_at });
-      return json({ error: 'bad_request:invalid_date' }, { status: 400 });
+      return json({ error: 'bad_request:missing_or_invalid' }, { status: 400 });
     }
 
     // 4) Time window calculation
@@ -158,9 +161,9 @@ serve(async (req) => {
       }, { status: 403 });
     }
 
-    // 7) Return success (client renders QR)
+    // 7) Build verify_url on server and return success
     const APP_URL = Deno.env.get('APP_DOMAIN') || req.headers.get('origin') || 'https://82552e21-c2ba-4cea-bdcf-68a062d9aa1d.lovableproject.com';
-    const verify_url = `${APP_URL}/verify?token=${token}`;
+    const verify_url = `${APP_URL}/verify?token=${token}#token=${encodeURIComponent(token)}`;
 
     const duration = Date.now() - startTime;
     console.info('[create-guest-pass] Success', {
