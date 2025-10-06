@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import Layout from "@/components/Layout";
 import QRCode from "qrcode";
+import { guestPassConfig } from "@/config/guestPassConfig";
 
 const guestSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -205,7 +206,8 @@ export default function Guests() {
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Pass valid 12h before and after this time
+                    Pass valid {guestPassConfig.QR_WINDOW_HOURS}h before and {guestPassConfig.QR_WINDOW_HOURS}h after this time
+                    {guestPassConfig.SINGLE_USE && " (Single use only)"}
                   </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={submitting}>
