@@ -99,19 +99,18 @@ export default function Guests() {
         }
       });
       
-      if (error) {
-        console.error('Create guest failed', error);
-        toast.error(`Failed to create guest pass: ${error.message}`);
+      if (error || !data?.verify_url) {
+        console.error('create-guest-pass', { error, data });
+        alert(`Create guest failed: ${error?.message ?? 'Missing verify_url'}`);
         setSubmitting(false);
         return;
       }
-      
-      if (!data) {
-        console.error('Create guest returned no data');
-        toast.error('Failed to create guest pass: no data returned');
-        setSubmitting(false);
-        return;
-      }
+
+      // Store token for optional debug
+      console.log('Guest pass created:', { 
+        token: data.token, 
+        verify_url: data.verify_url 
+      });
 
       toast.success("Guest pass created successfully");
       setDialogOpen(false);
@@ -130,8 +129,8 @@ export default function Guests() {
       setSelectedVerifyUrl(data.verify_url);
       setQrDialogOpen(true);
     } catch (error: any) {
-      console.error('Create guest error:', error);
-      toast.error(error.message || "Failed to create guest pass");
+      console.error('create-guest-pass error:', { error });
+      alert(`Failed to create guest pass: ${error.message || 'Unknown error'}`);
     }
     setSubmitting(false);
   };
