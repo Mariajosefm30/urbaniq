@@ -34,15 +34,14 @@ export default function Dashboard() {
 
   const loadMetrics = async () => {
     const { data, error } = await supabase
-      .from("monthly_metrics")
-      .select("*")
-      .order("month", { ascending: false })
+      .rpc("get_monthly_metrics")
       .limit(6);
 
     if (error) {
       console.error("Failed to load metrics:", error);
     } else {
-      setMetrics((data || []).reverse());
+      const typedData = (data || []) as unknown as MonthlyMetrics[];
+      setMetrics(typedData.reverse());
     }
     setLoading(false);
   };

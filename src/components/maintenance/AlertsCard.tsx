@@ -7,19 +7,21 @@ import { AlertTriangle, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
+interface AlertDetails {
+  asset_id?: string;
+  category?: string;
+  unit?: string;
+  incidents: number;
+  window_days: number;
+  first_seen: string;
+  last_seen: string;
+}
+
 interface Alert {
   id: string;
   issue_key: string;
   title: string;
-  details: {
-    asset_id?: string;
-    category?: string;
-    unit?: string;
-    incidents: number;
-    window_days: number;
-    first_seen: string;
-    last_seen: string;
-  };
+  details: AlertDetails;
   severity: string;
   created_at: string;
   acknowledged_by: string | null;
