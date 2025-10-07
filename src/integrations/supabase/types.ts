@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      assets: {
+        Row: {
+          created_at: string | null
+          id: string
+          location: string | null
+          name: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          type?: string | null
+        }
+        Relationships: []
+      }
+      buildings: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+        }
+        Relationships: []
+      }
       guests: {
         Row: {
           arrival_at: string
@@ -63,42 +114,64 @@ export type Database = {
       }
       maintenance_tickets: {
         Row: {
+          actual_cost: number | null
+          asset_id: string | null
           category: string
           created_at: string
           description: string
           id: string
           photo_url: string | null
           reporter_id: string
+          resolved_at: string | null
+          satisfaction_rating: number | null
           status: Database["public"]["Enums"]["ticket_status"]
           technician_id: string | null
           title: string
+          unit: string | null
           updated_at: string
         }
         Insert: {
+          actual_cost?: number | null
+          asset_id?: string | null
           category: string
           created_at?: string
           description: string
           id?: string
           photo_url?: string | null
           reporter_id: string
+          resolved_at?: string | null
+          satisfaction_rating?: number | null
           status?: Database["public"]["Enums"]["ticket_status"]
           technician_id?: string | null
           title: string
+          unit?: string | null
           updated_at?: string
         }
         Update: {
+          actual_cost?: number | null
+          asset_id?: string | null
           category?: string
           created_at?: string
           description?: string
           id?: string
           photo_url?: string | null
           reporter_id?: string
+          resolved_at?: string | null
+          satisfaction_rating?: number | null
           status?: Database["public"]["Enums"]["ticket_status"]
           technician_id?: string | null
           title?: string
+          unit?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_ticket_asset"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "maintenance_tickets_reporter_id_fkey"
             columns: ["reporter_id"]
@@ -117,6 +190,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          building_id: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -125,6 +199,7 @@ export type Database = {
           unit: string | null
         }
         Insert: {
+          building_id?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -133,6 +208,7 @@ export type Database = {
           unit?: string | null
         }
         Update: {
+          building_id?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -140,7 +216,15 @@ export type Database = {
           name?: string | null
           unit?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       technicians: {
         Row: {
