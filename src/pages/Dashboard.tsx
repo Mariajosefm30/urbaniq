@@ -8,53 +8,108 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer 
 } from "recharts";
-import { TrendingUp, Clock, Star, DollarSign, Wrench, CheckCircle } from "lucide-react";
+import { Clock, Star, Wrench, CheckCircle } from "lucide-react";
 
-interface MonthlyMetrics {
+interface Ticket {
+  id: string;
+  created_at: string;
+  status: string;
+  actual_cost: number | null;
+  satisfaction_rating: number | null;
+}
+
+interface MonthlyData {
   month: string;
   tickets_opened: number;
   tickets_resolved: number;
-  median_response_time: string;
-  avg_resolution_time: string;
-  avg_satisfaction: number;
   total_cost: number;
-  avg_cost: number;
 }
 
 export default function Dashboard() {
   const { profile } = useAuth();
-  const [metrics, setMetrics] = useState<MonthlyMetrics[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (profile?.role === "manager") {
-      loadMetrics();
+      loadTickets();
     }
   }, [profile]);
 
-  const loadMetrics = async () => {
+  const loadTickets = async () => {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
     const { data, error } = await supabase
-      .rpc("get_monthly_metrics")
-      .limit(6);
+      .from("maintenance_tickets")
+      .select("id, created_at, status, actual_cost, satisfaction_rating")
+      .gte("created_at", sixMonthsAgo.toISOString());
 
     if (error) {
-      console.error("Failed to load metrics:", error);
+      console.error("Failed to load tickets:", error);
     } else {
-      const typedData = (data || []) as unknown as MonthlyMetrics[];
-      setMetrics(typedData.reverse());
+      setTickets(data || []);
     }
     setLoading(false);
   };
 
-  const formatDuration = (interval: string | null) => {
-    if (!interval) return "N/A";
-    const match = interval.match(/(\d+):(\d+):(\d+)/);
-    if (!match) return interval;
-    const [_, hours, minutes] = match;
-    return `${hours}h ${minutes}m`;
+  // Compute metrics client-side
+  const computeMetrics = () => {
+    const now = new Date();
+    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    const thisMonthTickets = tickets.filter(t => 
+      new Date(t.created_at) >= currentMonth
+    );
+
+    const resolvedThisMonth = thisMonthTickets.filter(t => t.status === 'resolved');
+    
+    const avgSatisfaction = resolvedThisMonth.length > 0
+      ? resolvedThisMonth
+          .filter(t => t.satisfaction_rating !== null)
+          .reduce((sum, t) => sum + (t.satisfaction_rating || 0), 0) / 
+        resolvedThisMonth.filter(t => t.satisfaction_rating !== null).length
+      : 0;
+
+    const totalCost = thisMonthTickets.reduce((sum, t) => sum + (t.actual_cost || 0), 0);
+
+    return {
+      opened: thisMonthTickets.length,
+      resolved: resolvedThisMonth.length,
+      avgSatisfaction: avgSatisfaction || 0,
+      totalCost,
+    };
   };
 
-  const latestMetrics = metrics[metrics.length - 1];
+  const computeMonthlyTrends = (): MonthlyData[] => {
+    const monthMap = new Map<string, { opened: number; resolved: number; cost: number }>();
+
+    tickets.forEach(ticket => {
+      const date = new Date(ticket.created_at);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (!monthMap.has(monthKey)) {
+        monthMap.set(monthKey, { opened: 0, resolved: 0, cost: 0 });
+      }
+      
+      const entry = monthMap.get(monthKey)!;
+      entry.opened++;
+      if (ticket.status === 'resolved') entry.resolved++;
+      entry.cost += ticket.actual_cost || 0;
+    });
+
+    return Array.from(monthMap.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([month, data]) => ({
+        month,
+        tickets_opened: data.opened,
+        tickets_resolved: data.resolved,
+        total_cost: data.cost,
+      }));
+  };
+
+  const metrics = computeMetrics();
+  const monthlyData = computeMonthlyTrends();
 
   if (profile?.role !== "manager") {
     return (
@@ -74,7 +129,7 @@ export default function Dashboard() {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Maintenance Dashboard</h2>
           <p className="text-muted-foreground">
-            Key performance indicators and predictive insights
+            Key performance indicators and recurring issue alerts
           </p>
         </div>
 
@@ -82,12 +137,6 @@ export default function Dashboard() {
 
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading metrics...</div>
-        ) : !latestMetrics ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              No metrics available yet
-            </CardContent>
-          </Card>
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -97,7 +146,7 @@ export default function Dashboard() {
                   <Wrench className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{latestMetrics.tickets_opened}</div>
+                  <div className="text-2xl font-bold">{metrics.opened}</div>
                   <p className="text-xs text-muted-foreground">This month</p>
                 </CardContent>
               </Card>
@@ -108,21 +157,19 @@ export default function Dashboard() {
                   <CheckCircle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{latestMetrics.tickets_resolved}</div>
+                  <div className="text-2xl font-bold">{metrics.resolved}</div>
                   <p className="text-xs text-muted-foreground">This month</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Resolution Time</CardTitle>
+                  <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {formatDuration(latestMetrics.avg_resolution_time)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Average</p>
+                  <div className="text-2xl font-bold">${metrics.totalCost.toFixed(2)}</div>
+                  <p className="text-xs text-muted-foreground">This month</p>
                 </CardContent>
               </Card>
 
@@ -133,7 +180,7 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {latestMetrics.avg_satisfaction?.toFixed(1) || "N/A"}
+                    {metrics.avgSatisfaction > 0 ? metrics.avgSatisfaction.toFixed(1) : "N/A"}
                   </div>
                   <p className="text-xs text-muted-foreground">Out of 5</p>
                 </CardContent>
@@ -147,16 +194,11 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={metrics}>
+                    <LineChart data={monthlyData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="month" 
-                        tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', { month: 'short' })}
-                      />
+                      <XAxis dataKey="month" />
                       <YAxis />
-                      <Tooltip 
-                        labelFormatter={(val) => new Date(val).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      />
+                      <Tooltip />
                       <Legend />
                       <Line 
                         type="monotone" 
@@ -181,17 +223,11 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={metrics}>
+                    <BarChart data={monthlyData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="month" 
-                        tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', { month: 'short' })}
-                      />
+                      <XAxis dataKey="month" />
                       <YAxis />
-                      <Tooltip 
-                        labelFormatter={(val) => new Date(val).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                        formatter={(value: number) => `$${value.toFixed(2)}`}
-                      />
+                      <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
                       <Legend />
                       <Bar 
                         dataKey="total_cost" 

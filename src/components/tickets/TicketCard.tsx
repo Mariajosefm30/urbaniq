@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle2, Clock, User } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { TechnicianSuggestions } from "./TechnicianSuggestions";
 import { TicketMessages } from "./TicketMessages";
@@ -12,6 +14,8 @@ interface Ticket {
   title: string;
   description: string;
   category: string;
+  priority: string;
+  unit: string | null;
   photo_url: string | null;
   status: "open" | "in_progress" | "resolved";
   reporter_id: string;
@@ -32,6 +36,7 @@ interface TicketCardProps {
   ticket: Ticket;
   isManager: boolean;
   onStatusUpdate: (ticketId: string, newStatus: "open" | "in_progress" | "resolved") => void;
+  onPriorityUpdate: (ticketId: string, newPriority: string) => void;
   onTechnicianAssign: (ticketId: string, technicianId: string) => void;
 }
 
@@ -46,7 +51,20 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-export function TicketCard({ ticket, isManager, onStatusUpdate, onTechnicianAssign }: TicketCardProps) {
+const getPriorityBadge = (priority: string) => {
+  switch (priority) {
+    case "high":
+      return <Badge variant="destructive">High</Badge>;
+    case "normal":
+      return <Badge variant="secondary">Normal</Badge>;
+    case "low":
+      return <Badge variant="outline">Low</Badge>;
+    default:
+      return <Badge variant="outline">Low</Badge>;
+  }
+};
+
+export function TicketCard({ ticket, isManager, onStatusUpdate, onPriorityUpdate, onTechnicianAssign }: TicketCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   return (
@@ -60,15 +78,16 @@ export function TicketCard({ ticket, isManager, onStatusUpdate, onTechnicianAssi
             <div className="flex-1">
               <CardTitle className="text-lg">{ticket.title}</CardTitle>
               <CardDescription>
-                {ticket.profiles?.name || "Unknown User"} {ticket.profiles?.unit && `• Unit ${ticket.profiles.unit}`}
+                {ticket.profiles?.name || "Unknown User"} {ticket.profiles?.unit || (ticket.unit && `• Unit ${ticket.unit}`)}
               </CardDescription>
             </div>
             {getStatusBadge(ticket.status)}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
+          <div className="flex gap-2">
             <Badge variant="secondary">{ticket.category}</Badge>
+            {getPriorityBadge(ticket.priority)}
           </div>
           <p className="text-sm text-muted-foreground line-clamp-2">{ticket.description}</p>
           {ticket.technicians && (
@@ -102,9 +121,29 @@ export function TicketCard({ ticket, isManager, onStatusUpdate, onTechnicianAssi
                 <Badge variant="secondary">{ticket.category}</Badge>
               </div>
               <div>
+                <p className="text-sm font-medium mb-2">Priority</p>
+                {isManager ? (
+                  <Select
+                    value={ticket.priority}
+                    onValueChange={(value) => onPriorityUpdate(ticket.id, value)}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  getPriorityBadge(ticket.priority)
+                )}
+              </div>
+              <div>
                 <p className="text-sm font-medium mb-1">Reported By</p>
                 <p className="text-sm text-muted-foreground">
-                  {ticket.profiles?.name || "Unknown User"} {ticket.profiles?.unit && `• Unit ${ticket.profiles.unit}`}
+                  {ticket.profiles?.name || "Unknown User"} {ticket.profiles?.unit || (ticket.unit && `• Unit ${ticket.unit}`)}
                 </p>
               </div>
               <div>

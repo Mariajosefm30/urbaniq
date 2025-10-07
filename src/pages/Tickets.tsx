@@ -8,6 +8,7 @@ import { z } from "zod";
 import Layout from "@/components/Layout";
 import { TicketCard } from "@/components/tickets/TicketCard";
 import { CreateTicketDialog } from "@/components/tickets/CreateTicketDialog";
+import { AlertsCard } from "@/components/maintenance/AlertsCard";
 
 const ticketSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(100),
@@ -20,6 +21,8 @@ interface Ticket {
   title: string;
   description: string;
   category: string;
+  priority: string;
+  unit: string | null;
   photo_url: string | null;
   status: "open" | "in_progress" | "resolved";
   reporter_id: string;
@@ -63,7 +66,7 @@ export default function Tickets() {
     setLoading(false);
   };
 
-  const createTicket = async (title: string, description: string, category: string) => {
+  const createTicket = async (title: string, description: string, category: string, unit: string) => {
     setSubmitting(true);
 
     const validation = ticketSchema.safeParse({ title, description, category });
@@ -73,12 +76,37 @@ export default function Tickets() {
       return;
     }
 
+    // Auto-prioritization logic
+    const text = `${title} ${description}`.toLowerCase();
+    let priority = 'low';
+
+    const highKeywords = ['water leak', 'gas', 'elevator stuck', 'no power', 'flood', 'burst', 'smoke', 'fire', 'electrical short'];
+    const normalKeywords = ['door lock', 'elevator noise', 'dripping', 'slow drain'];
+
+    for (const keyword of highKeywords) {
+      if (text.includes(keyword)) {
+        priority = 'high';
+        break;
+      }
+    }
+
+    if (priority === 'low') {
+      for (const keyword of normalKeywords) {
+        if (text.includes(keyword)) {
+          priority = 'normal';
+          break;
+        }
+      }
+    }
+
     const { error } = await supabase
       .from("maintenance_tickets")
       .insert({
         title,
         description,
         category,
+        priority,
+        unit: unit || null,
         reporter_id: user!.id,
       });
 
@@ -102,6 +130,20 @@ export default function Tickets() {
       toast.error("Failed to update status");
     } else {
       toast.success("Status updated");
+      loadTickets();
+    }
+  };
+
+  const updatePriority = async (ticketId: string, newPriority: string) => {
+    const { error } = await supabase
+      .from("maintenance_tickets")
+      .update({ priority: newPriority })
+      .eq("id", ticketId);
+
+    if (error) {
+      toast.error("Failed to update priority");
+    } else {
+      toast.success("Priority updated");
       loadTickets();
     }
   };
@@ -142,6 +184,8 @@ export default function Tickets() {
           )}
         </div>
 
+        {profile?.role === "manager" && <AlertsCard />}
+
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading tickets...</div>
         ) : tickets.length === 0 ? (
@@ -160,6 +204,7 @@ export default function Tickets() {
                 ticket={ticket}
                 isManager={profile?.role === "manager"}
                 onStatusUpdate={updateStatus}
+                onPriorityUpdate={updatePriority}
                 onTechnicianAssign={assignTechnician}
               />
             ))}

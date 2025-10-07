@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 
 interface CreateTicketDialogProps {
-  onSubmit: (title: string, description: string, category: string) => Promise<void>;
+  onSubmit: (title: string, description: string, category: string, unit: string) => Promise<void>;
   submitting: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -18,13 +18,15 @@ export function CreateTicketDialog({ onSubmit, submitting, open, onOpenChange }:
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [unit, setUnit] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(title, description, category);
+    await onSubmit(title, description, category, unit);
     setTitle("");
     setDescription("");
     setCategory("");
+    setUnit("");
   };
 
   return (
@@ -51,6 +53,15 @@ export function CreateTicketDialog({ onSubmit, submitting, open, onOpenChange }:
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Leaking faucet in bathroom"
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="unit">Unit Number</Label>
+            <Input
+              id="unit"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              placeholder="e.g., 4B"
             />
           </div>
           <div className="space-y-2">
