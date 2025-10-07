@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,22 +7,21 @@ import { MapPin, Phone, Star, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface Technician {
-  id: string;
   name: string;
-  category: string;
-  phone: string;
   rating: number;
-  distance: number | null;
-  maps_url: string | null;
+  phone: string | null;
+  maps_url: string;
+  place_id: string;
 }
 
 interface TechnicianSuggestionsProps {
   category: string;
   ticketId: string;
-  onAssign: (technicianId: string) => void;
+  onAssign: (technicianName: string) => void;
 }
 
 export function TechnicianSuggestions({ category, ticketId, onAssign }: TechnicianSuggestionsProps) {
+  const { profile } = useAuth();
   const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,16 +30,37 @@ export function TechnicianSuggestions({ category, ticketId, onAssign }: Technici
   }, [category]);
 
   const loadTechnicians = async () => {
-    const { data, error } = await supabase
-      .from("technicians")
-      .select("*")
-      .eq("category", category)
-      .order("rating", { ascending: false });
+    if (!profile?.building_address) {
+      toast.error("Building address not set. Please update in Settings.");
+      setLoading(false);
+      return;
+    }
 
-    if (error) {
+    // Check for cached geocoding
+    const cacheKey = `geocode_${profile.building_address}`;
+    const cached = localStorage.getItem(cacheKey);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-technicians', {
+        body: {
+          building_address: profile.building_address,
+          category
+        }
+      });
+
+      if (error) {
+        console.error("Failed to load technicians:", error);
+        toast.error("Failed to load technicians");
+      } else if (data) {
+        // Cache geocoding result
+        if (data.coords && !cached) {
+          localStorage.setItem(cacheKey, JSON.stringify(data.coords));
+        }
+        setTechnicians(data.technicians || []);
+      }
+    } catch (err) {
+      console.error("Error:", err);
       toast.error("Failed to load technicians");
-    } else {
-      setTechnicians(data || []);
     }
     setLoading(false);
   };
@@ -51,7 +72,11 @@ export function TechnicianSuggestions({ category, ticketId, onAssign }: Technici
   if (technicians.length === 0) {
     return (
       <div className="text-center py-4">
-        <p className="text-sm text-muted-foreground">No technicians available for this category</p>
+        <p className="text-sm text-muted-foreground">
+          {!profile?.building_address 
+            ? "Set building address in Settings to see technician suggestions"
+            : "No nearby technicians found for this category"}
+        </p>
       </div>
     );
   }
@@ -64,7 +89,7 @@ export function TechnicianSuggestions({ category, ticketId, onAssign }: Technici
       </div>
       <div className="grid gap-3">
         {technicians.map((tech) => (
-          <Card key={tech.id} className="border-2">
+          <Card key={tech.place_id} className="border-2">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div>
@@ -74,12 +99,10 @@ export function TechnicianSuggestions({ category, ticketId, onAssign }: Technici
                       <Star className="h-3 w-3 fill-current text-warning" />
                       {tech.rating}/5.0
                     </span>
-                    {tech.distance && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {tech.distance} mi
-                      </span>
-                    )}
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      Via Google Maps
+                    </span>
                   </CardDescription>
                 </div>
               </div>
@@ -88,33 +111,33 @@ export function TechnicianSuggestions({ category, ticketId, onAssign }: Technici
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  onClick={() => onAssign(tech.id)}
+                  onClick={() => onAssign(tech.name)}
                   className="flex-1"
                 >
                   Assign
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  asChild
-                  className="flex items-center gap-1"
-                >
-                  <a href={`tel:${tech.phone}`}>
-                    <Phone className="h-3 w-3" />
-                    Call
-                  </a>
-                </Button>
-                {tech.maps_url && (
+                {tech.phone && (
                   <Button
                     size="sm"
                     variant="outline"
                     asChild
+                    className="flex items-center gap-1"
                   >
-                    <a href={tech.maps_url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-3 w-3" />
+                    <a href={`tel:${tech.phone}`}>
+                      <Phone className="h-3 w-3" />
+                      Call
                     </a>
                   </Button>
                 )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                >
+                  <a href={tech.maps_url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -37,7 +37,7 @@ interface TicketCardProps {
   isManager: boolean;
   onStatusUpdate: (ticketId: string, newStatus: "open" | "in_progress" | "resolved") => void;
   onPriorityUpdate: (ticketId: string, newPriority: string) => void;
-  onTechnicianAssign: (ticketId: string, technicianId: string) => void;
+  onTechnicianAssign: (ticketId: string, technicianName: string) => void;
 }
 
 const getStatusBadge = (status: string) => {

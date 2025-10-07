@@ -148,10 +148,10 @@ export default function Tickets() {
     }
   };
 
-  const assignTechnician = async (ticketId: string, technicianId: string) => {
+  const assignTechnician = async (ticketId: string, technicianName: string) => {
     const { error } = await supabase
       .from("maintenance_tickets")
-      .update({ technician_id: technicianId })
+      .update({ technician_id: technicianName })
       .eq("id", ticketId);
 
     if (error) {

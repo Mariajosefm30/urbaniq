@@ -10,6 +10,7 @@ interface Profile {
   unit: string | null;
   email: string | null;
   full_name: string | null;
+  building_address: string | null;
 }
 
 interface AuthContextType {

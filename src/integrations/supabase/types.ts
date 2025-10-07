@@ -226,6 +226,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          building_address: string | null
           building_id: string | null
           created_at: string
           email: string | null
@@ -235,6 +236,7 @@ export type Database = {
           unit: string | null
         }
         Insert: {
+          building_address?: string | null
           building_id?: string | null
           created_at?: string
           email?: string | null
@@ -244,6 +246,7 @@ export type Database = {
           unit?: string | null
         }
         Update: {
+          building_address?: string | null
           building_id?: string | null
           created_at?: string
           email?: string | null
