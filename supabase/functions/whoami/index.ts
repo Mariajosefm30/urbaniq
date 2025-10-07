@@ -37,21 +37,21 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Fetch the user's profile to get the role
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+    // Fetch the user's role from user_roles table
+    const { data: roleData, error: roleError } = await supabase
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
-    if (profileError) {
-      console.error('[whoami] Error fetching profile:', profileError);
+    if (roleError) {
+      console.error('[whoami] Error fetching role:', roleError);
     }
 
     const response = {
       user_id: user.id,
       email: user.email,
-      role: profile?.role || 'unknown',
+      role: roleData?.role || 'unknown',
     };
 
     console.log('[whoami] User info:', response);
