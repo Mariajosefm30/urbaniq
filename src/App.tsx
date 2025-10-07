@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Tickets from "./pages/Tickets";
+import Dashboard from "./pages/Dashboard";
 import Guests from "./pages/Guests";
 import Messages from "./pages/Messages";
 import Verify from "./pages/Verify";
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify" element={<Verify />} />
             <Route path="/" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
             <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
