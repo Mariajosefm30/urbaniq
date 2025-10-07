@@ -112,6 +112,39 @@ export type Database = {
           },
         ]
       }
+      maintenance_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          issue_key: string
+          severity: string | null
+          title: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          issue_key: string
+          severity?: string | null
+          title: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          issue_key?: string
+          severity?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       maintenance_tickets: {
         Row: {
           actual_cost: number | null
@@ -121,6 +154,7 @@ export type Database = {
           description: string
           id: string
           photo_url: string | null
+          priority: string | null
           reporter_id: string
           resolved_at: string | null
           satisfaction_rating: number | null
@@ -138,6 +172,7 @@ export type Database = {
           description: string
           id?: string
           photo_url?: string | null
+          priority?: string | null
           reporter_id: string
           resolved_at?: string | null
           satisfaction_rating?: number | null
@@ -155,6 +190,7 @@ export type Database = {
           description?: string
           id?: string
           photo_url?: string | null
+          priority?: string | null
           reporter_id?: string
           resolved_at?: string | null
           satisfaction_rating?: number | null
@@ -341,7 +377,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      recurring_issues_60d: {
+        Row: {
+          asset_id: string | null
+          category: string | null
+          first_seen: string | null
+          incidents: number | null
+          issue_key: string | null
+          last_seen: string | null
+          unit: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_ticket_asset"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
@@ -349,6 +404,10 @@ export type Database = {
           | { _role: Database["public"]["Enums"]["app_role"]; _user_id: string }
           | { _role: string; _user_id: string }
         Returns: boolean
+      }
+      refresh_recurring_alerts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
