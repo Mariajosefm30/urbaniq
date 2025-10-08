@@ -100,42 +100,54 @@ export default function Guests() {
     }
 
     try {
-      // Get total count of ALL guests to generate global tracking number
-      const { count } = await supabase
-        .from('guests')
-        .select('*', { count: 'exact', head: true });
-
-      const guestNumber = String((count || 0) + 1).padStart(4, '0');
-      const trackingCode = `PropPass&${guestNumber}`;
-
-      // Set default values for required fields (we're using demo_code instead)
-      const arrivalDate = new Date(arrivalAt);
-      const validFrom = new Date(arrivalDate.getTime() - (2 * 60 * 60 * 1000)); // 2 hours before
-      const expiresAt = new Date(arrivalDate.getTime() + (24 * 60 * 60 * 1000)); // 24 hours after
-
-      const { error } = await supabase
-        .from('guests')
-        .insert({
-          name,
-          unit: unit || null,
-          arrival_at: arrivalDate.toISOString(),
-          host_id: user!.id,
-          demo_code: trackingCode,
-          demo_code_status: 'new',
-          qr_token_hash: 'demo',
-          qr_expires_at: expiresAt.toISOString(),
-          valid_from: validFrom.toISOString(),
-          status: 'scheduled'
-        });
-
-      if (error) {
-        console.error('Error creating guest:', error);
-        toast.error("Failed to create guest");
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      if (!sessionData?.session) {
+        toast.error("You must be logged in to create a guest pass");
         setSubmitting(false);
         return;
       }
 
-      toast.success(`Guest created with code: ${trackingCode}`);
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-guest-pass`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionData.session.access_token}`,
+        },
+        body: JSON.stringify({
+          name,
+          unit: unit || null,
+          arrival_at: arrivalAt,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('Error from edge function:', result);
+        toast.error(result.error || "Failed to create guest pass");
+        setSubmitting(false);
+        return;
+      }
+
+      // Get total count to generate tracking code
+      const { count } = await supabase
+        .from('guests')
+        .select('*', { count: 'exact', head: true });
+
+      const guestNumber = String((count || 0)).padStart(4, '0');
+      const trackingCode = `PropPass&${guestNumber}`;
+
+      // Update the guest with demo code
+      await supabase
+        .from('guests')
+        .update({
+          demo_code: trackingCode,
+          demo_code_status: 'new',
+        })
+        .eq('id', result.guest_id);
+
+      toast.success(`Guest pass created with code: ${trackingCode}`);
       setDialogOpen(false);
       setName("");
       setUnit("");
@@ -143,7 +155,7 @@ export default function Guests() {
       loadGuests();
     } catch (error: any) {
       console.error('Exception creating guest:', error);
-      toast.error(error.message || "Failed to create guest");
+      toast.error(error.message || "Failed to create guest pass");
     }
     setSubmitting(false);
   };
