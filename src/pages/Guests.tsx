@@ -157,11 +157,11 @@ export default function Guests() {
     setValidating(true);
 
     try {
-      // Find guest by demo_code
+      // Find guest by demo_code (case-insensitive)
       const { data: guest, error } = await supabase
         .from('guests')
         .select('*')
-        .eq('demo_code', validationCode.trim())
+        .ilike('demo_code', validationCode.trim())
         .maybeSingle();
 
       if (error || !guest) {
