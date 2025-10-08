@@ -40,28 +40,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Button>
               </Link>
               {profile?.role === "manager" && (
-                <>
-                  <Link to="/dashboard">
-                    <Button
-                      variant={isActive("/dashboard") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <BarChart3 className="h-4 w-4" />
-                      <span className="hidden sm:inline">Dashboard</span>
-                    </Button>
-                  </Link>
-                  <Link to="/settings">
-                    <Button
-                      variant={isActive("/settings") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span className="hidden sm:inline">Settings</span>
-                    </Button>
-                  </Link>
-                </>
+                <Link to="/dashboard">
+                  <Button
+                    variant={isActive("/dashboard") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Dashboard</span>
+                  </Button>
+                </Link>
               )}
               <Link to="/guests">
                 <Button
@@ -83,6 +71,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <span className="hidden sm:inline">Messages</span>
                 </Button>
               </Link>
+              {profile?.role === "manager" && (
+                <Link to="/settings">
+                  <Button
+                    variant={isActive("/settings") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span className="hidden sm:inline">Settings</span>
+                  </Button>
+                </Link>
+              )}
               <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign Out</span>
