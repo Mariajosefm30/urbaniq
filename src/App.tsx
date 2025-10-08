@@ -11,7 +11,6 @@ import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Guests from "./pages/Guests";
 import Messages from "./pages/Messages";
-import Verify from "./pages/Verify";
 import VerifyStatic from "./pages/VerifyStatic";
 import Validate from "./pages/Validate";
 import Auth from "./pages/Auth";
@@ -29,7 +28,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/verify" element={<Verify />} />
             <Route path="/verify-static" element={<VerifyStatic />} />
             <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
             <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />

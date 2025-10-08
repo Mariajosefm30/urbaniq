@@ -493,51 +493,44 @@ export default function Guests() {
           </DialogContent>
         </Dialog>
 
-        {/* Demo QR Dialog */}
         <Dialog open={demoQrDialogOpen} onOpenChange={setDemoQrDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Demo Guest QR</DialogTitle>
+              <DialogTitle>Demo Guest Pass</DialogTitle>
               <DialogDescription>
-                Static QR code for demo purposes (not time-bound)
+                Share this code with your guest for entry verification
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="flex justify-center py-4">
-                {demoVerifyUrl && (
-                  <img
-                    alt="Demo QR Code"
-                    width={240}
-                    height={240}
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(demoVerifyUrl)}`}
-                    className="rounded-lg shadow-lg border p-2 bg-white"
-                  />
-                )}
-              </div>
-              {demoVerifyUrl && (
-                <div className="space-y-2">
-                  <div>
-                    <Label className="text-sm font-medium">Verify URL</Label>
-                    <div className="text-xs text-muted-foreground bg-muted p-2 rounded break-all mt-1">
+              {demoCode && (
+                <>
+                  <div className="text-center space-y-2">
+                    <Label className="text-sm font-medium text-muted-foreground">6-Digit Access Code</Label>
+                    <div className="text-4xl font-mono font-bold bg-muted p-6 rounded-lg text-center tracking-widest">
+                      {demoCode}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Guest can use this code at /verify-static for entry
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Verification Link</Label>
+                    <div className="text-xs text-muted-foreground bg-muted p-3 rounded break-all">
                       {demoVerifyUrl}
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium">Demo Code</Label>
-                    <div className="text-lg font-mono font-bold bg-muted p-2 rounded text-center mt-1">
-                      {demoCode}
-                    </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={copyDemoCode} className="flex-1 gap-2">
+                      Copy Code
+                    </Button>
+                    <Button onClick={copyDemoLink} variant="outline" className="flex-1 gap-2">
+                      Copy Link
+                    </Button>
                   </div>
-                </div>
+                </>
               )}
-              <div className="flex gap-2">
-                <Button onClick={copyDemoLink} variant="outline" className="flex-1">
-                  Copy Link
-                </Button>
-                <Button onClick={copyDemoCode} variant="outline" className="flex-1">
-                  Copy Code
-                </Button>
-              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -594,7 +587,7 @@ export default function Guests() {
                     disabled={generatingDemo}
                   >
                     <QrCode className="h-4 w-4" />
-                    {generatingDemo ? "Generating..." : "Generate QR (Demo)"}
+                    {generatingDemo ? "Generating..." : "Generate Pass Code"}
                   </Button>
                 </CardContent>
               </Card>
