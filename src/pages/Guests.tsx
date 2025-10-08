@@ -45,7 +45,7 @@ interface GuestPassResponse {
 }
 
 export default function Guests() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -64,19 +64,29 @@ export default function Guests() {
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("");
   const [arrivalAt, setArrivalAt] = useState("");
+  
+  // Manager validation state
+  const [validationCode, setValidationCode] = useState("");
+  const [validating, setValidating] = useState(false);
 
   useEffect(() => {
     loadGuests();
-  }, [user]);
+  }, [user, profile]);
 
   const loadGuests = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase
+    let query = supabase
       .from("guests")
       .select("*")
-      .eq("host_id", user.id)
       .order("arrival_at", { ascending: false });
+    
+    // If not a manager, only show their own guests
+    if (profile?.role !== "manager") {
+      query = query.eq("host_id", user.id);
+    }
+    
+    const { data, error } = await query;
 
     if (error) {
       toast.error("Failed to load guests");
@@ -197,6 +207,61 @@ export default function Guests() {
     toast.success("Code copied to clipboard");
   };
 
+  const validateGuestCode = async () => {
+    if (!validationCode.trim()) {
+      toast.error("Please enter a guest code");
+      return;
+    }
+
+    setValidating(true);
+
+    try {
+      // Find guest by demo_code
+      const { data: guest, error } = await supabase
+        .from('guests')
+        .select('*')
+        .eq('demo_code', validationCode.trim())
+        .single();
+
+      if (error || !guest) {
+        toast.error("Guest code not found");
+        setValidating(false);
+        return;
+      }
+
+      // Check if already verified
+      if (guest.demo_code_status === 'verified') {
+        toast.error(`Code already verified on ${new Date(guest.demo_code_verified_at).toLocaleString()}`);
+        setValidating(false);
+        return;
+      }
+
+      // Mark as verified
+      const { error: updateError } = await supabase
+        .from('guests')
+        .update({
+          demo_code_status: 'verified',
+          demo_code_verified_at: new Date().toISOString()
+        })
+        .eq('id', guest.id);
+
+      if (updateError) {
+        toast.error("Failed to verify guest");
+        setValidating(false);
+        return;
+      }
+
+      toast.success(`✓ Guest verified: ${guest.name}`);
+      setValidationCode("");
+      loadGuests(); // Refresh the list
+    } catch (err: any) {
+      console.error('Validation error:', err);
+      toast.error(err.message || "Failed to validate guest");
+    } finally {
+      setValidating(false);
+    }
+  };
+
   const getStatusBadge = (guest: Guest) => {
     const now = new Date();
     const validFrom = new Date(guest.valid_from);
@@ -218,18 +283,55 @@ export default function Guests() {
   return (
     <Layout>
       <div className="space-y-6">
+        {/* Manager Validation Section */}
+        {profile?.role === "manager" && (
+          <Card className="border-primary">
+            <CardHeader>
+              <CardTitle className="text-xl">Validate Guest Entry</CardTitle>
+              <CardDescription>Enter the guest code provided at the entrance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  value={validationCode}
+                  onChange={(e) => setValidationCode(e.target.value.toUpperCase())}
+                  placeholder="Enter guest code (e.g., PropPass&0001)"
+                  className="font-mono text-lg"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      validateGuestCode();
+                    }
+                  }}
+                />
+                <Button 
+                  onClick={validateGuestCode}
+                  disabled={validating || !validationCode.trim()}
+                  className="min-w-[120px]"
+                >
+                  {validating ? "Validating..." : "Validate"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Guest Passes</h2>
-            <p className="text-muted-foreground">Register visitors and generate QR passes</p>
+            <CardDescription>
+              {profile?.role === "manager" 
+                ? "View and validate all registered guests" 
+                : "Register visitors and manage your guest passes"}
+            </CardDescription>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Register Guest
-              </Button>
-            </DialogTrigger>
+          {profile?.role !== "manager" && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Register Guest
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Register New Guest</DialogTitle>
@@ -277,6 +379,7 @@ export default function Guests() {
               </form>
             </DialogContent>
           </Dialog>
+          )}
         </div>
 
         <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
