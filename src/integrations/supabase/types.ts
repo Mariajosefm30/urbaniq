@@ -80,6 +80,7 @@ export type Database = {
           qr_token_hash: string
           redeemed_at: string | null
           status: Database["public"]["Enums"]["guest_status"]
+          unit: string | null
           valid_from: string | null
         }
         Insert: {
@@ -96,6 +97,7 @@ export type Database = {
           qr_token_hash: string
           redeemed_at?: string | null
           status?: Database["public"]["Enums"]["guest_status"]
+          unit?: string | null
           valid_from?: string | null
         }
         Update: {
@@ -112,6 +114,7 @@ export type Database = {
           qr_token_hash?: string
           redeemed_at?: string | null
           status?: Database["public"]["Enums"]["guest_status"]
+          unit?: string | null
           valid_from?: string | null
         }
         Relationships: [
