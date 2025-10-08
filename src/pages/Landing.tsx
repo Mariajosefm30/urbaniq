@@ -36,9 +36,14 @@ export default function Landing() {
             <Building2 className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">PropPass</span>
           </div>
-          <Button onClick={() => navigate("/auth")} variant="outline">
-            Sign In
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/auth?mode=signin")} variant="outline">
+              Sign In
+            </Button>
+            <Button onClick={() => navigate("/auth?mode=signup")}>
+              Sign Up
+            </Button>
+          </div>
         </div>
       </header>
 
