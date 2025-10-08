@@ -67,9 +67,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </Button>
                 </>
               )}
-              <Link to="/">
+              <Link to="/tickets">
                 <Button
-                  variant={isActive("/") ? "default" : "ghost"}
+                  variant={isActive("/tickets") ? "default" : "ghost"}
                   size="sm"
                   className="gap-2"
                 >
