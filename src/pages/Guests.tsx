@@ -98,11 +98,10 @@ export default function Guests() {
     }
 
     try {
-      // Get count of existing guests to generate tracking number
+      // Get total count of ALL guests to generate global tracking number
       const { count } = await supabase
         .from('guests')
-        .select('*', { count: 'exact', head: true })
-        .eq('host_id', user!.id);
+        .select('*', { count: 'exact', head: true });
 
       const guestNumber = String((count || 0) + 1).padStart(4, '0');
       const trackingCode = `PropPass&${guestNumber}`;
