@@ -162,7 +162,7 @@ export default function Guests() {
         .from('guests')
         .select('*')
         .eq('demo_code', validationCode.trim())
-        .single();
+        .maybeSingle();
 
       if (error || !guest) {
         toast.error("Guest code not found");
