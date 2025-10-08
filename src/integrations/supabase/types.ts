@@ -147,6 +147,10 @@ export type Database = {
       }
       maintenance_tickets: {
         Row: {
+          access_code: string | null
+          access_code_attempts: number | null
+          access_code_status: string | null
+          access_code_verified_at: string | null
           actual_cost: number | null
           asset_id: string | null
           category: string
@@ -165,6 +169,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_code?: string | null
+          access_code_attempts?: number | null
+          access_code_status?: string | null
+          access_code_verified_at?: string | null
           actual_cost?: number | null
           asset_id?: string | null
           category: string
@@ -183,6 +191,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_code?: string | null
+          access_code_attempts?: number | null
+          access_code_status?: string | null
+          access_code_verified_at?: string | null
           actual_cost?: number | null
           asset_id?: string | null
           category?: string

@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.suggest-technicians]
 verify_jwt = true
+
+[functions.validate-ticket]
+verify_jwt = true

@@ -28,6 +28,8 @@ interface Ticket {
   reporter_id: string;
   created_at: string;
   technician_id: string | null;
+  access_code?: string | null;
+  access_code_status?: string | null;
   profiles: {
     name: string;
     unit: string | null;
@@ -99,6 +101,11 @@ export default function Tickets() {
       }
     }
 
+    // Generate 6-digit access code
+    const bytes = crypto.getRandomValues(new Uint8Array(4));
+    const n = (bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3]) >>> 0;
+    const access_code = String(n % 1_000_000).padStart(6, '0');
+
     const { error } = await supabase
       .from("maintenance_tickets")
       .insert({
@@ -108,6 +115,7 @@ export default function Tickets() {
         priority,
         unit: unit || null,
         reporter_id: user!.id,
+        access_code,
       });
 
     if (error) {

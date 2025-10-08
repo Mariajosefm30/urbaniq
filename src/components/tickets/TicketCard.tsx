@@ -1,13 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle2, Clock, User } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, User, Copy, QrCode as QrCodeIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { TechnicianSuggestions } from "./TechnicianSuggestions";
 import { TicketMessages } from "./TicketMessages";
+import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Ticket {
   id: string;
@@ -21,6 +23,8 @@ interface Ticket {
   reporter_id: string;
   created_at: string;
   technician_id: string | null;
+  access_code?: string | null;
+  access_code_status?: string | null;
   profiles: {
     name: string;
     unit: string | null;
@@ -66,6 +70,20 @@ const getPriorityBadge = (priority: string) => {
 
 export function TicketCard({ ticket, isManager, onStatusUpdate, onPriorityUpdate, onTechnicianAssign }: TicketCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const { user } = useAuth();
+
+  const isResidentTicket = user?.id === ticket.reporter_id;
+  const qrPayload = ticket.access_code ? `MT:${ticket.id}:${ticket.access_code}` : null;
+
+  const copyCode = () => {
+    if (ticket.access_code) {
+      navigator.clipboard.writeText(ticket.access_code);
+      toast({
+        title: "Copied!",
+        description: "Access code copied to clipboard"
+      });
+    }
+  };
 
   return (
     <>
@@ -170,6 +188,47 @@ export function TicketCard({ ticket, isManager, onStatusUpdate, onPriorityUpdate
                 </p>
               </div>
             </div>
+
+            {/* Show QR code and access code to resident */}
+            {isResidentTicket && ticket.access_code && !isManager && (
+              <div className="border-t pt-4 space-y-4">
+                <div className="text-center space-y-2">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <QrCodeIcon className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">Ticket Access</h3>
+                  </div>
+                  {qrPayload && (
+                    <div className="flex justify-center">
+                      <img
+                        alt="Ticket QR Code"
+                        width={240}
+                        height={240}
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrPayload)}`}
+                        className="border rounded-lg p-2 bg-white"
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Entry Code</p>
+                    <div className="flex items-center justify-center gap-2">
+                      <code className="text-2xl font-mono font-bold tracking-wider px-4 py-2 bg-muted rounded-lg">
+                        {ticket.access_code}
+                      </code>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={copyCode}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {ticket.access_code_status === 'verified' && (
+                      <p className="text-xs text-accent font-medium">✓ Verified by manager</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {isManager && ticket.status !== "resolved" && (
               <div className="space-y-4 border-t pt-4">
