@@ -12,6 +12,7 @@ import Settings from "./pages/Settings";
 import Guests from "./pages/Guests";
 import Messages from "./pages/Messages";
 import Verify from "./pages/Verify";
+import VerifyStatic from "./pages/VerifyStatic";
 import Validate from "./pages/Validate";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify" element={<Verify />} />
+            <Route path="/verify-static" element={<VerifyStatic />} />
             <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
             <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

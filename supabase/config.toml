@@ -14,3 +14,9 @@ verify_jwt = true
 
 [functions.validate-ticket]
 verify_jwt = true
+
+[functions.generate-demo-code]
+verify_jwt = true
+
+[functions.verify-guest-static]
+verify_jwt = false

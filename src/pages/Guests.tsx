@@ -55,6 +55,12 @@ export default function Guests() {
   const [selectedVerifyUrl, setSelectedVerifyUrl] = useState<string>("");
   const [selectedToken, setSelectedToken] = useState<string>("");
   
+  // Demo QR state
+  const [demoQrDialogOpen, setDemoQrDialogOpen] = useState(false);
+  const [demoVerifyUrl, setDemoVerifyUrl] = useState<string>("");
+  const [demoCode, setDemoCode] = useState<string>("");
+  const [generatingDemo, setGeneratingDemo] = useState(false);
+  
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("");
   const [arrivalAt, setArrivalAt] = useState("");
@@ -222,6 +228,39 @@ export default function Guests() {
       });
       alert(`Error: ${err.message}`);
     }
+  };
+
+  const generateDemoCode = async (guestId: string) => {
+    setGeneratingDemo(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-demo-code', {
+        body: { guest_id: guestId }
+      });
+
+      if (error) throw error;
+
+      setDemoVerifyUrl(data.verify_url);
+      setDemoCode(data.demo_code);
+      setDemoQrDialogOpen(true);
+      
+      toast.success("Demo QR code generated");
+    } catch (err: any) {
+      console.error('Error generating demo code:', err);
+      toast.error(err.message || "Failed to generate demo code");
+    } finally {
+      setGeneratingDemo(false);
+    }
+  };
+
+  const copyDemoLink = () => {
+    navigator.clipboard.writeText(demoVerifyUrl);
+    toast.success("Link copied to clipboard");
+  };
+
+  const copyDemoCode = () => {
+    navigator.clipboard.writeText(demoCode);
+    toast.success("Code copied to clipboard");
   };
 
   const getStatusBadge = (guest: Guest) => {
@@ -454,6 +493,55 @@ export default function Guests() {
           </DialogContent>
         </Dialog>
 
+        {/* Demo QR Dialog */}
+        <Dialog open={demoQrDialogOpen} onOpenChange={setDemoQrDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Demo Guest QR</DialogTitle>
+              <DialogDescription>
+                Static QR code for demo purposes (not time-bound)
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="flex justify-center py-4">
+                {demoVerifyUrl && (
+                  <img
+                    alt="Demo QR Code"
+                    width={240}
+                    height={240}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(demoVerifyUrl)}`}
+                    className="rounded-lg shadow-lg border p-2 bg-white"
+                  />
+                )}
+              </div>
+              {demoVerifyUrl && (
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-sm font-medium">Verify URL</Label>
+                    <div className="text-xs text-muted-foreground bg-muted p-2 rounded break-all mt-1">
+                      {demoVerifyUrl}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Demo Code</Label>
+                    <div className="text-lg font-mono font-bold bg-muted p-2 rounded text-center mt-1">
+                      {demoCode}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button onClick={copyDemoLink} variant="outline" className="flex-1">
+                  Copy Link
+                </Button>
+                <Button onClick={copyDemoCode} variant="outline" className="flex-1">
+                  Copy Code
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading guests...</div>
         ) : guests.length === 0 ? (
@@ -499,6 +587,15 @@ export default function Guests() {
                       Used: {new Date(guest.redeemed_at).toLocaleString()}
                     </div>
                   )}
+                  <Button 
+                    onClick={() => generateDemoCode(guest.id)}
+                    variant="outline"
+                    className="w-full gap-2 mt-2"
+                    disabled={generatingDemo}
+                  >
+                    <QrCode className="h-4 w-4" />
+                    {generatingDemo ? "Generating..." : "Generate QR (Demo)"}
+                  </Button>
                 </CardContent>
               </Card>
             ))}

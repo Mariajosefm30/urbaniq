@@ -69,6 +69,10 @@ export type Database = {
         Row: {
           arrival_at: string
           created_at: string
+          demo_code: string | null
+          demo_code_attempts: number | null
+          demo_code_status: string | null
+          demo_code_verified_at: string | null
           host_id: string
           id: string
           name: string
@@ -81,6 +85,10 @@ export type Database = {
         Insert: {
           arrival_at: string
           created_at?: string
+          demo_code?: string | null
+          demo_code_attempts?: number | null
+          demo_code_status?: string | null
+          demo_code_verified_at?: string | null
           host_id: string
           id?: string
           name: string
@@ -93,6 +101,10 @@ export type Database = {
         Update: {
           arrival_at?: string
           created_at?: string
+          demo_code?: string | null
+          demo_code_attempts?: number | null
+          demo_code_status?: string | null
+          demo_code_verified_at?: string | null
           host_id?: string
           id?: string
           name?: string
