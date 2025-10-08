@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, UserPlus, QrCode, Calendar, Clock, Bug, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, UserPlus, QrCode, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import Layout from "@/components/Layout";
@@ -64,12 +64,6 @@ export default function Guests() {
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("");
   const [arrivalAt, setArrivalAt] = useState("");
-
-  // Dev Panel state
-  const [devPanelOpen, setDevPanelOpen] = useState(false);
-  const [devOutput, setDevOutput] = useState<{ status: number; text: string } | null>(null);
-  const [devVerifyUrl, setDevVerifyUrl] = useState<string>("");
-  const [devToken, setDevToken] = useState<string>("");
 
   useEffect(() => {
     loadGuests();
@@ -171,63 +165,6 @@ export default function Guests() {
     toast.success("QR code downloaded");
   };
 
-  // Dev Panel: Create test guest
-  const createDevGuest = async (hoursOffset: number) => {
-    const payload = {
-      name: 'Test Guest',
-      unit: 'A-302',
-      arrival_at: new Date(Date.now() + hoursOffset * 3600e3).toISOString()
-    };
-
-    try {
-      const { data, error } = await supabase.functions.invoke('create-guest-pass', {
-        body: payload
-      });
-
-      if (error) {
-        console.error('create-guest-pass error', error);
-        const errorMsg = `Create failed ${error.status ?? ''}: ${error.message ?? 'Unknown'}`;
-        alert(errorMsg);
-        setDevOutput({ 
-          status: error.status ?? 500, 
-          text: JSON.stringify({ error: error.message }, null, 2)
-        });
-        return;
-      }
-
-      setDevOutput({ 
-        status: 200, 
-        text: JSON.stringify(data, null, 2)
-      });
-
-      if (data?.verify_url && data?.token) {
-        setDevVerifyUrl(data.verify_url);
-        setDevToken(data.token);
-
-        // Generate QR from verify_url
-        const qrDataUrl = await QRCode.toDataURL(data.verify_url, {
-          width: 300,
-          margin: 2,
-          errorCorrectionLevel: 'H',
-        });
-        setSelectedQr(qrDataUrl);
-        setSelectedVerifyUrl(data.verify_url);
-        setSelectedToken(data.token);
-        setQrDialogOpen(true);
-        
-        loadGuests();
-        toast.success("Dev guest created successfully");
-      }
-    } catch (err: any) {
-      console.error('create-guest-pass exception', err);
-      setDevOutput({
-        status: 500,
-        text: JSON.stringify({ error: err.message || 'Unknown error' }, null, 2)
-      });
-      alert(`Error: ${err.message}`);
-    }
-  };
-
   const generateDemoCode = async (guestId: string) => {
     setGeneratingDemo(true);
     
@@ -282,115 +219,6 @@ export default function Guests() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Dev Panel - Staging Only */}
-        <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
-          <CardHeader>
-            <div 
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => setDevPanelOpen(!devPanelOpen)}
-            >
-              <div className="flex items-center gap-2">
-                <Bug className="h-5 w-5 text-yellow-600" />
-                <CardTitle className="text-lg text-yellow-800 dark:text-yellow-200">
-                  Dev Panel (Staging Only)
-                </CardTitle>
-              </div>
-              <Button variant="ghost" size="sm" type="button">
-                {devPanelOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-            </div>
-          </CardHeader>
-          
-          {devPanelOpen && (
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => createDevGuest(2)} 
-                  variant="outline"
-                  className="flex-1"
-                  type="button"
-                >
-                  Create Test Guest (now +2h)
-                </Button>
-                <Button 
-                  onClick={() => createDevGuest(-24)} 
-                  variant="outline"
-                  className="flex-1"
-                  type="button"
-                >
-                  Create Yesterday Guest
-                </Button>
-              </div>
-
-              {devOutput && (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label>Status:</Label>
-                    <Badge variant={devOutput.status === 200 ? "default" : "destructive"}>
-                      {devOutput.status}
-                    </Badge>
-                  </div>
-                  
-                  <div>
-                    <Label>Body (text):</Label>
-                    <pre className="bg-muted p-3 rounded text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all mt-1">
-                      {devOutput.text}
-                    </pre>
-                  </div>
-                  
-                  {devVerifyUrl && (
-                    <div className="space-y-2 pt-2 border-t">
-                      <div className="flex items-center justify-between">
-                        <Label>Verify URL:</Label>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard.writeText(devVerifyUrl);
-                            toast.success("URL copied");
-                          }}
-                        >
-                          Copy
-                        </Button>
-                      </div>
-                      <div className="bg-muted p-2 rounded text-xs font-mono break-all">
-                        {devVerifyUrl}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <Label>Token:</Label>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard.writeText(devToken);
-                            toast.success("Token copied");
-                          }}
-                        >
-                          Copy
-                        </Button>
-                      </div>
-                      <div className="bg-muted p-2 rounded text-xs font-mono break-all">
-                        {devToken}
-                      </div>
-
-                      <Button 
-                        onClick={() => window.open(devVerifyUrl, '_blank')}
-                        className="w-full"
-                        type="button"
-                      >
-                        Open Verify Page
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          )}
-        </Card>
-
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Guest Passes</h2>

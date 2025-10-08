@@ -1,34 +1,13 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, UserCircle, BarChart3, Settings } from "lucide-react";
+import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { profile, signOut } = useAuth();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
-
-  const handleWhoAmI = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('whoami');
-      
-      if (error) {
-        console.error('whoami error:', error);
-        toast.error('Failed to fetch user info');
-        return;
-      }
-      
-      console.log('whoami response:', data);
-      toast.success('User info logged to console');
-    } catch (err) {
-      console.error('whoami exception:', err);
-      toast.error('Failed to call whoami');
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -50,23 +29,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <nav className="flex items-center gap-2">
-              {!import.meta.env.PROD && profile && (
-                <>
-                  <Badge variant="secondary" className="gap-1 text-xs">
-                    You are: <span className="font-semibold capitalize">{profile.role}</span>
-                  </Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleWhoAmI}
-                    className="gap-2"
-                    title="Debug: Check current user info"
-                  >
-                    <UserCircle className="h-4 w-4" />
-                    <span className="hidden sm:inline">Who am I?</span>
-                  </Button>
-                </>
-              )}
               <Link to="/tickets">
                 <Button
                   variant={isActive("/tickets") ? "default" : "ghost"}
