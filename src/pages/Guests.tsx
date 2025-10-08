@@ -104,53 +104,51 @@ export default function Guests() {
     }
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-guest-pass', {
-        body: { 
-          name, 
-          unit: unit || undefined,
-          arrival_at: new Date(arrivalAt).toISOString()
-        }
-      });
-      
+      // Get count of existing guests to generate tracking number
+      const { count } = await supabase
+        .from('guests')
+        .select('*', { count: 'exact', head: true })
+        .eq('host_id', user!.id);
+
+      const guestNumber = String((count || 0) + 1).padStart(4, '0');
+      const trackingCode = `PropPass&${guestNumber}`;
+
+      // Set default values for required fields (we're using demo_code instead)
+      const arrivalDate = new Date(arrivalAt);
+      const validFrom = new Date(arrivalDate.getTime() - (2 * 60 * 60 * 1000)); // 2 hours before
+      const expiresAt = new Date(arrivalDate.getTime() + (24 * 60 * 60 * 1000)); // 24 hours after
+
+      const { error } = await supabase
+        .from('guests')
+        .insert({
+          name,
+          unit: unit || null,
+          arrival_at: arrivalDate.toISOString(),
+          host_id: user!.id,
+          demo_code: trackingCode,
+          demo_code_status: 'new',
+          qr_token_hash: 'demo',
+          qr_expires_at: expiresAt.toISOString(),
+          valid_from: validFrom.toISOString(),
+          status: 'scheduled'
+        });
+
       if (error) {
-        console.error('create-guest-pass error', error);
-        alert(`Create failed ${error.status ?? ''}: ${error.message ?? 'Unknown'}`);
+        console.error('Error creating guest:', error);
+        toast.error("Failed to create guest");
         setSubmitting(false);
         return;
       }
 
-      if (!data?.verify_url || !data?.token) {
-        console.error('create-guest-pass missing data', data);
-        alert('Create failed: Missing verify_url or token');
-        setSubmitting(false);
-        return;
-      }
-
-      console.log('Guest pass created:', { 
-        verify_url: data.verify_url,
-        token: data.token 
-      });
-
-      toast.success("Guest pass created successfully");
+      toast.success(`Guest created with code: ${trackingCode}`);
       setDialogOpen(false);
       setName("");
       setUnit("");
       setArrivalAt("");
       loadGuests();
-      
-      // Generate QR code from verify_url
-      const qrDataUrl = await QRCode.toDataURL(data.verify_url, {
-        width: 300,
-        margin: 2,
-        errorCorrectionLevel: 'H',
-      });
-      setSelectedQr(qrDataUrl);
-      setSelectedVerifyUrl(data.verify_url);
-      setSelectedToken(data.token);
-      setQrDialogOpen(true);
     } catch (error: any) {
-      console.error('create-guest-pass exception:', error);
-      alert(`Failed to create guest pass: ${error.message || 'Unknown error'}`);
+      console.error('Exception creating guest:', error);
+      toast.error(error.message || "Failed to create guest");
     }
     setSubmitting(false);
   };
