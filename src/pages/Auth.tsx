@@ -28,7 +28,7 @@ export default function Auth() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/");
+        navigate("/tickets");
       }
     });
   }, [navigate]);
@@ -50,7 +50,7 @@ export default function Auth() {
         if (error) throw error;
         
         toast.success("Welcome back!");
-        navigate("/");
+        navigate("/tickets");
       } else {
         const validation = authSchema.safeParse({ email, password, name });
         if (!validation.success) {
@@ -59,7 +59,7 @@ export default function Auth() {
           return;
         }
 
-        const redirectUrl = `${window.location.origin}/`;
+        const redirectUrl = `${window.location.origin}/tickets`;
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -71,7 +71,7 @@ export default function Auth() {
         
         if (error) throw error;
         toast.success("Account created! You can now log in.");
-        navigate("/");
+        navigate("/tickets");
       }
     } catch (error: any) {
       toast.error(error.message || "Authentication failed");
