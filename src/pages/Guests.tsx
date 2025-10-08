@@ -7,11 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, UserPlus, QrCode, Calendar, Clock } from "lucide-react";
+import { Plus, UserPlus, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import Layout from "@/components/Layout";
-import QRCode from "qrcode";
 import { guestPassConfig } from "@/config/guestPassConfig";
 
 const guestSchema = z.object({
@@ -30,6 +29,9 @@ interface Guest {
   redeemed_at?: string;
   status: "scheduled" | "expired" | "revoked";
   created_at: string;
+  demo_code?: string;
+  demo_code_status?: string;
+  demo_code_verified_at?: string;
 }
 
 interface GuestPassResponse {
@@ -50,16 +52,6 @@ export default function Guests() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [qrDialogOpen, setQrDialogOpen] = useState(false);
-  const [selectedQr, setSelectedQr] = useState<string>("");
-  const [selectedVerifyUrl, setSelectedVerifyUrl] = useState<string>("");
-  const [selectedToken, setSelectedToken] = useState<string>("");
-  
-  // Demo QR state
-  const [demoQrDialogOpen, setDemoQrDialogOpen] = useState(false);
-  const [demoVerifyUrl, setDemoVerifyUrl] = useState<string>("");
-  const [demoCode, setDemoCode] = useState<string>("");
-  const [generatingDemo, setGeneratingDemo] = useState(false);
   
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("");
@@ -154,57 +146,6 @@ export default function Guests() {
       toast.error(error.message || "Failed to create guest");
     }
     setSubmitting(false);
-  };
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(selectedVerifyUrl);
-    toast.success("Link copied to clipboard");
-  };
-
-  const copyToken = () => {
-    navigator.clipboard.writeText(selectedToken);
-    toast.success("Token copied to clipboard");
-  };
-
-  const downloadQr = () => {
-    const link = document.createElement('a');
-    link.download = 'guest-pass-qr.png';
-    link.href = selectedQr;
-    link.click();
-    toast.success("QR code downloaded");
-  };
-
-  const generateDemoCode = async (guestId: string) => {
-    setGeneratingDemo(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-demo-code', {
-        body: { guest_id: guestId }
-      });
-
-      if (error) throw error;
-
-      setDemoVerifyUrl(data.verify_url);
-      setDemoCode(data.demo_code);
-      setDemoQrDialogOpen(true);
-      
-      toast.success("Demo QR code generated");
-    } catch (err: any) {
-      console.error('Error generating demo code:', err);
-      toast.error(err.message || "Failed to generate demo code");
-    } finally {
-      setGeneratingDemo(false);
-    }
-  };
-
-  const copyDemoLink = () => {
-    navigator.clipboard.writeText(demoVerifyUrl);
-    toast.success("Link copied to clipboard");
-  };
-
-  const copyDemoCode = () => {
-    navigator.clipboard.writeText(demoCode);
-    toast.success("Code copied to clipboard");
   };
 
   const validateGuestCode = async () => {
@@ -382,87 +323,6 @@ export default function Guests() {
           )}
         </div>
 
-        <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Guest QR Pass</DialogTitle>
-              <DialogDescription>
-                Share this QR code or link with your guest
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex justify-center py-4">
-                {selectedQr && (
-                  <img src={selectedQr} alt="QR Code" className="rounded-lg shadow-lg" />
-                )}
-              </div>
-              {selectedVerifyUrl && (
-                <div className="text-xs text-muted-foreground bg-muted p-2 rounded break-all">
-                  🔍 {selectedVerifyUrl}
-                </div>
-              )}
-              {selectedToken && (
-                <div className="text-xs text-muted-foreground bg-muted p-2 rounded break-all font-mono">
-                  🔑 Token: {selectedToken}
-                </div>
-              )}
-              <div className="flex gap-2">
-                <Button onClick={copyLink} variant="outline" className="flex-1 gap-2">
-                  Copy Link
-                </Button>
-                <Button onClick={copyToken} variant="outline" className="flex-1 gap-2">
-                  Copy Token
-                </Button>
-                <Button onClick={downloadQr} variant="outline" className="flex-1 gap-2">
-                  Download QR
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={demoQrDialogOpen} onOpenChange={setDemoQrDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Demo Guest Pass</DialogTitle>
-              <DialogDescription>
-                Share this code with your guest for entry verification
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              {demoCode && (
-                <>
-                  <div className="text-center space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">6-Digit Access Code</Label>
-                    <div className="text-4xl font-mono font-bold bg-muted p-6 rounded-lg text-center tracking-widest">
-                      {demoCode}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Guest can use this code at /verify-static for entry
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Verification Link</Label>
-                    <div className="text-xs text-muted-foreground bg-muted p-3 rounded break-all">
-                      {demoVerifyUrl}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button onClick={copyDemoCode} className="flex-1 gap-2">
-                      Copy Code
-                    </Button>
-                    <Button onClick={copyDemoLink} variant="outline" className="flex-1 gap-2">
-                      Copy Link
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading guests...</div>
         ) : guests.length === 0 ? (
@@ -503,20 +363,34 @@ export default function Guests() {
                     <Clock className="h-4 w-4" />
                     Expires: {new Date(guest.qr_expires_at).toLocaleString()}
                   </div>
+                  
+                  {/* Show demo code - visible to all for demo purposes */}
+                  {guest.demo_code && (
+                    <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Access Code</p>
+                          <p className="text-lg font-mono font-bold tracking-wider">{guest.demo_code}</p>
+                        </div>
+                        {guest.demo_code_status === 'verified' && (
+                          <Badge variant="outline" className="border-accent text-accent">
+                            ✓ Verified
+                          </Badge>
+                        )}
+                      </div>
+                      {guest.demo_code_verified_at && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Verified: {new Date(guest.demo_code_verified_at).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  
                   {guest.redeemed_at && (
                     <div className="text-xs text-muted-foreground">
                       Used: {new Date(guest.redeemed_at).toLocaleString()}
                     </div>
                   )}
-                  <Button 
-                    onClick={() => generateDemoCode(guest.id)}
-                    variant="outline"
-                    className="w-full gap-2 mt-2"
-                    disabled={generatingDemo}
-                  >
-                    <QrCode className="h-4 w-4" />
-                    {generatingDemo ? "Generating..." : "Generate Pass Code"}
-                  </Button>
                 </CardContent>
               </Card>
             ))}
