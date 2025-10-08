@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 
 interface CreateTicketDialogProps {
-  onSubmit: (title: string, description: string, category: string, unit: string) => Promise<void>;
+  onSubmit: (title: string, description: string, category: string, unit: string, image?: File) => Promise<void>;
   submitting: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -19,14 +19,16 @@ export function CreateTicketDialog({ onSubmit, submitting, open, onOpenChange }:
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [unit, setUnit] = useState("");
+  const [image, setImage] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(title, description, category, unit);
+    await onSubmit(title, description, category, unit, image || undefined);
     setTitle("");
     setDescription("");
     setCategory("");
     setUnit("");
+    setImage(null);
   };
 
   return (
@@ -89,6 +91,34 @@ export function CreateTicketDialog({ onSubmit, submitting, open, onOpenChange }:
               rows={4}
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="image">Upload Image (Optional)</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="image"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={(e) => setImage(e.target.files?.[0] || null)}
+                className="cursor-pointer"
+              />
+              {image && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setImage(null)}
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+            {image && (
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <Upload className="h-3 w-3" />
+                {image.name}
+              </p>
+            )}
           </div>
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? "Creating..." : "Create Ticket"}

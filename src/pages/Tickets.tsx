@@ -68,7 +68,7 @@ export default function Tickets() {
     setLoading(false);
   };
 
-  const createTicket = async (title: string, description: string, category: string, unit: string) => {
+  const createTicket = async (title: string, description: string, category: string, unit: string, image?: File) => {
     setSubmitting(true);
 
     const validation = ticketSchema.safeParse({ title, description, category });
@@ -76,6 +76,30 @@ export default function Tickets() {
       toast.error(validation.error.errors[0].message);
       setSubmitting(false);
       return;
+    }
+
+    let imageUrl: string | null = null;
+
+    // Upload image if provided
+    if (image) {
+      const fileExt = image.name.split('.').pop();
+      const fileName = `${user!.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('ticket-images')
+        .upload(fileName, image);
+
+      if (uploadError) {
+        toast.error("Failed to upload image");
+        setSubmitting(false);
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('ticket-images')
+        .getPublicUrl(fileName);
+      
+      imageUrl = publicUrl;
     }
 
     // Auto-prioritization logic
@@ -116,6 +140,7 @@ export default function Tickets() {
         unit: unit || null,
         reporter_id: user!.id,
         access_code,
+        image_url: imageUrl,
       });
 
     if (error) {

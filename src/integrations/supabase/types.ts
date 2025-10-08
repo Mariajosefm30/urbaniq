@@ -172,6 +172,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          image_url: string | null
           photo_url: string | null
           priority: string | null
           reporter_id: string
@@ -194,6 +195,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          image_url?: string | null
           photo_url?: string | null
           priority?: string | null
           reporter_id: string
@@ -216,6 +218,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          image_url?: string | null
           photo_url?: string | null
           priority?: string | null
           reporter_id?: string
