@@ -2,15 +2,28 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [inviteCode, setInviteCode] = useState("");
+  const [demoDialogOpen, setDemoDialogOpen] = useState(false);
+  const [demoFormData, setDemoFormData] = useState({
+    name: "",
+    email: "",
+    company: "",
+    message: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
   
   // Check if INVITE_ONLY mode is enabled (you can set this via environment or config)
   const inviteOnly = false; // Set to true to enable invite-only mode
@@ -24,11 +37,85 @@ export default function Landing() {
   };
 
   const handleBookDemo = () => {
-    window.location.href = "mailto:demo@proppass.com";
+    setDemoDialogOpen(true);
+  };
+
+  const handleDemoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    
+    // Here you would typically send this to your backend
+    // For now, we'll just show a success message
+    setTimeout(() => {
+      toast({
+        title: "Demo Request Received!",
+        description: "We'll contact you shortly to schedule your demo.",
+      });
+      setDemoDialogOpen(false);
+      setDemoFormData({ name: "", email: "", company: "", message: "" });
+      setSubmitting(false);
+    }, 1000);
   };
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Demo Contact Dialog */}
+      <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Book a Demo</DialogTitle>
+            <DialogDescription>
+              Fill out the form below and we'll contact you to schedule a personalized demo.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleDemoSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="demo-name">Name *</Label>
+              <Input
+                id="demo-name"
+                value={demoFormData.name}
+                onChange={(e) => setDemoFormData({ ...demoFormData, name: e.target.value })}
+                placeholder="Your full name"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="demo-email">Email *</Label>
+              <Input
+                id="demo-email"
+                type="email"
+                value={demoFormData.email}
+                onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
+                placeholder="your.email@company.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="demo-company">Company/Building Name</Label>
+              <Input
+                id="demo-company"
+                value={demoFormData.company}
+                onChange={(e) => setDemoFormData({ ...demoFormData, company: e.target.value })}
+                placeholder="Your property or company"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="demo-message">Message</Label>
+              <Textarea
+                id="demo-message"
+                value={demoFormData.message}
+                onChange={(e) => setDemoFormData({ ...demoFormData, message: e.target.value })}
+                placeholder="Tell us about your needs..."
+                rows={3}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "Sending..." : "Request Demo"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
