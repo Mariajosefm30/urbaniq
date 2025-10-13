@@ -61,73 +61,80 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
             <nav className="flex items-center gap-2">
               {profile?.role === "manager" && buildings.length > 0 && (
-                <Select value={currentBuildingId || ""} onValueChange={setCurrentBuildingId}>
-                  <SelectTrigger className="w-[200px] h-9">
-                    <SelectValue placeholder="Select Building" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {buildings.map((building) => (
-                      <SelectItem key={building.id} value={building.id}>
-                        {building.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <>
+                  <Select value={currentBuildingId || ""} onValueChange={setCurrentBuildingId}>
+                    <SelectTrigger className="w-[200px] h-9">
+                      <SelectValue placeholder="Select Building" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {buildings.map((building) => (
+                        <SelectItem key={building.id} value={building.id}>
+                          {building.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Link to="/manager-home">
+                    <Button
+                      variant={isActive("/manager-home") ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Home className="h-4 w-4" />
+                      <span className="hidden sm:inline">Buildings</span>
+                    </Button>
+                  </Link>
+                </>
               )}
-              {profile?.role === "manager" && (
-                <Link to="/manager-home">
-                  <Button
-                    variant={isActive("/manager-home") ? "default" : "ghost"}
-                    size="sm"
-                    className="gap-2"
-                  >
-                    <Home className="h-4 w-4" />
-                    <span className="hidden sm:inline">Buildings</span>
-                  </Button>
-                </Link>
+              
+              {/* Only show these links if a building is selected OR user is not a manager */}
+              {(currentBuildingId || profile?.role !== "manager") && (
+                <>
+                  <Link to="/tickets">
+                    <Button
+                      variant={isActive("/tickets") || location.pathname.includes("/buildings/") ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <ClipboardList className="h-4 w-4" />
+                      <span className="hidden sm:inline">Tickets</span>
+                    </Button>
+                  </Link>
+                  {profile?.role === "manager" && (
+                    <Link to="/dashboard">
+                      <Button
+                        variant={isActive("/dashboard") ? "default" : "ghost"}
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        <span className="hidden sm:inline">Dashboard</span>
+                      </Button>
+                    </Link>
+                  )}
+                  <Link to="/guests">
+                    <Button
+                      variant={isActive("/guests") ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Users className="h-4 w-4" />
+                      <span className="hidden sm:inline">Guests</span>
+                    </Button>
+                  </Link>
+                  <Link to="/messages">
+                    <Button
+                      variant={isActive("/messages") ? "default" : "ghost"}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      <span className="hidden sm:inline">Messages</span>
+                    </Button>
+                  </Link>
+                </>
               )}
-              <Link to="/tickets">
-                <Button
-                  variant={isActive("/tickets") ? "default" : "ghost"}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <ClipboardList className="h-4 w-4" />
-                  <span className="hidden sm:inline">Tickets</span>
-                </Button>
-              </Link>
-              {profile?.role === "manager" && (
-                <Link to="/dashboard">
-                  <Button
-                    variant={isActive("/dashboard") ? "default" : "ghost"}
-                    size="sm"
-                    className="gap-2"
-                  >
-                    <BarChart3 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Dashboard</span>
-                  </Button>
-                </Link>
-              )}
-              <Link to="/guests">
-                <Button
-                  variant={isActive("/guests") ? "default" : "ghost"}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">Guests</span>
-                </Button>
-              </Link>
-              <Link to="/messages">
-                <Button
-                  variant={isActive("/messages") ? "default" : "ghost"}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  <span className="hidden sm:inline">Messages</span>
-                </Button>
-              </Link>
+              
               {profile?.role === "manager" && (
                 <Link to="/settings">
                   <Button
