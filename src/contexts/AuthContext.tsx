@@ -11,6 +11,8 @@ interface Profile {
   email: string | null;
   full_name: string | null;
   building_address: string | null;
+  org_id: string | null;
+  building_id: string | null;
 }
 
 interface AuthContextType {

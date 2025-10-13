@@ -65,6 +65,44 @@ export type Database = {
         }
         Relationships: []
       }
+      buildings_new: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          id: string
+          lat: number | null
+          lng: number | null
+          name: string
+          org_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name: string
+          org_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          name?: string
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buildings_new_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guests: {
         Row: {
           arrival_at: string
@@ -254,6 +292,24 @@ export type Database = {
           },
         ]
       }
+      organizations: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           building_address: string | null
@@ -263,6 +319,7 @@ export type Database = {
           full_name: string | null
           id: string
           name: string | null
+          org_id: string | null
           unit: string | null
         }
         Insert: {
@@ -273,6 +330,7 @@ export type Database = {
           full_name?: string | null
           id: string
           name?: string | null
+          org_id?: string | null
           unit?: string | null
         }
         Update: {
@@ -283,6 +341,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           name?: string | null
+          org_id?: string | null
           unit?: string | null
         }
         Relationships: [
@@ -291,6 +350,13 @@ export type Database = {
             columns: ["building_id"]
             isOneToOne: false
             referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -384,6 +450,30 @@ export type Database = {
           sender_id?: string
           subject?: string
           unit?: string
+        }
+        Relationships: []
+      }
+      units: {
+        Row: {
+          building_id: string
+          code: string
+          created_at: string | null
+          id: string
+          resident_user_id: string | null
+        }
+        Insert: {
+          building_id: string
+          code: string
+          created_at?: string | null
+          id?: string
+          resident_user_id?: string | null
+        }
+        Update: {
+          building_id?: string
+          code?: string
+          created_at?: string | null
+          id?: string
+          resident_user_id?: string | null
         }
         Relationships: []
       }

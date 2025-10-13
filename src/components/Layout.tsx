@@ -1,13 +1,44 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useBuilding } from "@/contexts/BuildingContext";
 import { Button } from "@/components/ui/button";
-import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Building {
+  id: string;
+  name: string;
+  address: string | null;
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { profile, signOut } = useAuth();
+  const { currentBuildingId, setCurrentBuildingId } = useBuilding();
   const location = useLocation();
+  const [buildings, setBuildings] = useState<Building[]>([]);
 
   const isActive = (path: string) => location.pathname === path;
+
+  useEffect(() => {
+    if (profile?.org_id) {
+      loadBuildings();
+    }
+  }, [profile?.org_id]);
+
+  const loadBuildings = async () => {
+    if (!profile?.org_id) return;
+
+    const { data } = await supabase
+      .from('buildings_new')
+      .select('id, name, address')
+      .eq('org_id', profile.org_id);
+
+    if (data) {
+      setBuildings(data);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -29,6 +60,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
             <nav className="flex items-center gap-2">
+              {profile?.role === "manager" && buildings.length > 0 && (
+                <Select value={currentBuildingId || ""} onValueChange={setCurrentBuildingId}>
+                  <SelectTrigger className="w-[200px] h-9">
+                    <SelectValue placeholder="Select Building" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {buildings.map((building) => (
+                      <SelectItem key={building.id} value={building.id}>
+                        {building.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {profile?.role === "manager" && (
+                <Link to="/manager-home">
+                  <Button
+                    variant={isActive("/manager-home") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Home className="h-4 w-4" />
+                    <span className="hidden sm:inline">Buildings</span>
+                  </Button>
+                </Link>
+              )}
               <Link to="/tickets">
                 <Button
                   variant={isActive("/tickets") ? "default" : "ghost"}
