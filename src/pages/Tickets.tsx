@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wrench } from "lucide-react";
@@ -43,6 +44,7 @@ interface Ticket {
 
 export default function Tickets() {
   const { user, profile } = useAuth();
+  const { buildingId } = useParams();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -50,7 +52,7 @@ export default function Tickets() {
 
   useEffect(() => {
     loadTickets();
-  }, [user]);
+  }, [user, buildingId]);
 
   const loadTickets = async () => {
     if (!user) return;
@@ -63,7 +65,11 @@ export default function Tickets() {
     if (error) {
       toast.error("Failed to load tickets");
     } else {
-      setTickets(data || []);
+      // Filter by building on client side if buildingId is present
+      const filteredData = buildingId 
+        ? (data || []).filter((ticket: any) => ticket.building_id === buildingId)
+        : (data || []);
+      setTickets(filteredData);
     }
     setLoading(false);
   };

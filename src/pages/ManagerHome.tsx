@@ -35,8 +35,8 @@ interface Building {
 }
 
 export default function ManagerHome() {
-  const { profile } = useAuth();
-  const { setCurrentBuildingId } = useBuilding();
+  const { profile, user } = useAuth();
+  const { currentBuildingId, setCurrentBuildingId, persistLastBuilding } = useBuilding();
   const navigate = useNavigate();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +55,13 @@ export default function ManagerHome() {
       loadOrganizationAndBuildings();
     }
   }, [profile]);
+
+  // Auto-redirect if building already selected
+  useEffect(() => {
+    if (currentBuildingId && !loading) {
+      navigate(`/buildings/${currentBuildingId}/tickets`);
+    }
+  }, [currentBuildingId, loading, navigate]);
 
   const loadOrganizationAndBuildings = async () => {
     setLoading(true);
@@ -224,8 +231,11 @@ export default function ManagerHome() {
     loadBuildings();
   };
 
-  const handleBuildingClick = (buildingId: string) => {
+  const handleBuildingClick = async (buildingId: string) => {
     setCurrentBuildingId(buildingId);
+    if (user) {
+      await persistLastBuilding(buildingId, user.id);
+    }
     navigate(`/buildings/${buildingId}/tickets`);
   };
 
@@ -272,9 +282,9 @@ export default function ManagerHome() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Buildings</h1>
+            <h1 className="text-3xl font-bold mb-2">Your buildings</h1>
             <p className="text-muted-foreground">
-              {organization ? `${organization.name} - Manage all your properties` : "Manage all buildings in your organization"}
+              {organization ? organization.name : "Manage all buildings in your organization"}
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -286,14 +296,14 @@ export default function ManagerHome() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create New Building</DialogTitle>
+                <DialogTitle>Create building</DialogTitle>
                 <DialogDescription>
                   Add a new property to your organization
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="building-name">Building Name *</Label>
+                  <Label htmlFor="building-name">Name</Label>
                   <Input
                     id="building-name"
                     value={buildingName}
@@ -308,7 +318,7 @@ export default function ManagerHome() {
                     id="building-address"
                     value={buildingAddress}
                     onChange={(e) => setBuildingAddress(e.target.value)}
-                    placeholder="123 Main St, City, State"
+                    placeholder="Used for nearby technician suggestions"
                   />
                 </div>
                 <Button onClick={createBuilding} className="w-full" disabled={submitting}>
@@ -324,9 +334,51 @@ export default function ManagerHome() {
             <p className="text-muted-foreground">Loading buildings...</p>
           </div>
         ) : buildings.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No buildings found. Contact your administrator.</p>
-          </div>
+          <Card className="text-center py-12">
+            <CardContent className="space-y-4">
+              <Building2 className="h-16 w-16 mx-auto text-muted-foreground" />
+              <div>
+                <h3 className="text-xl font-semibold mb-2">No buildings yet</h3>
+                <p className="text-muted-foreground mb-6">Create your first building to continue.</p>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>Create building</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create building</DialogTitle>
+                      <DialogDescription>
+                        Add a new property to your organization
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="empty-building-name">Name</Label>
+                        <Input
+                          id="empty-building-name"
+                          value={buildingName}
+                          onChange={(e) => setBuildingName(e.target.value)}
+                          placeholder="Sunset Apartments"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="empty-building-address">Address</Label>
+                        <Input
+                          id="empty-building-address"
+                          value={buildingAddress}
+                          onChange={(e) => setBuildingAddress(e.target.value)}
+                          placeholder="Used for nearby technician suggestions"
+                        />
+                      </div>
+                      <Button onClick={createBuilding} className="w-full" disabled={submitting}>
+                        {submitting ? "Creating..." : "Create"}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {buildings.map((building) => (

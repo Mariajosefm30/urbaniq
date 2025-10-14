@@ -33,7 +33,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-static" element={<VerifyStatic />} />
               <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
-              <Route path="/manager-home" element={<ProtectedRoute><ManagerHome /></ProtectedRoute>} />
+              <Route path="/manager" element={<ProtectedRoute><ManagerHome /></ProtectedRoute>} />
               <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

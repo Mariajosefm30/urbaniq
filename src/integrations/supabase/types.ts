@@ -318,6 +318,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          last_building_id: string | null
           name: string | null
           org_id: string | null
           unit: string | null
@@ -329,6 +330,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          last_building_id?: string | null
           name?: string | null
           org_id?: string | null
           unit?: string | null
@@ -340,6 +342,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          last_building_id?: string | null
           name?: string | null
           org_id?: string | null
           unit?: string | null
@@ -350,6 +353,13 @@ export type Database = {
             columns: ["building_id"]
             isOneToOne: false
             referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_last_building_id_fkey"
+            columns: ["last_building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings_new"
             referencedColumns: ["id"]
           },
           {

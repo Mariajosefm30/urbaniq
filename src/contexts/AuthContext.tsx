@@ -13,6 +13,7 @@ interface Profile {
   building_address: string | null;
   org_id: string | null;
   building_id: string | null;
+  last_building_id: string | null;
 }
 
 interface AuthContextType {
@@ -54,10 +55,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .eq("user_id", session.user.id)
               .single();
             
-            setProfile({
+            const fullProfile = {
               ...profileData,
               role: roleData?.role || 'resident'
-            });
+            };
+            
+            setProfile(fullProfile);
+            
+            // Handle role-based redirects on login
+            if (event === 'SIGNED_IN') {
+              if (fullProfile.role === 'manager') {
+                if (fullProfile.last_building_id) {
+                  navigate(`/buildings/${fullProfile.last_building_id}/tickets`);
+                } else {
+                  navigate('/manager');
+                }
+              } else {
+                navigate('/tickets');
+              }
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -83,10 +99,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq("user_id", session.user.id)
             .single()
         ]).then(([{ data: profileData }, { data: roleData }]) => {
-          setProfile({
+          const fullProfile = {
             ...profileData,
             role: roleData?.role || 'resident'
-          });
+          };
+          setProfile(fullProfile);
           setLoading(false);
         });
       } else {
