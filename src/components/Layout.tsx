@@ -22,26 +22,34 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [buildings, setBuildings] = useState<Building[]>([]);
   
   const isManager = profile?.role === 'manager';
-  const showNav = !isManager || !!currentBuildingId;
+  const isAdmin = profile?.role === 'admin';
+  // Admin never sees building-scoped nav, managers need a building selected
+  const showNav = isAdmin ? false : 
+                  isManager ? !!currentBuildingId : true;
 
   const isActive = (path: string) => location.pathname === path;
 
   useEffect(() => {
-    if (profile?.org_id) {
+    if (isManager && user?.id) {
       loadBuildings();
     }
-  }, [profile?.org_id]);
+  }, [isManager, user?.id]);
 
   const loadBuildings = async () => {
-    if (!profile?.org_id) return;
+    if (!user?.id || !isManager) return;
 
+    // Query manager_buildings junction table
     const { data } = await supabase
-      .from('buildings_new')
-      .select('id, name, address')
-      .eq('org_id', profile.org_id);
+      .from('manager_buildings')
+      .select(`
+        building_id,
+        buildings_new!inner(id, name, address)
+      `)
+      .eq('user_id', user.id);
 
     if (data) {
-      setBuildings(data);
+      const buildingsList = data.map((mb: any) => mb.buildings_new).filter(Boolean);
+      setBuildings(buildingsList);
     }
   };
 
@@ -75,7 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
             <nav className="flex items-center gap-2">
-              {isManager && buildings.length > 0 && (
+              {isManager && !isAdmin && buildings.length > 0 && (
                 <>
                   <div className="flex items-center gap-2 mr-2">
                     <span className="text-sm text-muted-foreground">Building:</span>

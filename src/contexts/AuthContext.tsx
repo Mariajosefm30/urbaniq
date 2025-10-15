@@ -64,7 +64,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             // Handle role-based redirects on login
             if (event === 'SIGNED_IN') {
-              if (fullProfile.role === 'manager') {
+              if (fullProfile.role === 'admin') {
+                navigate('/admin');
+              } else if (fullProfile.role === 'manager') {
                 if (fullProfile.last_building_id) {
                   navigate(`/buildings/${fullProfile.last_building_id}/tickets`);
                 } else {

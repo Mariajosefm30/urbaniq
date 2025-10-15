@@ -103,17 +103,19 @@ export default function ManagerHome() {
   };
 
   const loadBuildings = async () => {
-    const orgId = organization?.id || profile?.org_id;
-    if (!orgId) {
+    if (!user?.id) {
       setLoading(false);
       return;
     }
 
-    // Fetch buildings for the manager's org
+    // Query manager_buildings junction table to get only assigned buildings
     const { data: buildingsData, error: buildingsError } = await supabase
-      .from('buildings_new')
-      .select('*')
-      .eq('org_id', orgId);
+      .from('manager_buildings')
+      .select(`
+        building_id,
+        buildings_new!inner(*)
+      `)
+      .eq('user_id', user.id);
 
     if (buildingsError) {
       toast.error("Failed to load buildings");
@@ -122,9 +124,12 @@ export default function ManagerHome() {
       return;
     }
 
+    // Extract buildings from the join result
+    const extractedBuildings = buildingsData?.map((mb: any) => mb.buildings_new).filter(Boolean) || [];
+
     // For each building, fetch counts
     const buildingsWithCounts = await Promise.all(
-      (buildingsData || []).map(async (building) => {
+      extractedBuildings.map(async (building: any) => {
         // Ticket counts
         const { data: ticketsData } = await supabase
           .from('maintenance_tickets')
