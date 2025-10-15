@@ -292,6 +292,32 @@ export type Database = {
           },
         ]
       }
+      manager_buildings: {
+        Row: {
+          building_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          building_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          building_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_buildings_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string | null
@@ -544,7 +570,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "resident" | "manager"
+      app_role: "resident" | "manager" | "admin"
       guest_status: "scheduled" | "expired" | "revoked"
       ticket_status: "open" | "in_progress" | "resolved"
     }
@@ -674,7 +700,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["resident", "manager"],
+      app_role: ["resident", "manager", "admin"],
       guest_status: ["scheduled", "expired", "revoked"],
       ticket_status: ["open", "in_progress", "resolved"],
     },
