@@ -49,7 +49,17 @@ async function getCurrentUserFromRequest(req: Request) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const authHeader = req.headers.get('Authorization') || '';
+  const token = authHeader.startsWith('Bearer ')
+    ? authHeader.substring('Bearer '.length)
+    : authHeader;
+
+  if (!token) return null;
+
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error) {
+    console.error('[create-guest-pass] getUser failed', { error: error.message });
+  }
   return user;
 }
 
