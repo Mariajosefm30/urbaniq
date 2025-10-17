@@ -21,6 +21,8 @@ import NotFound from "./pages/NotFound";
 import ManagerHome from "./pages/ManagerHome";
 import Admin from "./pages/Admin";
 import AdminSetup from "./pages/AdminSetup";
+import AdminProfile from "./pages/AdminProfile";
+import AdminPortfolio from "./pages/AdminPortfolio";
 import Manager from "./pages/Manager";
 import Units from "./pages/Units";
 
@@ -41,9 +43,11 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-static" element={<VerifyStatic />} />
               <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-            <Route path="/admin/setup" element={<ProtectedRoute><AdminSetup /></ProtectedRoute>} />
-            <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path="/admin/setup" element={<ProtectedRoute><AdminSetup /></ProtectedRoute>} />
+              <Route path="/admin/profile" element={<ProtectedRoute><AdminProfile /></ProtectedRoute>} />
+              <Route path="/admin/portfolio" element={<ProtectedRoute><AdminPortfolio /></ProtectedRoute>} />
+              <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
             <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/units" element={<ProtectedRoute><Units /></ProtectedRoute>} />

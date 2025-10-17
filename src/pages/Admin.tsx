@@ -2,22 +2,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import PortfolioTab from "@/components/admin/PortfolioTab";
-import SetupTab from "@/components/admin/SetupTab";
-import CreateOrganizationDialog from "@/components/admin/CreateOrganizationDialog";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import BuildingsSection from "@/components/admin/BuildingsSection";
 import UnitsSection from "@/components/admin/UnitsSection";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function Admin() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
-  const [organization, setOrganization] = useState<any>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<{ id: string; name: string } | null>(null);
-  const [showOrgDialog, setShowOrgDialog] = useState(false);
 
   useEffect(() => {
     if (!loading && profile?.role !== 'admin') {
@@ -26,30 +20,18 @@ export default function Admin() {
   }, [loading, profile, navigate]);
 
   useEffect(() => {
-    if (profile?.org_id) {
-      loadOrganization();
-    } else if (profile && !profile.org_id) {
-      setShowOrgDialog(true);
+    if (profile && !profile.org_id && !loading) {
+      navigate('/admin/setup');
     }
-  }, [profile?.org_id, profile]);
-
-  const loadOrganization = async () => {
-    if (!profile?.org_id) return;
-
-    const { data } = await supabase
-      .from('organizations')
-      .select('*')
-      .eq('id', profile.org_id)
-      .single();
-
-    setOrganization(data);
-  };
+  }, [profile?.org_id, profile, loading, navigate]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </AdminLayout>
     );
   }
 
@@ -59,13 +41,12 @@ export default function Admin() {
 
   // If no org, redirect to setup
   if (!profile?.org_id) {
-    navigate('/admin/setup');
     return null;
   }
 
   if (selectedBuilding) {
     return (
-      <div className="container mx-auto py-8 px-4">
+      <AdminLayout>
         <Button
           variant="ghost"
           className="mb-6"
@@ -78,48 +59,23 @@ export default function Admin() {
           buildingId={selectedBuilding.id} 
           buildingName={selectedBuilding.name}
         />
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <AdminLayout>
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Admin Portal</h1>
+        <h1 className="text-4xl font-bold mb-2">Buildings</h1>
         <p className="text-muted-foreground">
-          {organization?.name || "Manage your organization"}
+          Manage all buildings in your portfolio
         </p>
       </div>
 
-      <Tabs defaultValue="buildings" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="buildings">Buildings</TabsTrigger>
-          <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-          <TabsTrigger value="setup">Setup</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="buildings" className="space-y-6">
-          <Card>
-            <CardContent className="pt-6">
-              <BuildingsSection 
-                orgId={profile.org_id} 
-                onBuildingSelect={(id: string, name: string) => setSelectedBuilding({ id, name })}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="portfolio" className="space-y-6">
-          <PortfolioTab orgId={profile.org_id} />
-        </TabsContent>
-
-        <TabsContent value="setup" className="space-y-6">
-          <SetupTab 
-            organization={organization} 
-            onOrganizationUpdate={loadOrganization}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+      <BuildingsSection 
+        orgId={profile.org_id} 
+        onBuildingSelect={(id: string, name: string) => setSelectedBuilding({ id, name })}
+      />
+    </AdminLayout>
   );
 }
