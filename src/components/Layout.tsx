@@ -107,7 +107,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <>
                   <Link to={currentBuildingId ? `/buildings/${currentBuildingId}/tickets` : "/tickets"}>
                     <Button
-                      variant={isActive("/tickets") || location.pathname.includes("/buildings/") ? "default" : "ghost"}
+                      variant={isActive("/tickets") || location.pathname.includes("/tickets") ? "default" : "ghost"}
                       size="sm"
                       className="gap-2"
                     >
@@ -115,6 +115,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       <span className="hidden sm:inline">Tickets</span>
                     </Button>
                   </Link>
+                  {isManager && currentBuildingId && (
+                    <Link to={`/buildings/${currentBuildingId}/units`}>
+                      <Button
+                        variant={location.pathname.includes("/units") ? "default" : "ghost"}
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <Home className="h-4 w-4" />
+                        <span className="hidden sm:inline">Units</span>
+                      </Button>
+                    </Link>
+                  )}
                   {isManager && (
                     <Link to="/dashboard">
                       <Button

@@ -66,39 +66,7 @@ export default function ManagerHome() {
   const loadOrganizationAndBuildings = async () => {
     setLoading(true);
 
-    // First, check if user has an org_id
-    if (!profile?.org_id) {
-      // Check if any org exists for this user
-      const { data: orgsData } = await supabase
-        .from('organizations')
-        .select('*')
-        .limit(1)
-        .single();
-
-      if (!orgsData) {
-        setLoading(false);
-        setOrgDialogOpen(true);
-        return;
-      }
-
-      setOrganization(orgsData);
-      // Update profile with org_id
-      await supabase
-        .from('profiles')
-        .update({ org_id: orgsData.id })
-        .eq('id', profile!.id);
-    } else {
-      // Fetch organization
-      const { data: orgData } = await supabase
-        .from('organizations')
-        .select('*')
-        .eq('id', profile.org_id)
-        .single();
-
-      setOrganization(orgData);
-    }
-
-    // Now load buildings
+    // Managers don't need to create organizations - just load buildings
     await loadBuildings();
   };
 
