@@ -4,15 +4,19 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2 } from "lucide-react";
+import { Building2, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import PortfolioTab from "@/components/admin/PortfolioTab";
 import SetupTab from "@/components/admin/SetupTab";
 import CreateOrganizationDialog from "@/components/admin/CreateOrganizationDialog";
+import BuildingsSection from "@/components/admin/BuildingsSection";
+import UnitsSection from "@/components/admin/UnitsSection";
 
 export default function Admin() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
   const [organization, setOrganization] = useState<any>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     if (!loading && profile?.role !== 'admin') {
@@ -61,6 +65,25 @@ export default function Admin() {
     );
   }
 
+  if (selectedBuilding) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Button
+          variant="ghost"
+          className="mb-6"
+          onClick={() => setSelectedBuilding(null)}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Buildings
+        </Button>
+        <UnitsSection 
+          buildingId={selectedBuilding.id} 
+          buildingName={selectedBuilding.name}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
@@ -70,11 +93,23 @@ export default function Admin() {
         </p>
       </div>
 
-      <Tabs defaultValue="portfolio" className="space-y-6">
+      <Tabs defaultValue="buildings" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="buildings">Buildings</TabsTrigger>
           <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
           <TabsTrigger value="setup">Setup</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="buildings" className="space-y-6">
+          <Card>
+            <CardContent className="pt-6">
+              <BuildingsSection 
+                orgId={profile.org_id} 
+                onBuildingSelect={(id: string, name: string) => setSelectedBuilding({ id, name })}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="portfolio" className="space-y-6">
           <PortfolioTab orgId={profile.org_id} />

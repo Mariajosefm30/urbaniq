@@ -38,7 +38,7 @@ export default function PortfolioTab({ orgId }: { orgId: string }) {
     const buildingsWithMetrics: Building[] = buildingsData.map((building: any) => ({
       id: building.id,
       name: building.name,
-      address: building.address,
+      address: [building.street_address, building.city, building.country].filter(Boolean).join(", ") || null,
       openTickets: 0,
       inProgressTickets: 0,
       overdueInvoices: 0,

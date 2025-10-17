@@ -67,31 +67,40 @@ export type Database = {
       }
       buildings_new: {
         Row: {
-          address: string | null
+          city: string | null
+          country: string | null
           created_at: string | null
           id: string
           lat: number | null
           lng: number | null
+          manager_name: string | null
           name: string
           org_id: string
+          street_address: string | null
         }
         Insert: {
-          address?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
+          manager_name?: string | null
           name: string
           org_id: string
+          street_address?: string | null
         }
         Update: {
-          address?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
+          manager_name?: string | null
           name?: string
           org_id?: string
+          street_address?: string | null
         }
         Relationships: [
           {
@@ -324,27 +333,27 @@ export type Database = {
           id: string
           name: string
           primary_contact_email: string | null
-          primary_contact_phone: string | null
+          primary_contact_name: string | null
           secondary_contact_email: string | null
-          secondary_contact_phone: string | null
+          secondary_contact_name: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           name: string
           primary_contact_email?: string | null
-          primary_contact_phone?: string | null
+          primary_contact_name?: string | null
           secondary_contact_email?: string | null
-          secondary_contact_phone?: string | null
+          secondary_contact_name?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           name?: string
           primary_contact_email?: string | null
-          primary_contact_phone?: string | null
+          primary_contact_name?: string | null
           secondary_contact_email?: string | null
-          secondary_contact_phone?: string | null
+          secondary_contact_name?: string | null
         }
         Relationships: []
       }

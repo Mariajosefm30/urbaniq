@@ -9,7 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-export default function BuildingsSection({ orgId }: { orgId: string }) {
+interface BuildingsSectionProps {
+  orgId: string;
+  onBuildingSelect?: (id: string, name: string) => void;
+}
+
+export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsSectionProps) {
   const [buildings, setBuildings] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState<any>(null);
@@ -219,14 +224,18 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
             </TableHeader>
             <TableBody>
               {buildings.map((building) => (
-                <TableRow key={building.id}>
+                <TableRow 
+                  key={building.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => onBuildingSelect?.(building.id, building.name)}
+                >
                   <TableCell className="font-medium">{building.name}</TableCell>
                   <TableCell>{building.manager_name || "—"}</TableCell>
                   <TableCell>
                     {[building.street_address, building.city, building.country].filter(Boolean).join(", ") || "—"}
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="ghost"
                         size="icon"
