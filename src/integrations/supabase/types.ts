@@ -46,6 +46,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           name: string | null
+          org_id: string | null
         }
         Insert: {
           address?: string | null
@@ -54,6 +55,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name?: string | null
+          org_id?: string | null
         }
         Update: {
           address?: string | null
@@ -62,8 +64,17 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name?: string | null
+          org_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "buildings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       buildings_new: {
         Row: {
@@ -368,6 +379,7 @@ export type Database = {
           last_building_id: string | null
           name: string | null
           org_id: string | null
+          role: string | null
           unit: string | null
         }
         Insert: {
@@ -380,6 +392,7 @@ export type Database = {
           last_building_id?: string | null
           name?: string | null
           org_id?: string | null
+          role?: string | null
           unit?: string | null
         }
         Update: {
@@ -392,6 +405,7 @@ export type Database = {
           last_building_id?: string | null
           name?: string | null
           org_id?: string | null
+          role?: string | null
           unit?: string | null
         }
         Relationships: [

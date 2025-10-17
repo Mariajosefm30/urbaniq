@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import OrganizationSection from "./OrganizationSection";
 import BuildingsSection from "./BuildingsSection";
 import ManagersSection from "./ManagersSection";
+import RolePromoter from "./RolePromoter";
 
 interface SetupTabProps {
   organization: any;
@@ -19,6 +19,8 @@ export default function SetupTab({ organization, onOrganizationUpdate }: SetupTa
       <BuildingsSection orgId={organization?.id} />
       
       <ManagersSection orgId={organization?.id} />
+
+      <RolePromoter />
     </div>
   );
 }

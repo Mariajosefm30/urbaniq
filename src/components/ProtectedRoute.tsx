@@ -18,9 +18,19 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect admins to /admin if they try to access other routes
-  if (profile?.role === 'admin' && location.pathname !== '/admin' && !location.pathname.startsWith('/settings')) {
-    return <Navigate to="/admin" replace />;
+  // Redirect admins based on org setup status
+  if (profile?.role === 'admin') {
+    if (!profile.org_id && location.pathname !== '/admin/setup' && !location.pathname.startsWith('/settings')) {
+      return <Navigate to="/admin/setup" replace />;
+    }
+    if (profile.org_id && location.pathname !== '/admin' && location.pathname !== '/admin/setup' && !location.pathname.startsWith('/settings')) {
+      return <Navigate to="/admin" replace />;
+    }
+  }
+
+  // Redirect managers to /manager if not on a valid manager route
+  if (profile?.role === 'manager' && !location.pathname.startsWith('/manager') && !location.pathname.startsWith('/buildings') && !location.pathname.startsWith('/settings')) {
+    return <Navigate to="/manager" replace />;
   }
 
   return <>{children}</>;

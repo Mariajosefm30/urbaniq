@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile and role in background
+          // Fetch profile in background
           setTimeout(async () => {
             const { data: profileData } = await supabase
               .from("profiles")
@@ -49,26 +49,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .eq("id", session.user.id)
               .single();
             
-            const { data: roleData } = await supabase
-              .from("user_roles")
-              .select("role")
-              .eq("user_id", session.user.id)
-              .single();
-            
-            const fullProfile = {
-              ...profileData,
-              role: roleData?.role || 'resident'
-            };
-            
-            setProfile(fullProfile);
+            setProfile(profileData);
             
             // Handle role-based redirects on login
             if (event === 'SIGNED_IN') {
-              if (fullProfile.role === 'admin') {
-                navigate('/admin');
-              } else if (fullProfile.role === 'manager') {
-                if (fullProfile.last_building_id) {
-                  navigate(`/buildings/${fullProfile.last_building_id}/tickets`);
+              if (profileData?.role === 'admin') {
+                if (!profileData.org_id) {
+                  navigate('/admin/setup');
+                } else {
+                  navigate('/admin');
+                }
+              } else if (profileData?.role === 'manager') {
+                if (profileData.last_building_id) {
+                  navigate(`/buildings/${profileData.last_building_id}/tickets`);
                 } else {
                   navigate('/manager');
                 }
@@ -89,37 +82,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        Promise.all([
-          supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", session.user.id)
-            .single(),
-          supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", session.user.id)
-            .single()
-        ]).then(([{ data: profileData }, { data: roleData }]) => {
-          const fullProfile = {
-            ...profileData,
-            role: roleData?.role || 'resident'
-          };
-          setProfile(fullProfile);
-          setLoading(false);
-          
-          // Redirect based on role if on wrong page
-          const currentPath = window.location.pathname;
-          if (fullProfile.role === 'admin' && currentPath !== '/admin') {
-            navigate('/admin');
-          } else if (fullProfile.role === 'manager' && currentPath === '/tickets') {
-            if (fullProfile.last_building_id) {
-              navigate(`/buildings/${fullProfile.last_building_id}/tickets`);
-            } else {
-              navigate('/manager');
+        supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single()
+          .then(({ data: profileData }) => {
+            setProfile(profileData);
+            setLoading(false);
+            
+            // Redirect based on role if on wrong page
+            const currentPath = window.location.pathname;
+            if (profileData?.role === 'admin') {
+              if (!profileData.org_id && currentPath !== '/admin/setup') {
+                navigate('/admin/setup');
+              } else if (profileData.org_id && currentPath !== '/admin' && !currentPath.startsWith('/settings')) {
+                navigate('/admin');
+              }
+            } else if (profileData?.role === 'manager' && currentPath === '/tickets') {
+              if (profileData.last_building_id) {
+                navigate(`/buildings/${profileData.last_building_id}/tickets`);
+              } else {
+                navigate('/manager');
+              }
             }
-          }
-        });
+          });
       } else {
         setLoading(false);
       }

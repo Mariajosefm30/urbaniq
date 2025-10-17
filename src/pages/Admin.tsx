@@ -57,26 +57,10 @@ export default function Admin() {
     return null;
   }
 
+  // If no org, redirect to setup
   if (!profile?.org_id) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Welcome to Admin Portal</h1>
-          <p className="text-muted-foreground">
-            Let's get started by creating your organization
-          </p>
-        </div>
-        <CreateOrganizationDialog 
-          userId={profile!.id}
-          onOrganizationCreated={() => {
-            setShowOrgDialog(false);
-            loadOrganization();
-          }}
-          open={showOrgDialog}
-          onOpenChange={setShowOrgDialog}
-        />
-      </div>
-    );
+    navigate('/admin/setup');
+    return null;
   }
 
   if (selectedBuilding) {

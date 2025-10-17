@@ -18,6 +18,8 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ManagerHome from "./pages/ManagerHome";
 import Admin from "./pages/Admin";
+import AdminSetup from "./pages/AdminSetup";
+import Manager from "./pages/Manager";
 import Units from "./pages/Units";
 
 const queryClient = new QueryClient();
@@ -36,7 +38,8 @@ const App = () => (
               <Route path="/verify-static" element={<VerifyStatic />} />
               <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-            <Route path="/manager" element={<ProtectedRoute><ManagerHome /></ProtectedRoute>} />
+            <Route path="/admin/setup" element={<ProtectedRoute><AdminSetup /></ProtectedRoute>} />
+            <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
             <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/units" element={<ProtectedRoute><Units /></ProtectedRoute>} />
