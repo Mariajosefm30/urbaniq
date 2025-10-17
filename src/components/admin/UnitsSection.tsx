@@ -17,9 +17,7 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
   const [units, setUnits] = useState<any[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState({
-    unitNumber: "",
-    residentName: "",
-    contactInformation: "",
+    code: "",
   });
 
   useEffect(() => {
@@ -31,7 +29,7 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
       .from('units')
       .select('*')
       .eq('building_id', buildingId)
-      .order('unit_number');
+      .order('code');
 
     setUnits(data || []);
   };
@@ -39,9 +37,7 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
   const handleAddRow = () => {
     setUnits([...units, { 
       id: `temp-${Date.now()}`,
-      unit_number: "",
-      resident_name: "",
-      contact_information: "",
+      code: "",
       isNew: true 
     }]);
     setEditingIndex(units.length);
@@ -50,8 +46,8 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
   const handleSave = async (index: number) => {
     const unit = units[index];
     
-    if (!unit.unit_number?.trim()) {
-      toast.error("Unit number is required");
+    if (!unit.code?.trim()) {
+      toast.error("Unit code is required");
       return;
     }
 
@@ -60,10 +56,8 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
         .from('units')
         .insert([{
           building_id: buildingId,
-          unit_number: unit.unit_number,
-          resident_name: unit.resident_name || null,
-          contact_information: unit.contact_information || null,
-        } as any])
+          code: unit.code,
+        }])
         .select()
         .single();
 
@@ -81,10 +75,8 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
       const { error } = await supabase
         .from('units')
         .update({
-          unit_number: unit.unit_number,
-          resident_name: unit.resident_name || null,
-          contact_information: unit.contact_information || null,
-        } as any)
+          code: unit.code,
+        })
         .eq('id', unit.id);
 
       if (error) {
@@ -171,9 +163,7 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Unit Number</TableHead>
-                <TableHead>Resident Name</TableHead>
-                <TableHead>Contact Information</TableHead>
+                <TableHead>Unit Code</TableHead>
                 <TableHead className="w-[150px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -183,34 +173,12 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
                   <TableCell>
                     {editingIndex === index ? (
                       <Input
-                        value={unit.unit_number}
-                        onChange={(e) => handleFieldChange(index, 'unit_number', e.target.value)}
+                        value={unit.code}
+                        onChange={(e) => handleFieldChange(index, 'code', e.target.value)}
                         placeholder="101"
                       />
                     ) : (
-                      unit.unit_number || "—"
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editingIndex === index ? (
-                      <Input
-                        value={unit.resident_name || ""}
-                        onChange={(e) => handleFieldChange(index, 'resident_name', e.target.value)}
-                        placeholder="John Doe"
-                      />
-                    ) : (
-                      unit.resident_name || "—"
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editingIndex === index ? (
-                      <Input
-                        value={unit.contact_information || ""}
-                        onChange={(e) => handleFieldChange(index, 'contact_information', e.target.value)}
-                        placeholder="email@example.com"
-                      />
-                    ) : (
-                      unit.contact_information || "—"
+                      unit.code || "—"
                     )}
                   </TableCell>
                   <TableCell>
