@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Building2 } from "lucide-react";
 import { z } from "zod";
 
 const organizationSchema = z.object({
@@ -15,12 +16,12 @@ const organizationSchema = z.object({
   secondaryPhone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal('')),
 });
 
-interface OrganizationSectionProps {
-  organization: any;
-  onUpdate: () => void;
+interface CreateOrganizationDialogProps {
+  userId: string;
+  onOrganizationCreated: () => void;
 }
 
-export default function OrganizationSection({ organization, onUpdate }: OrganizationSectionProps) {
+export default function CreateOrganizationDialog({ userId, onOrganizationCreated }: CreateOrganizationDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
     primaryEmail: "",
@@ -29,32 +30,20 @@ export default function OrganizationSection({ organization, onUpdate }: Organiza
     secondaryPhone: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (organization) {
-      setFormData({
-        name: organization.name || "",
-        primaryEmail: organization.primary_contact_email || "",
-        primaryPhone: organization.primary_contact_phone || "",
-        secondaryEmail: organization.secondary_contact_email || "",
-        secondaryPhone: organization.secondary_contact_phone || "",
-      });
-    }
-  }, [organization]);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handleSave = async () => {
-    if (!organization?.id) return;
-
+  const handleSubmit = async () => {
     setErrors({});
 
+    // Validate form data
     const result = organizationSchema.safeParse(formData);
     
     if (!result.success) {
@@ -68,36 +57,55 @@ export default function OrganizationSection({ organization, onUpdate }: Organiza
       return;
     }
 
-    setSaving(true);
-    const { error } = await supabase
+    setSubmitting(true);
+
+    const { data, error } = await supabase
       .from('organizations')
-      .update({
+      .insert({
         name: result.data.name,
         primary_contact_email: result.data.primaryEmail,
         primary_contact_phone: result.data.primaryPhone,
         secondary_contact_email: result.data.secondaryEmail || null,
         secondary_contact_phone: result.data.secondaryPhone || null,
       })
-      .eq('id', organization.id);
+      .select()
+      .single();
 
     if (error) {
-      toast.error("Failed to update organization");
-    } else {
-      toast.success("Organization updated");
-      onUpdate();
+      toast.error("Failed to create organization");
+      setSubmitting(false);
+      return;
     }
-    setSaving(false);
+
+    // Update user's profile with org_id
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ org_id: data.id })
+      .eq('id', userId);
+
+    if (profileError) {
+      toast.error("Failed to update profile");
+      setSubmitting(false);
+      return;
+    }
+
+    toast.success("Organization created successfully!");
+    onOrganizationCreated();
+    setSubmitting(false);
   };
 
   return (
-    <Card>
+    <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Organization</CardTitle>
-        <CardDescription>Manage your organization details</CardDescription>
+        <Building2 className="h-8 w-8 mb-2 text-primary" />
+        <CardTitle>Create Your Organization</CardTitle>
+        <CardDescription>
+          Set up your organization to get started with the admin portal
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="org-name">Organization Name</Label>
+          <Label htmlFor="org-name">Organization Name *</Label>
           <Input
             id="org-name"
             value={formData.name}
@@ -108,11 +116,11 @@ export default function OrganizationSection({ organization, onUpdate }: Organiza
           {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
         </div>
 
-        <div className="space-y-4 pt-4 border-t">
-          <h3 className="text-sm font-semibold">Primary Contact</h3>
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Primary Contact</h3>
           
           <div className="space-y-2">
-            <Label htmlFor="primary-email">Email</Label>
+            <Label htmlFor="primary-email">Email *</Label>
             <Input
               id="primary-email"
               type="email"
@@ -125,7 +133,7 @@ export default function OrganizationSection({ organization, onUpdate }: Organiza
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="primary-phone">Phone</Label>
+            <Label htmlFor="primary-phone">Phone *</Label>
             <Input
               id="primary-phone"
               type="tel"
@@ -138,8 +146,8 @@ export default function OrganizationSection({ organization, onUpdate }: Organiza
           </div>
         </div>
 
-        <div className="space-y-4 pt-4 border-t">
-          <h3 className="text-sm font-semibold">Secondary Contact (Optional)</h3>
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Secondary Contact (Optional)</h3>
           
           <div className="space-y-2">
             <Label htmlFor="secondary-email">Email</Label>
@@ -168,8 +176,8 @@ export default function OrganizationSection({ organization, onUpdate }: Organiza
           </div>
         </div>
 
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save"}
+        <Button onClick={handleSubmit} className="w-full" disabled={submitting}>
+          {submitting ? "Creating..." : "Create Organization"}
         </Button>
       </CardContent>
     </Card>

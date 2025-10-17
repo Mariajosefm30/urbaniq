@@ -323,16 +323,28 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          primary_contact_email: string | null
+          primary_contact_phone: string | null
+          secondary_contact_email: string | null
+          secondary_contact_phone: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           name: string
+          primary_contact_email?: string | null
+          primary_contact_phone?: string | null
+          secondary_contact_email?: string | null
+          secondary_contact_phone?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           name?: string
+          primary_contact_email?: string | null
+          primary_contact_phone?: string | null
+          secondary_contact_email?: string | null
+          secondary_contact_phone?: string | null
         }
         Relationships: []
       }

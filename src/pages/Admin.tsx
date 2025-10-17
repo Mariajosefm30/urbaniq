@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Building2 } from "lucide-react";
 import PortfolioTab from "@/components/admin/PortfolioTab";
 import SetupTab from "@/components/admin/SetupTab";
+import CreateOrganizationDialog from "@/components/admin/CreateOrganizationDialog";
 
 export default function Admin() {
   const { profile, loading } = useAuth();
@@ -52,20 +53,10 @@ export default function Admin() {
   if (!profile?.org_id) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <Card className="max-w-md mx-auto">
-          <CardHeader>
-            <Building2 className="h-8 w-8 mb-2 text-primary" />
-            <CardTitle>Setup Required</CardTitle>
-            <CardDescription>
-              You need to be assigned to an organization to access the admin portal.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Please contact your system administrator.
-            </p>
-          </CardContent>
-        </Card>
+        <CreateOrganizationDialog 
+          userId={profile!.id}
+          onOrganizationCreated={loadOrganization}
+        />
       </div>
     );
   }
