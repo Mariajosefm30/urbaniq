@@ -593,6 +593,10 @@ export type Database = {
       }
     }
     Functions: {
+      get_user_org_id: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: string
@@ -605,6 +609,10 @@ export type Database = {
       }
       is_admin: {
         Args: { _user_id: string }
+        Returns: boolean
+      }
+      manager_has_building_access: {
+        Args: { _building_id: string; _user_id: string }
         Returns: boolean
       }
       refresh_recurring_alerts: {
