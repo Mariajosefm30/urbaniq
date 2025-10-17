@@ -441,6 +441,11 @@ export default function Landing() {
                     contact@proppass.com
                   </a>
                 </li>
+                <li>
+                  <a href="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
+                    Admin Portal
+                  </a>
+                </li>
               </ul>
             </div>
           </div>

@@ -141,6 +141,15 @@ export default function Auth() {
                       <Shield className="h-4 w-4" />
                       Manager
                     </Button>
+                    <Button
+                      type="button"
+                      variant={role === "admin" ? "default" : "outline"}
+                      className="flex-1 gap-2"
+                      onClick={() => setRole("admin")}
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin
+                    </Button>
                   </div>
                 </div>
               </>
