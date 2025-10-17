@@ -43,10 +43,14 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
   }, [buildingId, session, location.pathname]);
 
+  // Wait for both auth and session to be ready
   if (authLoading || sessionLoading || hasAccess === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center pt-16">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <p className="mt-2 text-sm text-muted-foreground">Loading session...</p>
+        </div>
       </div>
     );
   }

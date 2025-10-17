@@ -33,45 +33,82 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const handleRouting = async (userId: string, event?: string) => {
+    // Fetch whoami data for routing decisions
+    try {
+      const { data: whoamiData, error } = await supabase.functions.invoke('whoami');
+      
+      if (error) {
+        console.error('[auth-routing] Failed to fetch whoami:', error);
+        setLoading(false);
+        return;
+      }
+
+      const { role, org_id, last_building_id } = whoamiData;
+
+      console.info('[route-decider]', { 
+        role, 
+        org_id, 
+        last_building_id, 
+        event,
+        currentPath: window.location.pathname 
+      });
+
+      // Also fetch profile for other components
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      
+      setProfile(profileData);
+
+      // Only redirect on SIGNED_IN event or if on wrong page
+      if (event === 'SIGNED_IN') {
+        if (role === 'admin') {
+          if (!org_id) {
+            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin/setup' });
+            navigate('/admin/setup');
+          } else {
+            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin' });
+            navigate('/admin');
+          }
+        } else if (role === 'manager') {
+          if (last_building_id) {
+            console.info('[route-decider]', { role, org_id, last_building_id, target: `/buildings/${last_building_id}/tickets` });
+            navigate(`/buildings/${last_building_id}/tickets`);
+          } else {
+            console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
+            navigate('/manager');
+          }
+        } else {
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/tickets' });
+          navigate('/tickets');
+        }
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('[auth-routing] Error:', error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Set up auth listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('[auth-state-change]', event);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile in background
-          setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", session.user.id)
-              .single();
-            
-            setProfile(profileData);
-            
-            // Handle role-based redirects on login
-            if (event === 'SIGNED_IN') {
-              if (profileData?.role === 'admin') {
-                if (!profileData.org_id) {
-                  navigate('/admin/setup');
-                } else {
-                  navigate('/admin');
-                }
-              } else if (profileData?.role === 'manager') {
-                if (profileData.last_building_id) {
-                  navigate(`/buildings/${profileData.last_building_id}/tickets`);
-                } else {
-                  navigate('/manager');
-                }
-              } else {
-                navigate('/tickets');
-              }
-            }
+          setTimeout(() => {
+            handleRouting(session.user.id, event);
           }, 0);
         } else {
           setProfile(null);
+          setLoading(false);
         }
       }
     );
@@ -82,31 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single()
-          .then(({ data: profileData }) => {
-            setProfile(profileData);
-            setLoading(false);
-            
-            // Redirect based on role if on wrong page
-            const currentPath = window.location.pathname;
-            if (profileData?.role === 'admin') {
-              if (!profileData.org_id && currentPath !== '/admin/setup') {
-                navigate('/admin/setup');
-              } else if (profileData.org_id && currentPath !== '/admin' && !currentPath.startsWith('/settings')) {
-                navigate('/admin');
-              }
-            } else if (profileData?.role === 'manager' && currentPath === '/tickets') {
-              if (profileData.last_building_id) {
-                navigate(`/buildings/${profileData.last_building_id}/tickets`);
-              } else {
-                navigate('/manager');
-              }
-            }
-          });
+        handleRouting(session.user.id);
       } else {
         setLoading(false);
       }
