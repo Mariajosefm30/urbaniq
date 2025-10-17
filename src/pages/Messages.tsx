@@ -100,7 +100,7 @@ export default function Messages() {
             <h2 className="text-3xl font-bold tracking-tight">Messages</h2>
             <p className="text-muted-foreground">
               {isManager
-                ? "Send messages to residents"
+                ? "View and send messages to residents"
                 : "View messages from management"}
             </p>
           </div>

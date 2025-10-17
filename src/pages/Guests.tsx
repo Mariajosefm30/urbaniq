@@ -90,6 +90,13 @@ export default function Guests() {
 
   const createGuest = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent managers from creating guests
+    if (profile?.role === "manager") {
+      toast.error("Managers cannot create guest passes. Only residents can create passes.");
+      return;
+    }
+
     setSubmitting(true);
 
     const validation = guestSchema.safeParse({ name, arrival_at: arrivalAt });

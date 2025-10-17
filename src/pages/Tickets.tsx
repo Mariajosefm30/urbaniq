@@ -75,6 +75,12 @@ export default function Tickets() {
   };
 
   const createTicket = async (title: string, description: string, category: string, unit: string, image?: File) => {
+    // Prevent managers from creating tickets
+    if (profile?.role === "manager") {
+      toast.error("Managers cannot create tickets. Only residents can submit tickets.");
+      return;
+    }
+
     setSubmitting(true);
 
     const validation = ticketSchema.safeParse({ title, description, category });
