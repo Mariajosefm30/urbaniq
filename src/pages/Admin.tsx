@@ -17,6 +17,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const [organization, setOrganization] = useState<any>(null);
   const [selectedBuilding, setSelectedBuilding] = useState<{ id: string; name: string } | null>(null);
+  const [showOrgDialog, setShowOrgDialog] = useState(false);
 
   useEffect(() => {
     if (!loading && profile?.role !== 'admin') {
@@ -27,8 +28,10 @@ export default function Admin() {
   useEffect(() => {
     if (profile?.org_id) {
       loadOrganization();
+    } else if (profile && !profile.org_id) {
+      setShowOrgDialog(true);
     }
-  }, [profile?.org_id]);
+  }, [profile?.org_id, profile]);
 
   const loadOrganization = async () => {
     if (!profile?.org_id) return;
@@ -57,9 +60,20 @@ export default function Admin() {
   if (!profile?.org_id) {
     return (
       <div className="container mx-auto py-8 px-4">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">Welcome to Admin Portal</h1>
+          <p className="text-muted-foreground">
+            Let's get started by creating your organization
+          </p>
+        </div>
         <CreateOrganizationDialog 
           userId={profile!.id}
-          onOrganizationCreated={loadOrganization}
+          onOrganizationCreated={() => {
+            setShowOrgDialog(false);
+            loadOrganization();
+          }}
+          open={showOrgDialog}
+          onOpenChange={setShowOrgDialog}
         />
       </div>
     );

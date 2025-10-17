@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,9 +19,11 @@ const organizationSchema = z.object({
 interface CreateOrganizationDialogProps {
   userId: string;
   onOrganizationCreated: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export default function CreateOrganizationDialog({ userId, onOrganizationCreated }: CreateOrganizationDialogProps) {
+export default function CreateOrganizationDialog({ userId, onOrganizationCreated, open, onOpenChange }: CreateOrganizationDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
     primaryContactName: "",
@@ -95,89 +97,93 @@ export default function CreateOrganizationDialog({ userId, onOrganizationCreated
   };
 
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardHeader>
-        <Building2 className="h-8 w-8 mb-2 text-primary" />
-        <CardTitle>Create Your Organization</CardTitle>
-        <CardDescription>
-          Set up your organization to get started with the admin portal
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="org-name">Organization Name *</Label>
-          <Input
-            id="org-name"
-            value={formData.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-            placeholder="Acme Property Management"
-            maxLength={100}
-          />
-          {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Primary Contact</h3>
-          
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <Building2 className="h-6 w-6 text-primary" />
+            <DialogTitle>Create Your Organization</DialogTitle>
+          </div>
+          <DialogDescription>
+            Set up your organization to get started with the admin portal
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-6 py-4">
           <div className="space-y-2">
-            <Label htmlFor="primary-contact-name">Name *</Label>
+            <Label htmlFor="org-name">Organization Name *</Label>
             <Input
-              id="primary-contact-name"
-              value={formData.primaryContactName}
-              onChange={(e) => handleChange('primaryContactName', e.target.value)}
-              placeholder="John Smith"
+              id="org-name"
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              placeholder="Acme Property Management"
               maxLength={100}
             />
-            {errors.primaryContactName && <p className="text-sm text-destructive">{errors.primaryContactName}</p>}
+            {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="primary-email">Email *</Label>
-            <Input
-              id="primary-email"
-              type="email"
-              value={formData.primaryEmail}
-              onChange={(e) => handleChange('primaryEmail', e.target.value)}
-              placeholder="contact@acme.com"
-              maxLength={255}
-            />
-            {errors.primaryEmail && <p className="text-sm text-destructive">{errors.primaryEmail}</p>}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Primary Contact</h3>
+            
+            <div className="space-y-2">
+              <Label htmlFor="primary-contact-name">Name *</Label>
+              <Input
+                id="primary-contact-name"
+                value={formData.primaryContactName}
+                onChange={(e) => handleChange('primaryContactName', e.target.value)}
+                placeholder="John Smith"
+                maxLength={100}
+              />
+              {errors.primaryContactName && <p className="text-sm text-destructive">{errors.primaryContactName}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="primary-email">Email *</Label>
+              <Input
+                id="primary-email"
+                type="email"
+                value={formData.primaryEmail}
+                onChange={(e) => handleChange('primaryEmail', e.target.value)}
+                placeholder="contact@acme.com"
+                maxLength={255}
+              />
+              {errors.primaryEmail && <p className="text-sm text-destructive">{errors.primaryEmail}</p>}
+            </div>
           </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Secondary Contact (Optional)</h3>
+            
+            <div className="space-y-2">
+              <Label htmlFor="secondary-contact-name">Name</Label>
+              <Input
+                id="secondary-contact-name"
+                value={formData.secondaryContactName}
+                onChange={(e) => handleChange('secondaryContactName', e.target.value)}
+                placeholder="Jane Doe"
+                maxLength={100}
+              />
+              {errors.secondaryContactName && <p className="text-sm text-destructive">{errors.secondaryContactName}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="secondary-email">Email</Label>
+              <Input
+                id="secondary-email"
+                type="email"
+                value={formData.secondaryEmail}
+                onChange={(e) => handleChange('secondaryEmail', e.target.value)}
+                placeholder="support@acme.com"
+                maxLength={255}
+              />
+              {errors.secondaryEmail && <p className="text-sm text-destructive">{errors.secondaryEmail}</p>}
+            </div>
+          </div>
+
+          <Button onClick={handleSubmit} className="w-full" disabled={submitting}>
+            {submitting ? "Creating..." : "Create Organization"}
+          </Button>
         </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Secondary Contact (Optional)</h3>
-          
-          <div className="space-y-2">
-            <Label htmlFor="secondary-contact-name">Name</Label>
-            <Input
-              id="secondary-contact-name"
-              value={formData.secondaryContactName}
-              onChange={(e) => handleChange('secondaryContactName', e.target.value)}
-              placeholder="Jane Doe"
-              maxLength={100}
-            />
-            {errors.secondaryContactName && <p className="text-sm text-destructive">{errors.secondaryContactName}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="secondary-email">Email</Label>
-            <Input
-              id="secondary-email"
-              type="email"
-              value={formData.secondaryEmail}
-              onChange={(e) => handleChange('secondaryEmail', e.target.value)}
-              placeholder="support@acme.com"
-              maxLength={255}
-            />
-            {errors.secondaryEmail && <p className="text-sm text-destructive">{errors.secondaryEmail}</p>}
-          </div>
-        </div>
-
-        <Button onClick={handleSubmit} className="w-full" disabled={submitting}>
-          {submitting ? "Creating..." : "Create Organization"}
-        </Button>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

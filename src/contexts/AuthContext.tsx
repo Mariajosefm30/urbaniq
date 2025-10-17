@@ -107,6 +107,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
           setProfile(fullProfile);
           setLoading(false);
+          
+          // Redirect based on role if on wrong page
+          const currentPath = window.location.pathname;
+          if (fullProfile.role === 'admin' && currentPath !== '/admin') {
+            navigate('/admin');
+          } else if (fullProfile.role === 'manager' && currentPath === '/tickets') {
+            if (fullProfile.last_building_id) {
+              navigate(`/buildings/${fullProfile.last_building_id}/tickets`);
+            } else {
+              navigate('/manager');
+            }
+          }
         });
       } else {
         setLoading(false);
