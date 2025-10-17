@@ -29,16 +29,12 @@ async function safeJson(req: Request) {
   }
 }
 
-// Helper: Generate simple guest code (e.g., "JohnSmith101A")
+// Helper: Generate simple guest code (e.g., "John Smith&101&A")
 function generateGuestCode(name: string, unit: string): string {
-  // Remove spaces and special chars from name, capitalize
-  const cleanName = name.replace(/[^a-zA-Z]/g, '');
-  const nameCapitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase();
-  
   // Random letter A-Z
   const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
   
-  return `${nameCapitalized}${unit}${randomLetter}`;
+  return `${name}&${unit}&${randomLetter}`;
 }
 
 // Helper: Get current user from request
