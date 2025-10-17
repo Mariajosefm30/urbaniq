@@ -21,6 +21,7 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
   const [formData, setFormData] = useState({
     name: "",
     managerName: "",
+    managerEmail: "",
     streetAddress: "",
     city: "",
     country: "",
@@ -52,6 +53,7 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
     const buildingData = {
       name: formData.name,
       manager_name: formData.managerName || null,
+      manager_email: formData.managerEmail || null,
       street_address: formData.streetAddress || null,
       city: formData.city || null,
       country: formData.country || null,
@@ -94,6 +96,7 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
     setFormData({
       name: building.name,
       managerName: building.manager_name || "",
+      managerEmail: building.manager_email || "",
       streetAddress: building.street_address || "",
       city: building.city || "",
       country: building.country || "",
@@ -122,6 +125,7 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
     setFormData({
       name: "",
       managerName: "",
+      managerEmail: "",
       streetAddress: "",
       city: "",
       country: "",
@@ -175,6 +179,16 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="manager-email">Manager Email</Label>
+                  <Input
+                    id="manager-email"
+                    type="email"
+                    value={formData.managerEmail}
+                    onChange={(e) => setFormData(prev => ({ ...prev, managerEmail: e.target.value }))}
+                    placeholder="manager@example.com"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="street-address">Street Address</Label>
                   <Input
                     id="street-address"
@@ -218,6 +232,7 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Manager</TableHead>
+                <TableHead>Manager Email</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -231,6 +246,7 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
                 >
                   <TableCell className="font-medium">{building.name}</TableCell>
                   <TableCell>{building.manager_name || "—"}</TableCell>
+                  <TableCell>{building.manager_email || "—"}</TableCell>
                   <TableCell>
                     {[building.street_address, building.city, building.country].filter(Boolean).join(", ") || "—"}
                   </TableCell>

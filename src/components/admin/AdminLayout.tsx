@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Building2, LogOut, User, BarChart3 } from "lucide-react";
+import { Building2, LogOut, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -48,16 +48,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 >
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">Profile</span>
-                </Button>
-              </Link>
-              <Link to="/admin/portfolio">
-                <Button
-                  variant={isActive("/admin/portfolio") ? "default" : "ghost"}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Portfolio</span>
                 </Button>
               </Link>
               <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">

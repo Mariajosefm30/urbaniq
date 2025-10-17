@@ -84,6 +84,7 @@ export type Database = {
           id: string
           lat: number | null
           lng: number | null
+          manager_email: string | null
           manager_name: string | null
           name: string
           org_id: string
@@ -96,6 +97,7 @@ export type Database = {
           id?: string
           lat?: number | null
           lng?: number | null
+          manager_email?: string | null
           manager_name?: string | null
           name: string
           org_id: string
@@ -108,6 +110,7 @@ export type Database = {
           id?: string
           lat?: number | null
           lng?: number | null
+          manager_email?: string | null
           manager_name?: string | null
           name?: string
           org_id?: string
