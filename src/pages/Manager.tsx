@@ -51,9 +51,9 @@ export default function Manager() {
 
       const buildingIds = assignments.map(a => a.building_id);
 
-      // Get building details
+      // Get building details from buildings_new table
       const { data: buildingsData } = await supabase
-        .from("buildings")
+        .from("buildings_new")
         .select("*")
         .in("id", buildingIds);
 
@@ -81,7 +81,7 @@ export default function Manager() {
           return {
             id: building.id,
             name: building.name,
-            address: building.address,
+            address: [building.street_address, building.city, building.country].filter(Boolean).join(", ") || null,
             openTickets: openCount || 0,
             inProgressTickets: inProgressCount || 0,
             newGuests: guestCount || 0,
