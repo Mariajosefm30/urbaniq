@@ -139,7 +139,7 @@ export default function DebugBar() {
 
   if (loading) {
     return (
-      <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-black px-4 py-2 text-xs font-mono flex items-center gap-2">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-yellow-500 text-black px-4 py-2 text-xs font-mono flex items-center gap-2">
         <Loader2 className="h-3 w-3 animate-spin" />
         Loading session...
       </div>
@@ -148,7 +148,7 @@ export default function DebugBar() {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-black px-4 py-2 text-xs font-mono flex items-center justify-between gap-4 flex-wrap">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-yellow-500 text-black px-4 py-2 text-xs font-mono flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
           <span>user: {session?.email || 'null'}</span>
           <span>role: {session?.role || 'null'}</span>
