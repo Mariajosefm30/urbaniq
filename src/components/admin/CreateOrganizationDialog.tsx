@@ -10,10 +10,10 @@ import { z } from "zod";
 
 const organizationSchema = z.object({
   name: z.string().trim().min(1, "Organization name is required").max(100, "Name must be less than 100 characters"),
+  primaryContactName: z.string().trim().min(1, "Primary contact name is required").max(100, "Name must be less than 100 characters"),
   primaryEmail: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
-  primaryPhone: z.string().trim().min(1, "Primary phone is required").max(20, "Phone must be less than 20 characters"),
+  secondaryContactName: z.string().trim().max(100, "Name must be less than 100 characters").optional().or(z.literal('')),
   secondaryEmail: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters").optional().or(z.literal('')),
-  secondaryPhone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal('')),
 });
 
 interface CreateOrganizationDialogProps {
@@ -24,10 +24,10 @@ interface CreateOrganizationDialogProps {
 export default function CreateOrganizationDialog({ userId, onOrganizationCreated }: CreateOrganizationDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
+    primaryContactName: "",
     primaryEmail: "",
-    primaryPhone: "",
+    secondaryContactName: "",
     secondaryEmail: "",
-    secondaryPhone: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -63,10 +63,10 @@ export default function CreateOrganizationDialog({ userId, onOrganizationCreated
       .from('organizations')
       .insert({
         name: result.data.name,
+        primary_contact_name: result.data.primaryContactName,
         primary_contact_email: result.data.primaryEmail,
-        primary_contact_phone: result.data.primaryPhone,
+        secondary_contact_name: result.data.secondaryContactName || null,
         secondary_contact_email: result.data.secondaryEmail || null,
-        secondary_contact_phone: result.data.secondaryPhone || null,
       })
       .select()
       .single();
@@ -120,6 +120,18 @@ export default function CreateOrganizationDialog({ userId, onOrganizationCreated
           <h3 className="text-lg font-semibold">Primary Contact</h3>
           
           <div className="space-y-2">
+            <Label htmlFor="primary-contact-name">Name *</Label>
+            <Input
+              id="primary-contact-name"
+              value={formData.primaryContactName}
+              onChange={(e) => handleChange('primaryContactName', e.target.value)}
+              placeholder="John Smith"
+              maxLength={100}
+            />
+            {errors.primaryContactName && <p className="text-sm text-destructive">{errors.primaryContactName}</p>}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="primary-email">Email *</Label>
             <Input
               id="primary-email"
@@ -131,24 +143,23 @@ export default function CreateOrganizationDialog({ userId, onOrganizationCreated
             />
             {errors.primaryEmail && <p className="text-sm text-destructive">{errors.primaryEmail}</p>}
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="primary-phone">Phone *</Label>
-            <Input
-              id="primary-phone"
-              type="tel"
-              value={formData.primaryPhone}
-              onChange={(e) => handleChange('primaryPhone', e.target.value)}
-              placeholder="+1 (555) 123-4567"
-              maxLength={20}
-            />
-            {errors.primaryPhone && <p className="text-sm text-destructive">{errors.primaryPhone}</p>}
-          </div>
         </div>
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Secondary Contact (Optional)</h3>
           
+          <div className="space-y-2">
+            <Label htmlFor="secondary-contact-name">Name</Label>
+            <Input
+              id="secondary-contact-name"
+              value={formData.secondaryContactName}
+              onChange={(e) => handleChange('secondaryContactName', e.target.value)}
+              placeholder="Jane Doe"
+              maxLength={100}
+            />
+            {errors.secondaryContactName && <p className="text-sm text-destructive">{errors.secondaryContactName}</p>}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="secondary-email">Email</Label>
             <Input
@@ -160,19 +171,6 @@ export default function CreateOrganizationDialog({ userId, onOrganizationCreated
               maxLength={255}
             />
             {errors.secondaryEmail && <p className="text-sm text-destructive">{errors.secondaryEmail}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="secondary-phone">Phone</Label>
-            <Input
-              id="secondary-phone"
-              type="tel"
-              value={formData.secondaryPhone}
-              onChange={(e) => handleChange('secondaryPhone', e.target.value)}
-              placeholder="+1 (555) 987-6543"
-              maxLength={20}
-            />
-            {errors.secondaryPhone && <p className="text-sm text-destructive">{errors.secondaryPhone}</p>}
           </div>
         </div>
 

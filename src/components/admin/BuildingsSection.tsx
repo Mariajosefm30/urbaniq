@@ -13,8 +13,13 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
   const [buildings, setBuildings] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState<any>(null);
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    managerName: "",
+    streetAddress: "",
+    city: "",
+    country: "",
+  });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -32,17 +37,25 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
   };
 
   const handleSubmit = async () => {
-    if (!name.trim()) {
+    if (!formData.name.trim()) {
       toast.error("Please enter a building name");
       return;
     }
 
     setSubmitting(true);
 
+    const buildingData = {
+      name: formData.name,
+      manager_name: formData.managerName || null,
+      street_address: formData.streetAddress || null,
+      city: formData.city || null,
+      country: formData.country || null,
+    };
+
     if (editingBuilding) {
       const { error } = await supabase
         .from('buildings_new')
-        .update({ name, address: address || null })
+        .update(buildingData)
         .eq('id', editingBuilding.id);
 
       if (error) {
@@ -56,7 +69,7 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
     } else {
       const { error } = await supabase
         .from('buildings_new')
-        .insert({ org_id: orgId, name, address: address || null });
+        .insert({ org_id: orgId, ...buildingData });
 
       if (error) {
         toast.error("Failed to create building");
@@ -73,8 +86,13 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
 
   const handleEdit = (building: any) => {
     setEditingBuilding(building);
-    setName(building.name);
-    setAddress(building.address || "");
+    setFormData({
+      name: building.name,
+      managerName: building.manager_name || "",
+      streetAddress: building.street_address || "",
+      city: building.city || "",
+      country: building.country || "",
+    });
     setDialogOpen(true);
   };
 
@@ -96,8 +114,13 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
   };
 
   const resetForm = () => {
-    setName("");
-    setAddress("");
+    setFormData({
+      name: "",
+      managerName: "",
+      streetAddress: "",
+      city: "",
+      country: "",
+    });
     setEditingBuilding(null);
     setDialogOpen(false);
   };
@@ -129,25 +152,52 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="building-name">Name</Label>
+                  <Label htmlFor="building-name">Building Name *</Label>
                   <Input
                     id="building-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Sunset Apartments"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="building-address">Address</Label>
+                  <Label htmlFor="manager-name">Manager Name</Label>
                   <Input
-                    id="building-address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="123 Main St, City, State"
+                    id="manager-name"
+                    value={formData.managerName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, managerName: e.target.value }))}
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="street-address">Street Address</Label>
+                  <Input
+                    id="street-address"
+                    value={formData.streetAddress}
+                    onChange={(e) => setFormData(prev => ({ ...prev, streetAddress: e.target.value }))}
+                    placeholder="123 Main St"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                    placeholder="San Francisco"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="country">Country</Label>
+                  <Input
+                    id="country"
+                    value={formData.country}
+                    onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                    placeholder="USA"
                   />
                 </div>
                 <Button onClick={handleSubmit} className="w-full" disabled={submitting}>
-                  {submitting ? "Saving..." : editingBuilding ? "Save" : "Create building"}
+                  {submitting ? "Saving..." : editingBuilding ? "Save" : "Create"}
                 </Button>
               </div>
             </DialogContent>
@@ -162,7 +212,8 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Address</TableHead>
+                <TableHead>Manager</TableHead>
+                <TableHead>Location</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -170,7 +221,10 @@ export default function BuildingsSection({ orgId }: { orgId: string }) {
               {buildings.map((building) => (
                 <TableRow key={building.id}>
                   <TableCell className="font-medium">{building.name}</TableCell>
-                  <TableCell>{building.address || "—"}</TableCell>
+                  <TableCell>{building.manager_name || "—"}</TableCell>
+                  <TableCell>
+                    {[building.street_address, building.city, building.country].filter(Boolean).join(", ") || "—"}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button
