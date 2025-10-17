@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SessionProvider } from "./contexts/SessionContext";
 import { BuildingProvider } from "./contexts/BuildingContext";
+import DebugBar from "./components/DebugBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Tickets from "./pages/Tickets";
@@ -31,8 +33,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <BuildingProvider>
-            <Routes>
+          <SessionProvider>
+            <BuildingProvider>
+              <DebugBar />
+              <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-static" element={<VerifyStatic />} />
@@ -49,8 +53,9 @@ const App = () => (
               <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BuildingProvider>
+              </Routes>
+            </BuildingProvider>
+          </SessionProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
