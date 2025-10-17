@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Loader2, Ticket, CreditCard, UserPlus } from "lucide-react";
 import { useBuilding } from "@/contexts/BuildingContext";
+import Layout from "@/components/Layout";
 
 interface Building {
   id: string;
@@ -137,7 +138,7 @@ export default function Manager() {
 
   if (buildings.length === 0) {
     return (
-      <div className="container mx-auto py-8 px-4">
+      <Layout>
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">My Buildings</h1>
           <p className="text-muted-foreground">
@@ -155,12 +156,12 @@ export default function Manager() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <Layout>
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">My Buildings</h1>
         <p className="text-muted-foreground">
@@ -218,6 +219,6 @@ export default function Manager() {
           </Card>
         ))}
       </div>
-    </div>
+    </Layout>
   );
 }
