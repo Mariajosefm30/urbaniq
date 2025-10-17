@@ -38,8 +38,7 @@ interface GuestPassResponse {
   guest_id: string;
   name: string;
   unit?: string;
-  verify_url: string;
-  token: string;
+  guest_code: string;
   arrival_at: string;
   valid_from: string;
   expires_at: string;
@@ -107,14 +106,6 @@ export default function Guests() {
     }
 
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      
-      if (!sessionData?.session) {
-        toast.error("You must be logged in to create a guest pass");
-        setSubmitting(false);
-        return;
-      }
-
       const { data: result, error: fnError } = await supabase.functions.invoke<GuestPassResponse>('create-guest-pass', {
         body: {
           name,
@@ -130,24 +121,7 @@ export default function Guests() {
         return;
       }
 
-      // Get total count to generate tracking code
-      const { count } = await supabase
-        .from('guests')
-        .select('*', { count: 'exact', head: true });
-
-      const guestNumber = String((count || 0)).padStart(4, '0');
-      const trackingCode = `PropPass&${guestNumber}`;
-
-      // Update the guest with demo code
-      await supabase
-        .from('guests')
-        .update({
-          demo_code: trackingCode,
-          demo_code_status: 'new',
-        })
-        .eq('id', result.guest_id);
-
-      toast.success(`Guest pass created with code: ${trackingCode}`);
+      toast.success(`Guest pass created! Code: ${result.guest_code}`);
       setDialogOpen(false);
       setName("");
       setUnit("");

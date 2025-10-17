@@ -29,25 +29,16 @@ async function safeJson(req: Request) {
   }
 }
 
-// Helper: Convert ArrayBuffer to hex string
-function bufferToHex(buffer: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buffer))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-// Helper: Convert Uint8Array to base64url
-function base64urlFromBytes(buffer: Uint8Array): string {
-  const base64 = btoa(String.fromCharCode(...buffer));
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-// Helper: Hash token with pepper using Web Crypto
-async function sha256Hex(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return bufferToHex(hashBuffer);
+// Helper: Generate simple guest code (e.g., "JohnSmith101A")
+function generateGuestCode(name: string, unit: string): string {
+  // Remove spaces and special chars from name, capitalize
+  const cleanName = name.replace(/[^a-zA-Z]/g, '');
+  const nameCapitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase();
+  
+  // Random letter A-Z
+  const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  
+  return `${nameCapitalized}${unit}${randomLetter}`;
 }
 
 // Helper: Get current user from request
@@ -82,14 +73,7 @@ serve(async (req) => {
       return json({ error: 'signin_required' }, { status: 401 });
     }
 
-    // 2) Env guard
-    const pepper = Deno.env.get('TOKEN_PEPPER');
-    if (!pepper) {
-      console.error('[create-guest-pass] TOKEN_PEPPER not configured');
-      return json({ error: 'config_missing:TOKEN_PEPPER' }, { status: 500 });
-    }
-
-    // 3) Payload validation
+    // 2) Payload validation
     const payload = await safeJson(req);
     const { name, unit, arrival_at } = payload;
     
@@ -107,24 +91,22 @@ serve(async (req) => {
       return json({ error: 'bad_request:missing_or_invalid' }, { status: 400 });
     }
 
-    // 4) Time window calculation
+    // 3) Time window calculation
     const windowHours = Number(Deno.env.get('QR_WINDOW_HOURS') ?? 12);
     const validFrom = new Date(arrival.getTime() - windowHours * 3600 * 1000);
     const expiresAt = new Date(arrival.getTime() + windowHours * 3600 * 1000);
 
-    // 5) Token generation + hash (Web Crypto)
-    const tokenBytes = crypto.getRandomValues(new Uint8Array(32));
-    const token = base64urlFromBytes(tokenBytes);
-    const qr_token_hash = await sha256Hex(token + pepper);
+    // 4) Generate simple guest code
+    const guestCode = generateGuestCode(name, unit || '000');
 
     console.info('[create-guest-pass] Creating pass', {
       user_id: user.id,
       guest_name: name,
-      hash_prefix: qr_token_hash.substring(0, 8),
+      guest_code: guestCode,
       arrival_at: arrival.toISOString(),
     });
 
-    // 6) Insert (RLS might reject)
+    // 5) Insert guest
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -140,11 +122,12 @@ serve(async (req) => {
       .insert({
         name,
         unit: unit || null,
-        host_id: user.id,           // NEVER from client
+        host_id: user.id,
         arrival_at: arrival.toISOString(),
         valid_from: validFrom.toISOString(),
         qr_expires_at: expiresAt.toISOString(),
-        qr_token_hash,
+        demo_code: guestCode,
+        demo_code_status: 'new',
         status: 'scheduled',
       })
       .select()
@@ -161,15 +144,11 @@ serve(async (req) => {
       }, { status: 403 });
     }
 
-    // 7) Build verify_url on server and return success
-    const APP_URL = Deno.env.get('APP_DOMAIN') || req.headers.get('origin') || 'https://82552e21-c2ba-4cea-bdcf-68a062d9aa1d.lovableproject.com';
-    const verify_url = `${APP_URL}/verify?token=${token}#token=${encodeURIComponent(token)}`;
-
     const duration = Date.now() - startTime;
     console.info('[create-guest-pass] Success', {
       guest_id: guest.id,
       user_id: user.id,
-      hash_prefix: qr_token_hash.substring(0, 8),
+      guest_code: guestCode,
       duration_ms: duration,
     });
 
@@ -177,8 +156,7 @@ serve(async (req) => {
       guest_id: guest.id,
       name: guest.name,
       unit: guest.unit,
-      verify_url,
-      token,
+      guest_code: guestCode,
       arrival_at: guest.arrival_at,
       valid_from: guest.valid_from,
       expires_at: guest.qr_expires_at,
