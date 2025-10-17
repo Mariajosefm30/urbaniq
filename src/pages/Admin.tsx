@@ -1,18 +1,41 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Users, Settings } from "lucide-react";
+import { Building2 } from "lucide-react";
+import PortfolioTab from "@/components/admin/PortfolioTab";
+import SetupTab from "@/components/admin/SetupTab";
 
 export default function Admin() {
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
+  const [organization, setOrganization] = useState<any>(null);
 
   useEffect(() => {
     if (!loading && profile?.role !== 'admin') {
       navigate('/');
     }
   }, [loading, profile, navigate]);
+
+  useEffect(() => {
+    if (profile?.org_id) {
+      loadOrganization();
+    }
+  }, [profile?.org_id]);
+
+  const loadOrganization = async () => {
+    if (!profile?.org_id) return;
+
+    const { data } = await supabase
+      .from('organizations')
+      .select('*')
+      .eq('id', profile.org_id)
+      .single();
+
+    setOrganization(data);
+  };
 
   if (loading) {
     return (
@@ -26,61 +49,53 @@ export default function Admin() {
     return null;
   }
 
+  if (!profile?.org_id) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <Building2 className="h-8 w-8 mb-2 text-primary" />
+            <CardTitle>Setup Required</CardTitle>
+            <CardDescription>
+              You need to be assigned to an organization to access the admin portal.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Please contact your system administrator.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Admin Portal</h1>
         <p className="text-muted-foreground">
-          Manage organizations, buildings, and user assignments
+          {organization?.name || "Manage your organization"}
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <Building2 className="h-8 w-8 mb-2 text-primary" />
-            <CardTitle>Organizations & Buildings</CardTitle>
-            <CardDescription>
-              Create and manage organizations and their properties
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Coming soon: Portfolio management interface
-            </p>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="portfolio" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+          <TabsTrigger value="setup">Setup</TabsTrigger>
+        </TabsList>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <Users className="h-8 w-8 mb-2 text-primary" />
-            <CardTitle>User Management</CardTitle>
-            <CardDescription>
-              Assign managers to buildings and manage roles
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Coming soon: User and role assignment interface
-            </p>
-          </CardContent>
-        </Card>
+        <TabsContent value="portfolio" className="space-y-6">
+          <PortfolioTab orgId={profile.org_id} />
+        </TabsContent>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <Settings className="h-8 w-8 mb-2 text-primary" />
-            <CardTitle>System Settings</CardTitle>
-            <CardDescription>
-              Configure platform-wide settings and preferences
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Coming soon: Global configuration options
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="setup" className="space-y-6">
+          <SetupTab 
+            organization={organization} 
+            onOrganizationUpdate={loadOrganization}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
