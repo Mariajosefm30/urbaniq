@@ -23,9 +23,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   
   const isManager = profile?.role === 'manager';
   const isAdmin = profile?.role === 'admin';
-  // Admin never sees building-scoped nav, managers need a building selected
-  const showNav = isAdmin ? false : 
-                  isManager ? !!currentBuildingId : true;
+  
+  // Managers always see some nav (Buildings, Dashboard, Messages)
+  // Residents see full nav
+  // Admins see no nav (they have their own admin interface)
+  const showNav = !isAdmin;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -105,28 +107,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               
               {showNav && (
                 <>
-                  <Link to={currentBuildingId ? `/buildings/${currentBuildingId}/tickets` : "/tickets"}>
-                    <Button
-                      variant={isActive("/tickets") || location.pathname.includes("/tickets") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <ClipboardList className="h-4 w-4" />
-                      <span className="hidden sm:inline">Tickets</span>
-                    </Button>
-                  </Link>
-                  {isManager && currentBuildingId && (
-                    <Link to={`/buildings/${currentBuildingId}/units`}>
+                  {/* Buildings tab - always visible for managers */}
+                  {isManager && (
+                    <Link to="/manager">
                       <Button
-                        variant={location.pathname.includes("/units") ? "default" : "ghost"}
+                        variant={isActive("/manager") ? "default" : "ghost"}
                         size="sm"
                         className="gap-2"
                       >
-                        <Home className="h-4 w-4" />
-                        <span className="hidden sm:inline">Units</span>
+                        <Building2 className="h-4 w-4" />
+                        <span className="hidden sm:inline">Buildings</span>
                       </Button>
                     </Link>
                   )}
+                  
+                  {/* Dashboard - always visible for managers */}
                   {isManager && (
                     <Link to="/dashboard">
                       <Button
@@ -139,26 +134,95 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       </Button>
                     </Link>
                   )}
-                  <Link to="/guests">
-                    <Button
-                      variant={isActive("/guests") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Users className="h-4 w-4" />
-                      <span className="hidden sm:inline">Guests</span>
-                    </Button>
-                  </Link>
-                  <Link to="/messages">
-                    <Button
-                      variant={isActive("/messages") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      <span className="hidden sm:inline">Messages</span>
-                    </Button>
-                  </Link>
+                  
+                  {/* Messages - always visible for managers */}
+                  {isManager && (
+                    <Link to="/messages">
+                      <Button
+                        variant={isActive("/messages") ? "default" : "ghost"}
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        <span className="hidden sm:inline">Messages</span>
+                      </Button>
+                    </Link>
+                  )}
+                  
+                  {/* Building-specific tabs - only when building is selected */}
+                  {currentBuildingId && (
+                    <>
+                      <Link to={`/buildings/${currentBuildingId}/tickets`}>
+                        <Button
+                          variant={location.pathname.includes("/tickets") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <ClipboardList className="h-4 w-4" />
+                          <span className="hidden sm:inline">Tickets</span>
+                        </Button>
+                      </Link>
+                      {isManager && (
+                        <Link to={`/buildings/${currentBuildingId}/units`}>
+                          <Button
+                            variant={location.pathname.includes("/units") ? "default" : "ghost"}
+                            size="sm"
+                            className="gap-2"
+                          >
+                            <Home className="h-4 w-4" />
+                            <span className="hidden sm:inline">Units</span>
+                          </Button>
+                        </Link>
+                      )}
+                      <Link to="/guests">
+                        <Button
+                          variant={isActive("/guests") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Users className="h-4 w-4" />
+                          <span className="hidden sm:inline">Guests</span>
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                  
+                  {/* Resident-only tabs */}
+                  {!isManager && (
+                    <>
+                      <Link to="/tickets">
+                        <Button
+                          variant={isActive("/tickets") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <ClipboardList className="h-4 w-4" />
+                          <span className="hidden sm:inline">Tickets</span>
+                        </Button>
+                      </Link>
+                      <Link to="/guests">
+                        <Button
+                          variant={isActive("/guests") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Users className="h-4 w-4" />
+                          <span className="hidden sm:inline">Guests</span>
+                        </Button>
+                      </Link>
+                      <Link to="/messages">
+                        <Button
+                          variant={isActive("/messages") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          <span className="hidden sm:inline">Messages</span>
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                  
                   <Link to="/settings">
                     <Button
                       variant={isActive("/settings") ? "default" : "ghost"}
