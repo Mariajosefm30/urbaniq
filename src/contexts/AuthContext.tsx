@@ -74,13 +74,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             navigate('/admin');
           }
         } else if (role === 'manager') {
-          if (last_building_id) {
-            console.info('[route-decider]', { role, org_id, last_building_id, target: `/buildings/${last_building_id}/tickets` });
-            navigate(`/buildings/${last_building_id}/tickets`);
-          } else {
-            console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
-            navigate('/manager');
-          }
+          // Always land on the Buildings page so managers can pick a building
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
+          navigate('/manager');
         } else {
           console.info('[route-decider]', { role, org_id, last_building_id, target: '/tickets' });
           navigate('/tickets');
