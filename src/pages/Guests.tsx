@@ -115,24 +115,17 @@ export default function Guests() {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-guest-pass`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionData.session.access_token}`,
-        },
-        body: JSON.stringify({
+      const { data: result, error: fnError } = await supabase.functions.invoke<GuestPassResponse>('create-guest-pass', {
+        body: {
           name,
           unit: unit || null,
           arrival_at: arrivalAt,
-        }),
+        }
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        console.error('Error from edge function:', result);
-        toast.error(result.error || "Failed to create guest pass");
+      if (fnError || !result) {
+        console.error('Error from edge function:', fnError);
+        toast.error(fnError?.message || "Failed to create guest pass");
         setSubmitting(false);
         return;
       }

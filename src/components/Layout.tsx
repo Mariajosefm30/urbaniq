@@ -149,8 +149,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </Link>
                   )}
                   
-                  {/* Building-specific tabs - only when building is selected */}
-                  {currentBuildingId && (
+                  {/* Building-specific tabs - only when a manager has selected a building */}
+                  {isManager && currentBuildingId && (
                     <>
                       <Link to={`/buildings/${currentBuildingId}/tickets`}>
                         <Button
