@@ -18,6 +18,8 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     code: "",
+    residentName: "",
+    contactInformation: "",
   });
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
       .from('units')
       .select('*')
       .eq('building_id', buildingId)
-      .order('code');
+      .order('created_at', { ascending: false });
 
     setUnits(data || []);
   };
@@ -38,6 +40,8 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
     setUnits([...units, { 
       id: `temp-${Date.now()}`,
       code: "",
+      resident_name: "",
+      contact_information: "",
       isNew: true 
     }]);
     setEditingIndex(units.length);
@@ -46,8 +50,8 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
   const handleSave = async (index: number) => {
     const unit = units[index];
     
-    if (!unit.code?.trim()) {
-      toast.error("Unit code is required");
+    if (!unit.resident_name?.trim()) {
+      toast.error("Resident name is required");
       return;
     }
 
@@ -56,7 +60,9 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
         .from('units')
         .insert([{
           building_id: buildingId,
-          code: unit.code,
+          code: unit.code?.trim() || undefined, // Let DB generate if empty
+          resident_name: unit.resident_name?.trim() || null,
+          contact_information: unit.contact_information?.trim() || null,
         }])
         .select()
         .single();
@@ -75,7 +81,9 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
       const { error } = await supabase
         .from('units')
         .update({
-          code: unit.code,
+          code: unit.code?.trim() || null,
+          resident_name: unit.resident_name?.trim() || null,
+          contact_information: unit.contact_information?.trim() || null,
         })
         .eq('id', unit.id);
 
@@ -164,7 +172,9 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
             <TableHeader>
               <TableRow>
                 <TableHead>Unit Code</TableHead>
-                <TableHead className="w-[150px]">Actions</TableHead>
+                <TableHead>Resident Name</TableHead>
+                <TableHead>Contact Information</TableHead>
+                <TableHead className="w-[200px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -173,12 +183,35 @@ export default function UnitsSection({ buildingId, buildingName }: UnitsSectionP
                   <TableCell>
                     {editingIndex === index ? (
                       <Input
-                        value={unit.code}
+                        value={unit.code || ""}
                         onChange={(e) => handleFieldChange(index, 'code', e.target.value)}
-                        placeholder="101"
+                        placeholder="101 (optional)"
                       />
                     ) : (
                       unit.code || "—"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {editingIndex === index ? (
+                      <Input
+                        value={unit.resident_name || ""}
+                        onChange={(e) => handleFieldChange(index, 'resident_name', e.target.value)}
+                        placeholder="John Doe"
+                        required
+                      />
+                    ) : (
+                      unit.resident_name || "—"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {editingIndex === index ? (
+                      <Input
+                        value={unit.contact_information || ""}
+                        onChange={(e) => handleFieldChange(index, 'contact_information', e.target.value)}
+                        placeholder="email@example.com or phone"
+                      />
+                    ) : (
+                      unit.contact_information || "—"
                     )}
                   </TableCell>
                   <TableCell>

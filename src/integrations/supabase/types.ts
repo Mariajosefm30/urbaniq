@@ -528,22 +528,28 @@ export type Database = {
         Row: {
           building_id: string
           code: string
+          contact_information: string | null
           created_at: string | null
           id: string
+          resident_name: string | null
           resident_user_id: string | null
         }
         Insert: {
           building_id: string
-          code: string
+          code?: string
+          contact_information?: string | null
           created_at?: string | null
           id?: string
+          resident_name?: string | null
           resident_user_id?: string | null
         }
         Update: {
           building_id?: string
           code?: string
+          contact_information?: string | null
           created_at?: string | null
           id?: string
+          resident_name?: string | null
           resident_user_id?: string | null
         }
         Relationships: []
@@ -593,6 +599,10 @@ export type Database = {
       }
     }
     Functions: {
+      building_in_admin_org: {
+        Args: { _building_id: string; _user_id: string }
+        Returns: boolean
+      }
       get_user_org_id: {
         Args: { _user_id: string }
         Returns: string
