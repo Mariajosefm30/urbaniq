@@ -54,7 +54,7 @@ async function sha256Hex(input: string): Promise<string> {
 async function getCurrentUserFromRequest(req: Request) {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     {
       global: {
         headers: { Authorization: req.headers.get('Authorization') || '' },
@@ -127,7 +127,7 @@ serve(async (req) => {
     // 6) Insert (RLS might reject)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
           headers: { Authorization: req.headers.get('Authorization') || '' },
