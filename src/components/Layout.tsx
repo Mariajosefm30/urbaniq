@@ -3,7 +3,7 @@ import { useBuilding } from "@/contexts/BuildingContext";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home, AlertCircle } from "lucide-react";
+import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home, AlertCircle, DollarSign } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -184,6 +184,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           <span className="hidden sm:inline">Guests</span>
                         </Button>
                       </Link>
+                      <Link to={`/buildings/${currentBuildingId}/payments`}>
+                        <Button
+                          variant={location.pathname.includes("/payments") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <DollarSign className="h-4 w-4" />
+                          <span className="hidden sm:inline">Payments</span>
+                        </Button>
+                      </Link>
                     </>
                   )}
                   
@@ -218,6 +228,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         >
                           <MessageSquare className="h-4 w-4" />
                           <span className="hidden sm:inline">Messages</span>
+                        </Button>
+                      </Link>
+                      <Link to="/payments">
+                        <Button
+                          variant={isActive("/payments") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <DollarSign className="h-4 w-4" />
+                          <span className="hidden sm:inline">Payments</span>
                         </Button>
                       </Link>
                     </>

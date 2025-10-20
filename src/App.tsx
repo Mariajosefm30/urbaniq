@@ -25,6 +25,7 @@ import AdminProfile from "./pages/AdminProfile";
 import AdminPortfolio from "./pages/AdminPortfolio";
 import Manager from "./pages/Manager";
 import Units from "./pages/Units";
+import Payments from "./pages/Payments";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,8 @@ const App = () => (
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
               <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+              <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
               </Routes>
