@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, UserPlus, Calendar, Clock } from "lucide-react";
+import { Plus, UserPlus, Calendar, Clock, QrCode as QrCodeIcon } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import Layout from "@/components/Layout";
@@ -350,9 +350,22 @@ export default function Guests() {
                     Expires: {new Date(guest.qr_expires_at).toLocaleString()}
                   </div>
                   
-                  {/* Show demo code - visible to all for demo purposes */}
+                  {/* Show QR code and access code */}
                   {guest.demo_code && (
-                    <div className="mt-3 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                    <div className="mt-3 p-4 bg-primary/5 rounded-lg border border-primary/20 space-y-3">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <QrCodeIcon className="h-5 w-5 text-primary" />
+                        <h4 className="text-sm font-semibold">Guest Pass</h4>
+                      </div>
+                      <div className="flex justify-center">
+                        <img
+                          alt="Guest Pass QR Code"
+                          width={200}
+                          height={200}
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(guest.demo_code)}`}
+                          className="border rounded-lg p-2 bg-white"
+                        />
+                      </div>
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-xs font-medium text-muted-foreground mb-1">Access Code</p>
