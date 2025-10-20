@@ -21,20 +21,28 @@ Deno.serve(async (req) => {
   try {
     const { mode, enabled } = getPaymentsConfig();
     
-    console.log('[check-payment-config] Payments mode:', mode, 'enabled:', enabled);
+    console.log('[create-checkout-session] Payments mode:', mode, 'enabled:', enabled);
+    
+    if (!enabled) {
+      return new Response(
+        JSON.stringify({ error: 'payments_disabled' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
 
+    // TODO: Implement Mercado Pago checkout session creation
     return new Response(
-      JSON.stringify({
-        mode,
-        enabled,
-      }),
+      JSON.stringify({ error: 'not_implemented' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+        status: 501,
       }
     );
   } catch (error) {
-    console.error('[check-payment-config] Error:', error);
+    console.error('[create-checkout-session] Error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {

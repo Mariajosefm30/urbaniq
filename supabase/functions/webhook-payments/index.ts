@@ -19,22 +19,30 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { mode, enabled } = getPaymentsConfig();
+    const { enabled } = getPaymentsConfig();
     
-    console.log('[check-payment-config] Payments mode:', mode, 'enabled:', enabled);
+    console.log('[webhook-payments] Payments enabled:', enabled);
+    
+    if (!enabled) {
+      return new Response(
+        JSON.stringify({ skipped: 'payments_disabled' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    }
 
+    // TODO: Implement Mercado Pago webhook handling
     return new Response(
-      JSON.stringify({
-        mode,
-        enabled,
-      }),
+      JSON.stringify({ received: true }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('[check-payment-config] Error:', error);
+    console.error('[webhook-payments] Error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {

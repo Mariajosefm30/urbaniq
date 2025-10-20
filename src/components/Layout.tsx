@@ -3,6 +3,7 @@ import { useBuilding } from "@/contexts/BuildingContext";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home, AlertCircle, DollarSign } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -20,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [paymentsMode, setPaymentsMode] = useState<string>('disabled');
   
   const isManager = profile?.role === 'manager';
   const isAdmin = profile?.role === 'admin';
@@ -35,7 +37,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (isManager && user?.id) {
       loadBuildings();
     }
+    checkPaymentsMode();
   }, [isManager, user?.id]);
+
+  const checkPaymentsMode = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-payment-config');
+      if (error) throw error;
+      setPaymentsMode(data.mode || 'disabled');
+    } catch (error) {
+      console.error('[layout] Failed to check payments mode:', error);
+      setPaymentsMode('disabled');
+    }
+  };
 
   const loadBuildings = async () => {
     if (!user?.id || !isManager) return;
@@ -85,6 +99,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
             <nav className="flex items-center gap-2">
+              <Badge 
+                variant="secondary" 
+                className="gap-1 text-xs"
+                title={paymentsMode !== 'mercadopago' ? "Configure Mercado Pago to accept online payments." : "Payments enabled"}
+              >
+                <DollarSign className="h-3 w-3" />
+                Payments: {paymentsMode === 'mercadopago' ? 'Enabled' : 'Disabled'}
+              </Badge>
+
               {isManager && !isAdmin && buildings.length > 0 && (
                 <>
                   <div className="flex items-center gap-2 mr-2">

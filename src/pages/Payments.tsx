@@ -6,6 +6,7 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/components/ui/use-toast";
 import { Loader2, DollarSign, AlertCircle } from "lucide-react";
 
 export default function Payments() {
@@ -24,12 +25,23 @@ export default function Payments() {
       
       if (error) throw error;
       
+      console.log('[payments] Config:', data);
       setPaymentsEnabled(data.enabled);
     } catch (error) {
       console.error('[payments] Failed to check payment config:', error);
       setPaymentsEnabled(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePayNow = () => {
+    if (!paymentsEnabled) {
+      toast({
+        title: "Payments disabled",
+        description: "Could not start checkout (payments disabled).",
+        variant: "destructive",
+      });
     }
   };
 
@@ -52,7 +64,16 @@ export default function Payments() {
         </p>
       </div>
 
-      {!paymentsEnabled && (
+      {!paymentsEnabled && profile?.role === 'manager' && (
+        <Alert className="mb-6 border-warning/50 bg-warning/10">
+          <AlertCircle className="h-4 w-4 text-warning" />
+          <AlertDescription className="text-warning-foreground">
+            Payments are not configured. You can still create invoices; residents won't be able to pay until setup is complete.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!paymentsEnabled && profile?.role !== 'manager' && (
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -75,13 +96,9 @@ export default function Payments() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {paymentsEnabled ? (
-                  <Button>Create Invoice</Button>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Invoice creation is not available. Please configure payment provider.
-                  </p>
-                )}
+                <Button disabled={!paymentsEnabled}>
+                  Create Invoice
+                </Button>
               </CardContent>
             </Card>
 
@@ -112,18 +129,17 @@ export default function Payments() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {paymentsEnabled ? (
-                  <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                      No outstanding invoices
-                    </p>
-                    <Button disabled={!paymentsEnabled}>Pay Now</Button>
-                  </div>
-                ) : (
+                <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    Payment functionality is not available at this time.
+                    No outstanding invoices
                   </p>
-                )}
+                  <Button 
+                    disabled={!paymentsEnabled}
+                    onClick={handlePayNow}
+                  >
+                    Pay Now
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
