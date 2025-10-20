@@ -138,7 +138,7 @@ export type Database = {
           id: string
           name: string
           qr_expires_at: string
-          qr_token_hash: string
+          qr_token_hash: string | null
           redeemed_at: string | null
           status: Database["public"]["Enums"]["guest_status"]
           unit: string | null
@@ -155,7 +155,7 @@ export type Database = {
           id?: string
           name: string
           qr_expires_at: string
-          qr_token_hash: string
+          qr_token_hash?: string | null
           redeemed_at?: string | null
           status?: Database["public"]["Enums"]["guest_status"]
           unit?: string | null
@@ -172,7 +172,7 @@ export type Database = {
           id?: string
           name?: string
           qr_expires_at?: string
-          qr_token_hash?: string
+          qr_token_hash?: string | null
           redeemed_at?: string | null
           status?: Database["public"]["Enums"]["guest_status"]
           unit?: string | null
