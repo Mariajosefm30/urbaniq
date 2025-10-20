@@ -24,16 +24,11 @@ export default function Manager() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && profile?.role !== 'manager' && profile?.role !== 'admin') {
-      navigate('/');
-    }
-  }, [authLoading, profile, navigate]);
-
-  useEffect(() => {
     if (profile?.id) {
       loadBuildings();
     }
   }, [profile?.id]);
+
 
   const loadBuildings = async () => {
     try {
