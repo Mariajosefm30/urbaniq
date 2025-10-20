@@ -63,8 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setProfile(profileData);
 
-      // Only redirect on SIGNED_IN event or if on wrong page
-      if (event === 'SIGNED_IN') {
+      // Only redirect on SIGNED_IN event if we're on the auth page
+      if (event === 'SIGNED_IN' && window.location.pathname === '/auth') {
         if (role === 'admin') {
           if (!org_id) {
             console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin/setup' });
