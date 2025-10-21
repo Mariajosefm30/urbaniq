@@ -24,6 +24,8 @@ interface Unit {
   id: string;
   code: string;
   resident_user_id: string | null;
+  resident_name: string | null;
+  contact_information: string | null;
   notes: string | null;
   residentName?: string;
   residentEmail?: string;
@@ -78,9 +80,10 @@ export default function Units() {
     // Load resident info separately
     const processedUnits: Unit[] = await Promise.all(
       unitsData.map(async (unit: any) => {
-        let residentName = null;
-        let residentEmail = null;
+        let residentName = unit.resident_name || null;
+        let residentEmail = unit.contact_information || null;
 
+        // If there's a linked profile, use that instead
         if (unit.resident_user_id) {
           const { data: profileData } = await supabase
             .from('profiles')
@@ -88,14 +91,18 @@ export default function Units() {
             .eq('id', unit.resident_user_id)
             .single();
 
-          residentName = profileData?.name || null;
-          residentEmail = profileData?.email || null;
+          if (profileData) {
+            residentName = profileData.name || residentName;
+            residentEmail = profileData.email || residentEmail;
+          }
         }
 
         return {
           id: unit.id,
           code: unit.code,
           resident_user_id: unit.resident_user_id,
+          resident_name: unit.resident_name,
+          contact_information: unit.contact_information,
           notes: unit.notes,
           residentName,
           residentEmail,
