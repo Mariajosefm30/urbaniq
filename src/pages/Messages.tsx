@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import Layout from "@/components/Layout";
@@ -111,6 +111,26 @@ export default function Messages() {
             </Button>
           )}
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Contact Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">Email:</p>
+              <a 
+                href="mailto:manager@test.com" 
+                className="text-sm font-medium hover:underline"
+              >
+                manager@test.com
+              </a>
+            </div>
+          </CardContent>
+        </Card>
 
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading messages...</div>
