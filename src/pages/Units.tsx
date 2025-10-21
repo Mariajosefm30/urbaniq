@@ -158,6 +158,8 @@ export default function Units() {
       id: data.id,
       code: data.code,
       resident_user_id: data.resident_user_id,
+      resident_name: (data as any).resident_name || null,
+      contact_information: (data as any).contact_information || null,
       notes: (data as any).notes || null,
     };
 

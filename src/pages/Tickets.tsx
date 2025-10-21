@@ -56,22 +56,54 @@ export default function Tickets() {
 
   const loadTickets = async () => {
     if (!user) return;
-    
-    const { data, error } = await supabase
-      .from("maintenance_tickets")
-      .select("*, profiles(name, unit), technicians(name, phone, rating)")
-      .order("created_at", { ascending: false });
+    setLoading(true);
 
-    if (error) {
-      toast.error("Failed to load tickets");
-    } else {
-      // Filter by building on client side if buildingId is present
-      const filteredData = buildingId 
-        ? (data || []).filter((ticket: any) => ticket.building_id === buildingId)
-        : (data || []);
-      setTickets(filteredData);
+    try {
+      // Managers: only show tickets for residents in the current building
+      if (profile?.role === 'manager' && buildingId) {
+        const { data: unitResidents, error: unitsErr } = await supabase
+          .from('units')
+          .select('resident_user_id')
+          .eq('building_id', buildingId)
+          .not('resident_user_id', 'is', null);
+
+        if (unitsErr) throw unitsErr;
+
+        const residentIds = (unitResidents || [])
+          .map((u: any) => u.resident_user_id)
+          .filter(Boolean);
+
+        if (residentIds.length === 0) {
+          setTickets([]);
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('maintenance_tickets')
+          .select('*, profiles(name, unit), technicians(name, phone, rating)')
+          .in('reporter_id', residentIds)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setTickets(data || []);
+        setLoading(false);
+        return;
+      }
+
+      // Default: load all visible tickets (RLS will scope correctly)
+      const { data, error } = await supabase
+        .from('maintenance_tickets')
+        .select('*, profiles(name, unit), technicians(name, phone, rating)')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTickets(data || []);
+    } catch (e) {
+      toast.error('Failed to load tickets');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const createTicket = async (title: string, description: string, category: string, unit: string, image?: File) => {

@@ -81,16 +81,30 @@ export default function ManagerHome() {
     // For each building, fetch counts
     const buildingsWithCounts = await Promise.all(
       extractedBuildings.map(async (building: any) => {
-        // Ticket counts
-        const { data: ticketsData } = await supabase
-          .from('maintenance_tickets')
-          .select('status')
-          .or(`status.eq.open,status.eq.in_progress`);
+        // Get residents (profile ids) for this building via units
+        const { data: unitResidents } = await supabase
+          .from('units')
+          .select('resident_user_id')
+          .eq('building_id', building.id)
+          .not('resident_user_id', 'is', null);
 
-        const ticketCounts = {
-          open: ticketsData?.filter(t => t.status === 'open').length || 0,
-          in_progress: ticketsData?.filter(t => t.status === 'in_progress').length || 0,
-        };
+        const residentIds = (unitResidents || [])
+          .map((u: any) => u.resident_user_id)
+          .filter(Boolean);
+
+        // Ticket counts for this building
+        let ticketCounts = { open: 0, in_progress: 0 };
+        if (residentIds.length > 0) {
+          const { data: ticketsData } = await supabase
+            .from('maintenance_tickets')
+            .select('status')
+            .in('reporter_id', residentIds);
+
+          ticketCounts = {
+            open: ticketsData?.filter(t => t.status === 'open').length || 0,
+            in_progress: ticketsData?.filter(t => t.status === 'in_progress').length || 0,
+          };
+        }
 
         const paymentCounts = {
           due: 0,

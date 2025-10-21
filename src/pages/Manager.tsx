@@ -55,28 +55,40 @@ export default function Manager() {
       // Get counts for each building
       const buildingsWithCounts = await Promise.all(
         (buildingsData || []).map(async (building) => {
-          const { count: openCount } = await (supabase as any)
-            .from("tickets")
-            .select("*", { count: "exact", head: true })
-            .eq("building_id", building.id)
-            .eq("status", "open");
+          // Get residents (profile ids) for this building via units
+          const { data: unitResidents } = await supabase
+            .from('units')
+            .select('resident_user_id')
+            .eq('building_id', building.id)
+            .not('resident_user_id', 'is', null);
 
-          const { count: inProgressCount } = await (supabase as any)
-            .from("tickets")
-            .select("*", { count: "exact", head: true })
-            .eq("building_id", building.id)
-            .eq("status", "in_progress");
+          const residentIds = (unitResidents || [])
+            .map((u: any) => u.resident_user_id)
+            .filter(Boolean);
+
+          // Ticket counts using maintenance_tickets
+          let openCount = 0;
+          let inProgressCount = 0;
+          if (residentIds.length > 0) {
+            const { data: ticketsForBuilding } = await supabase
+              .from('maintenance_tickets')
+              .select('status')
+              .in('reporter_id', residentIds);
+
+            openCount = ticketsForBuilding?.filter(t => t.status === 'open').length || 0;
+            inProgressCount = ticketsForBuilding?.filter(t => t.status === 'in_progress').length || 0;
+          }
 
           const { count: guestCount } = await (supabase as any)
-            .from("guest_passes")
-            .select("*", { count: "exact", head: true })
-            .eq("building_id", building.id)
-            .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+            .from('guest_passes')
+            .select('*', { count: 'exact', head: true })
+            .eq('building_id', building.id)
+            .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
 
           return {
             id: building.id,
             name: building.name,
-            address: [building.street_address, building.city, building.country].filter(Boolean).join(", ") || null,
+            address: [building.street_address, building.city, building.country].filter(Boolean).join(', ') || null,
             openTickets: openCount || 0,
             inProgressTickets: inProgressCount || 0,
             newGuests: guestCount || 0,
