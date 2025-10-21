@@ -380,6 +380,7 @@ export type Database = {
           due_date: string
           id: string
           paid_date: string | null
+          receipt_url: string | null
           status: Database["public"]["Enums"]["payment_status"]
           type: Database["public"]["Enums"]["payment_type"]
           unit_id: string | null
@@ -394,6 +395,7 @@ export type Database = {
           due_date: string
           id?: string
           paid_date?: string | null
+          receipt_url?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           type: Database["public"]["Enums"]["payment_type"]
           unit_id?: string | null
@@ -408,6 +410,7 @@ export type Database = {
           due_date?: string
           id?: string
           paid_date?: string | null
+          receipt_url?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           type?: Database["public"]["Enums"]["payment_type"]
           unit_id?: string | null

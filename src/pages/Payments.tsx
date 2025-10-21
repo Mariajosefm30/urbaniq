@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBuilding } from "@/contexts/BuildingContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
-import { Loader2, DollarSign, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Loader2, DollarSign, AlertCircle, CheckCircle, Clock, Upload, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 export default function Payments() {
@@ -18,6 +18,8 @@ export default function Payments() {
   const [loading, setLoading] = useState(true);
   const [paymentsEnabled, setPaymentsEnabled] = useState(false);
   const [payments, setPayments] = useState<any[]>([]);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   useEffect(() => {
     checkPaymentConfig();
@@ -93,6 +95,66 @@ export default function Payments() {
     }).format(amount);
   };
 
+  const handleUploadReceipt = async (paymentId: string, file: File) => {
+    setUploadingId(paymentId);
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${paymentId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('payment-receipts')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('payment-receipts')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('payments')
+        .update({ receipt_url: filePath })
+        .eq('id', paymentId);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: "Receipt uploaded successfully",
+      });
+
+      await fetchPayments();
+    } catch (error) {
+      console.error('[payments] Failed to upload receipt:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload receipt",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  const handleFileChange = (paymentId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleUploadReceipt(paymentId, file);
+    }
+  };
+
+  const handleViewReceipt = async (receiptUrl: string) => {
+    const { data } = await supabase.storage
+      .from('payment-receipts')
+      .createSignedUrl(receiptUrl, 60);
+    
+    if (data?.signedUrl) {
+      window.open(data.signedUrl, '_blank');
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -150,6 +212,7 @@ export default function Payments() {
                         <TableHead>Due Date</TableHead>
                         <TableHead>Paid Date</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Receipt</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -162,6 +225,41 @@ export default function Payments() {
                             {payment.paid_date ? format(new Date(payment.paid_date), 'MMM d, yyyy') : '-'}
                           </TableCell>
                           <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                          <TableCell>
+                            {payment.receipt_url ? (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleViewReceipt(payment.receipt_url)}
+                              >
+                                <FileText className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            ) : (
+                              <>
+                                <input
+                                  ref={(el) => (fileInputRefs.current[payment.id] = el)}
+                                  type="file"
+                                  accept="image/*,.pdf"
+                                  className="hidden"
+                                  onChange={(e) => handleFileChange(payment.id, e)}
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => fileInputRefs.current[payment.id]?.click()}
+                                  disabled={uploadingId === payment.id}
+                                >
+                                  {uploadingId === payment.id ? (
+                                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                  ) : (
+                                    <Upload className="h-4 w-4 mr-1" />
+                                  )}
+                                  Upload
+                                </Button>
+                              </>
+                            )}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
