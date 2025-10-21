@@ -371,6 +371,73 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          building_id: string
+          created_at: string
+          description: string | null
+          due_date: string
+          id: string
+          paid_date: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          type: Database["public"]["Enums"]["payment_type"]
+          unit_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          building_id: string
+          created_at?: string
+          description?: string | null
+          due_date: string
+          id?: string
+          paid_date?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          type: Database["public"]["Enums"]["payment_type"]
+          unit_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          building_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          paid_date?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          type?: Database["public"]["Enums"]["payment_type"]
+          unit_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           building_address: string | null
@@ -648,6 +715,8 @@ export type Database = {
     Enums: {
       app_role: "resident" | "manager" | "admin"
       guest_status: "scheduled" | "expired" | "revoked"
+      payment_status: "pending" | "paid" | "overdue" | "cancelled"
+      payment_type: "rental" | "maintenance" | "utilities" | "other"
       ticket_status: "open" | "in_progress" | "resolved"
     }
     CompositeTypes: {
@@ -778,6 +847,8 @@ export const Constants = {
     Enums: {
       app_role: ["resident", "manager", "admin"],
       guest_status: ["scheduled", "expired", "revoked"],
+      payment_status: ["pending", "paid", "overdue", "cancelled"],
+      payment_type: ["rental", "maintenance", "utilities", "other"],
       ticket_status: ["open", "in_progress", "resolved"],
     },
   },
