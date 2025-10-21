@@ -59,47 +59,21 @@ export default function Tickets() {
     setLoading(true);
 
     try {
-      // Managers: only show tickets for residents in the current building
-      if (profile?.role === 'manager' && buildingId) {
-        const { data: unitResidents, error: unitsErr } = await supabase
-          .from('units')
-          .select('resident_user_id')
-          .eq('building_id', buildingId)
-          .not('resident_user_id', 'is', null);
-
-        if (unitsErr) throw unitsErr;
-
-        const residentIds = (unitResidents || [])
-          .map((u: any) => u.resident_user_id)
-          .filter(Boolean);
-
-        if (residentIds.length === 0) {
-          setTickets([]);
-          setLoading(false);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('maintenance_tickets')
-          .select('*, profiles(name, unit), technicians(name, phone, rating)')
-          .in('reporter_id', residentIds)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        setTickets(data || []);
-        setLoading(false);
-        return;
-      }
-
-      // Default: load all visible tickets (RLS will scope correctly)
+      console.log('Loading tickets for user:', user.id, 'role:', profile?.role, 'buildingId:', buildingId);
+      
+      // For managers, the RLS policy will automatically filter tickets
+      // based on whether they manage the resident's building
       const { data, error } = await supabase
         .from('maintenance_tickets')
         .select('*, profiles(name, unit), technicians(name, phone, rating)')
         .order('created_at', { ascending: false });
 
+      console.log('Tickets query result:', { data, error });
+
       if (error) throw error;
       setTickets(data || []);
     } catch (e) {
+      console.error('Failed to load tickets:', e);
       toast.error('Failed to load tickets');
     } finally {
       setLoading(false);
