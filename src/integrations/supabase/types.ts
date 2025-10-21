@@ -632,6 +632,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      user_manages_building: {
+        Args: { _building_id: string; _user_id: string }
+        Returns: boolean
+      }
+      user_manages_resident: {
+        Args: { _resident_id: string; _user_id: string }
+        Returns: boolean
+      }
+      user_manages_unit: {
+        Args: { _unit_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "resident" | "manager" | "admin"
