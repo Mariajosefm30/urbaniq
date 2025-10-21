@@ -6,18 +6,23 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
-import { Loader2, DollarSign, AlertCircle } from "lucide-react";
+import { Loader2, DollarSign, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { format } from "date-fns";
 
 export default function Payments() {
   const { profile } = useAuth();
   const { currentBuildingId } = useBuilding();
   const [loading, setLoading] = useState(true);
   const [paymentsEnabled, setPaymentsEnabled] = useState(false);
+  const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
     checkPaymentConfig();
-  }, []);
+    fetchPayments();
+  }, [profile]);
 
   const checkPaymentConfig = async () => {
     try {
@@ -35,6 +40,29 @@ export default function Payments() {
     }
   };
 
+  const fetchPayments = async () => {
+    if (!profile) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .order('due_date', { ascending: false });
+      
+      if (error) throw error;
+      
+      console.log('[payments] Fetched payments:', data);
+      setPayments(data || []);
+    } catch (error) {
+      console.error('[payments] Failed to fetch payments:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load payments",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePayNow = () => {
     if (!paymentsEnabled) {
       toast({
@@ -43,6 +71,26 @@ export default function Payments() {
         variant: "destructive",
       });
     }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return <Badge variant="default" className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" />Paid</Badge>;
+      case 'pending':
+        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+      case 'overdue':
+        return <Badge variant="destructive">Overdue</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
+  };
+
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
   };
 
   if (loading) {
@@ -87,32 +135,40 @@ export default function Payments() {
           <>
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Manage Invoices
-                </CardTitle>
+                <CardTitle>Maintenance Expenses</CardTitle>
                 <CardDescription>
-                  Create and manage invoices for residents
+                  Building maintenance payments and expenses
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button disabled={!paymentsEnabled}>
-                  Create Invoice
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Payments</CardTitle>
-                <CardDescription>
-                  View payment history and status
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  No payments to display
-                </p>
+                {payments.filter(p => p.type === 'maintenance').length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Due Date</TableHead>
+                        <TableHead>Paid Date</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {payments.filter(p => p.type === 'maintenance').map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">{payment.description}</TableCell>
+                          <TableCell>{formatAmount(payment.amount)}</TableCell>
+                          <TableCell>{format(new Date(payment.due_date), 'MMM d, yyyy')}</TableCell>
+                          <TableCell>
+                            {payment.paid_date ? format(new Date(payment.paid_date), 'MMM d, yyyy') : '-'}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No maintenance payments</p>
+                )}
               </CardContent>
             </Card>
           </>
@@ -122,38 +178,43 @@ export default function Payments() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
-                  My Invoices
+                  Rental Payments
                 </CardTitle>
                 <CardDescription>
-                  View and pay your outstanding invoices
+                  Monthly rent and utilities
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    No outstanding invoices
-                  </p>
-                  <Button 
-                    disabled={!paymentsEnabled}
-                    onClick={handlePayNow}
-                  >
-                    Pay Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment History</CardTitle>
-                <CardDescription>
-                  View your past payments
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  No payment history
-                </p>
+                {payments.filter(p => p.type === 'rental' || p.type === 'utilities').length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Due Date</TableHead>
+                        <TableHead>Paid Date</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {payments.filter(p => p.type === 'rental' || p.type === 'utilities').map((payment) => (
+                        <TableRow key={payment.id}>
+                          <TableCell className="font-medium">{payment.description}</TableCell>
+                          <TableCell className="capitalize">{payment.type}</TableCell>
+                          <TableCell>{formatAmount(payment.amount)}</TableCell>
+                          <TableCell>{format(new Date(payment.due_date), 'MMM d, yyyy')}</TableCell>
+                          <TableCell>
+                            {payment.paid_date ? format(new Date(payment.paid_date), 'MMM d, yyyy') : '-'}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No payments to display</p>
+                )}
               </CardContent>
             </Card>
           </>
