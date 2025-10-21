@@ -36,15 +36,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleRouting = async (userId: string, event?: string) => {
     // Fetch whoami data for routing decisions
     try {
-      const { data: whoamiData, error } = await supabase.functions.invoke('whoami');
+      const { data: whoamiData, error: whoamiError } = await supabase.functions.invoke('whoami');
       
-      if (error) {
-        console.error('[auth-routing] Failed to fetch whoami:', error);
-        setLoading(false);
-        return;
-      }
+      // Fetch profile for other components and as fallback
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      
+      setProfile(profileData);
 
-      const { role, org_id, last_building_id } = whoamiData;
+      // Use whoami data if available, otherwise fall back to profile
+      let role, org_id, last_building_id;
+      
+      if (whoamiError || !whoamiData) {
+        console.warn('[auth-routing] whoami failed, using profile data:', whoamiError);
+        role = profileData?.role;
+        org_id = profileData?.org_id;
+        last_building_id = profileData?.last_building_id;
+      } else {
+        role = whoamiData.role;
+        org_id = whoamiData.org_id;
+        last_building_id = whoamiData.last_building_id;
+      }
 
       console.info('[route-decider]', { 
         role, 
@@ -53,15 +68,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         event,
         currentPath: window.location.pathname 
       });
-
-      // Also fetch profile for other components
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      
-      setProfile(profileData);
 
       // Only redirect on SIGNED_IN event if we're on the auth page
       if (event === 'SIGNED_IN' && window.location.pathname === '/auth') {
