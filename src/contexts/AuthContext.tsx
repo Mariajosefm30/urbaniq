@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentPath: window.location.pathname 
       });
 
-      // Only redirect on SIGNED_IN event if we're on the auth page
+      // Redirect on SIGNED_IN event if we're on the auth page
       if (event === 'SIGNED_IN' && window.location.pathname === '/auth') {
         if (role === 'admin') {
           if (!org_id) {
@@ -81,6 +81,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } else if (role === 'manager') {
           // Always land on the Buildings page so managers can pick a building
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
+          navigate('/manager');
+        } else {
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/tickets' });
+          navigate('/tickets');
+        }
+      }
+      
+      // Also redirect after initial auth if on the auth page
+      if (!event && window.location.pathname === '/auth') {
+        if (role === 'admin') {
+          if (!org_id) {
+            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin/setup' });
+            navigate('/admin/setup');
+          } else {
+            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin' });
+            navigate('/admin');
+          }
+        } else if (role === 'manager') {
           console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
           navigate('/manager');
         } else {
