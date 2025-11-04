@@ -47,11 +47,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setProfile(profileData);
 
-      // Email override - specific email always goes to admin
+      // Email overrides - specific emails always go to their designated routes
       if (profileData?.email === "mfernandezmelgar@gmail.com") {
         console.info('[route-decider]', { email: profileData.email, target: '/admin (email override)' });
         if (window.location.pathname === '/auth' || event === 'SIGNED_IN') {
           navigate('/admin');
+        }
+        setLoading(false);
+        return;
+      }
+      
+      if (profileData?.email === "manager@test.com") {
+        console.info('[route-decider]', { email: profileData.email, target: '/manager (email override)' });
+        if (window.location.pathname === '/auth' || event === 'SIGNED_IN') {
+          navigate('/manager');
+        }
+        setLoading(false);
+        return;
+      }
+      
+      if (profileData?.email === "mariajof@tepper.cmu.edu") {
+        console.info('[route-decider]', { email: profileData.email, target: '/feed (email override)' });
+        if (window.location.pathname === '/auth' || event === 'SIGNED_IN') {
+          navigate('/feed');
         }
         setLoading(false);
         return;
