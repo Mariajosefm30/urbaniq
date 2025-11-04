@@ -26,6 +26,8 @@ import AdminPortfolio from "./pages/AdminPortfolio";
 import Manager from "./pages/Manager";
 import Units from "./pages/Units";
 import Payments from "./pages/Payments";
+import Amenities from "./pages/Amenities";
+import Feed from "./pages/Feed";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,10 @@ const App = () => (
               <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+              <Route path="/amenities" element={<ProtectedRoute><Amenities /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/amenities" element={<ProtectedRoute><Amenities /></ProtectedRoute>} />
+              <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
               </Routes>

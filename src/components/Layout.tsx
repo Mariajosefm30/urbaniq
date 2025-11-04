@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home, AlertCircle, DollarSign } from "lucide-react";
+import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home, AlertCircle, DollarSign, Dumbbell, Rss } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -217,6 +217,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           <span className="hidden sm:inline">Payments</span>
                         </Button>
                       </Link>
+                      <Link to={`/buildings/${currentBuildingId}/amenities`}>
+                        <Button
+                          variant={location.pathname.includes("/amenities") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Dumbbell className="h-4 w-4" />
+                          <span className="hidden sm:inline">Amenities</span>
+                        </Button>
+                      </Link>
+                      <Link to={`/buildings/${currentBuildingId}/feed`}>
+                        <Button
+                          variant={location.pathname.includes("/feed") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Rss className="h-4 w-4" />
+                          <span className="hidden sm:inline">Feed</span>
+                        </Button>
+                      </Link>
                     </>
                   )}
                   
@@ -261,6 +281,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         >
                           <DollarSign className="h-4 w-4" />
                           <span className="hidden sm:inline">Payments</span>
+                        </Button>
+                      </Link>
+                      <Link to="/amenities">
+                        <Button
+                          variant={isActive("/amenities") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Dumbbell className="h-4 w-4" />
+                          <span className="hidden sm:inline">Amenities</span>
+                        </Button>
+                      </Link>
+                      <Link to="/feed">
+                        <Button
+                          variant={isActive("/feed") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Rss className="h-4 w-4" />
+                          <span className="hidden sm:inline">Feed</span>
                         </Button>
                       </Link>
                     </>
