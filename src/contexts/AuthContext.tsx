@@ -49,8 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Email overrides - specific emails always go to their designated routes
       if (profileData?.email === "mfernandezmelgar@gmail.com") {
-        console.info('[route-decider]', { email: profileData.email, target: '/admin (email override)' });
-        if (window.location.pathname === '/auth' || event === 'SIGNED_IN') {
+        console.info('[route-decider]', { email: profileData.email, target: '/admin (email override)', currentPath: window.location.pathname });
+        if (window.location.pathname !== '/admin') {
           navigate('/admin');
         }
         setLoading(false);
@@ -58,8 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       if (profileData?.email === "manager@test.com") {
-        console.info('[route-decider]', { email: profileData.email, target: '/manager (email override)' });
-        if (window.location.pathname === '/auth' || event === 'SIGNED_IN') {
+        console.info('[route-decider]', { email: profileData.email, target: '/manager (email override)', currentPath: window.location.pathname });
+        if (window.location.pathname !== '/manager') {
           navigate('/manager');
         }
         setLoading(false);
@@ -67,8 +67,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       if (profileData?.email === "mariajof@tepper.cmu.edu") {
-        console.info('[route-decider]', { email: profileData.email, target: '/feed (email override)' });
-        if (window.location.pathname === '/auth' || event === 'SIGNED_IN') {
+        console.info('[route-decider]', { email: profileData.email, target: '/feed (email override)', currentPath: window.location.pathname });
+        if (window.location.pathname !== '/feed') {
           navigate('/feed');
         }
         setLoading(false);
