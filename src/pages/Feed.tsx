@@ -39,22 +39,29 @@ export default function Feed() {
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Role guard for standalone feed route - residents only
+  // Loop prevention guard for /feed route
   useEffect(() => {
     if (sessionLoading) return;
     
     // Allow if accessing via building route (managers/admins viewing building feed)
     if (currentBuildingId) return;
     
-    // For standalone /feed route, only residents allowed
-    if (session?.role !== 'resident') {
-      if (session?.role === 'admin') {
-        navigate('/admin');
-      } else if (session?.role === 'manager') {
-        navigate('/manager');
-      } else {
-        navigate('/auth');
-      }
+    // Redirect to auth if not authenticated
+    if (!session) {
+      navigate('/auth');
+      return;
+    }
+    
+    // For standalone /feed route - residents stay, others redirect
+    if (session.role === 'resident') {
+      // Do nothing - resident is on correct page
+      return;
+    } else if (session.role === 'manager') {
+      navigate('/manager');
+    } else if (session.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/auth');
     }
   }, [session, sessionLoading, currentBuildingId, navigate]);
 
@@ -197,6 +204,12 @@ export default function Feed() {
   return (
     <Layout>
       <div className="container mx-auto p-6 max-w-4xl">
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-muted/50 rounded-md text-xs font-mono space-y-1">
+          <div><strong>Email:</strong> {profile?.email || 'N/A'}</div>
+          <div><strong>Role:</strong> {session?.role || 'N/A'}</div>
+        </div>
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Community Feed</h1>

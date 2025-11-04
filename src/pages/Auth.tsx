@@ -31,13 +31,21 @@ export default function Auth() {
   const { user } = useAuth();
   const { session, loading: sessionLoading } = useSession();
 
-  // Role-based redirects on page load
+  // Role-based redirects on page load with email overrides
   useEffect(() => {
     if (sessionLoading || !user) return;
 
-    // Email override
+    // Email override - specific emails always go to their designated routes
     if (user.email === "mfernandezmelgar@gmail.com") {
       navigate("/admin");
+      return;
+    }
+    if (user.email === "manager@test.com") {
+      navigate("/manager");
+      return;
+    }
+    if (user.email === "mariajof@tepper.cmu.edu") {
+      navigate("/feed");
       return;
     }
 

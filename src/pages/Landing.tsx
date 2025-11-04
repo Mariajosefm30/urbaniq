@@ -32,13 +32,21 @@ export default function Landing() {
   // Check if INVITE_ONLY mode is enabled (you can set this via environment or config)
   const inviteOnly = false; // Set to true to enable invite-only mode
 
-  // Role-based redirects on page load
+  // Role-based redirects on page load with email overrides
   useEffect(() => {
     if (loading || !user) return;
 
-    // Email override
+    // Email override - specific emails always go to their designated routes
     if (user.email === "mfernandezmelgar@gmail.com") {
       navigate("/admin");
+      return;
+    }
+    if (user.email === "manager@test.com") {
+      navigate("/manager");
+      return;
+    }
+    if (user.email === "mariajof@tepper.cmu.edu") {
+      navigate("/feed");
       return;
     }
 
@@ -83,6 +91,14 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Debug Info (only show if authenticated) */}
+      {user && (
+        <div className="fixed top-20 right-4 z-50 p-3 bg-background border rounded-md shadow-lg text-xs font-mono space-y-1 max-w-xs">
+          <div><strong>Email:</strong> {user.email || 'N/A'}</div>
+          <div><strong>Role:</strong> {session?.role || 'N/A'}</div>
+        </div>
+      )}
+
       {/* Demo Contact Dialog */}
       <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
         <DialogContent className="sm:max-w-md">

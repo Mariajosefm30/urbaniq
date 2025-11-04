@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "@/contexts/SessionContext";
 import { useBuilding } from "@/contexts/BuildingContext";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,10 +29,34 @@ interface Building {
 
 export default function ManagerHome() {
   const { profile, user } = useAuth();
+  const { session, loading: sessionLoading } = useSession();
   const { currentBuildingId, setCurrentBuildingId, persistLastBuilding } = useBuilding();
   const navigate = useNavigate();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Loop prevention guard for /manager route
+  useEffect(() => {
+    if (sessionLoading) return;
+    
+    // Redirect to auth if not authenticated
+    if (!session) {
+      navigate('/auth');
+      return;
+    }
+    
+    // Managers stay, others redirect
+    if (session.role === 'manager') {
+      // Do nothing - manager is on correct page
+      return;
+    } else if (session.role === 'resident') {
+      navigate('/feed');
+    } else if (session.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/auth');
+    }
+  }, [session, sessionLoading, navigate]);
 
   useEffect(() => {
     if (profile?.role === 'manager') {
