@@ -47,6 +47,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setProfile(profileData);
 
+      // Email override - specific email always goes to admin
+      if (profileData?.email === "mfernandezmelgar@gmail.com") {
+        console.info('[route-decider]', { email: profileData.email, target: '/admin (email override)' });
+        if (window.location.pathname === '/auth' || event === 'SIGNED_IN') {
+          navigate('/admin');
+        }
+        setLoading(false);
+        return;
+      }
+
       // Use whoami data if available, otherwise fall back to profile
       let role, org_id, last_building_id;
       
@@ -80,12 +90,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             navigate('/admin');
           }
         } else if (role === 'manager') {
-          // Always land on the Buildings page so managers can pick a building
           console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
           navigate('/manager');
-        } else {
-          console.info('[route-decider]', { role, org_id, last_building_id, target: '/tickets' });
-          navigate('/tickets');
+        } else if (role === 'resident') {
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/feed' });
+          navigate('/feed');
         }
       }
       
@@ -102,9 +111,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if (role === 'manager') {
           console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
           navigate('/manager');
-        } else {
-          console.info('[route-decider]', { role, org_id, last_building_id, target: '/tickets' });
-          navigate('/tickets');
+        } else if (role === 'resident') {
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/feed' });
+          navigate('/feed');
         }
       }
 
