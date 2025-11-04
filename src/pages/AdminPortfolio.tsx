@@ -11,7 +11,13 @@ export default function AdminPortfolio() {
 
   useEffect(() => {
     if (!loading && profile?.role !== 'admin') {
-      navigate('/');
+      if (profile?.role === 'manager') {
+        navigate('/manager');
+      } else if (profile?.role === 'resident') {
+        navigate('/feed');
+      } else {
+        navigate('/auth');
+      }
     }
   }, [loading, profile, navigate]);
 

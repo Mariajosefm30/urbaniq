@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "@/contexts/SessionContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,15 +28,28 @@ export default function Auth() {
   const [role, setRole] = useState<string>("resident");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { session, loading: sessionLoading } = useSession();
 
+  // Role-based redirects on page load
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        // Let AuthContext handle routing based on role
-        return;
-      }
-    });
-  }, [navigate]);
+    if (sessionLoading || !user) return;
+
+    // Email override
+    if (user.email === "mfernandezmelgar@gmail.com") {
+      navigate("/admin");
+      return;
+    }
+
+    // Role-based redirects
+    if (session?.role === "admin") {
+      navigate("/admin");
+    } else if (session?.role === "manager") {
+      navigate("/manager");
+    } else if (session?.role === "resident") {
+      navigate("/feed");
+    }
+  }, [user, session, sessionLoading, navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();

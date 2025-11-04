@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "@/contexts/SessionContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 export default function Landing() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const { session, loading } = useSession();
   const [inviteCode, setInviteCode] = useState("");
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const [demoFormData, setDemoFormData] = useState({
@@ -27,6 +31,26 @@ export default function Landing() {
   
   // Check if INVITE_ONLY mode is enabled (you can set this via environment or config)
   const inviteOnly = false; // Set to true to enable invite-only mode
+
+  // Role-based redirects on page load
+  useEffect(() => {
+    if (loading || !user) return;
+
+    // Email override
+    if (user.email === "mfernandezmelgar@gmail.com") {
+      navigate("/admin");
+      return;
+    }
+
+    // Role-based redirects
+    if (session?.role === "admin") {
+      navigate("/admin");
+    } else if (session?.role === "manager") {
+      navigate("/manager");
+    } else if (session?.role === "resident") {
+      navigate("/feed");
+    }
+  }, [user, session, loading, navigate]);
 
   const handleGetStarted = () => {
     if (inviteOnly && inviteCode) {

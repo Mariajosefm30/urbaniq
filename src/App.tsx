@@ -42,28 +42,36 @@ const App = () => (
             <BuildingProvider>
               <DebugBar />
               <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-static" element={<VerifyStatic />} />
               <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
+              
+              {/* Admin Routes */}
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
               <Route path="/admin/setup" element={<ProtectedRoute><AdminSetup /></ProtectedRoute>} />
               <Route path="/admin/profile" element={<ProtectedRoute><AdminProfile /></ProtectedRoute>} />
               <Route path="/admin/portfolio" element={<ProtectedRoute><AdminPortfolio /></ProtectedRoute>} />
+              <Route path="/admin/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
+              <Route path="/admin/units" element={<ProtectedRoute><Units /></ProtectedRoute>} />
+              <Route path="/admin/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+              <Route path="/admin/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+              <Route path="/admin/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+              <Route path="/admin/amenities" element={<ProtectedRoute><Amenities /></ProtectedRoute>} />
+              <Route path="/admin/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/admin/overview" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              
+              {/* Manager Routes */}
               <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
-            <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/units" element={<ProtectedRoute><Units /></ProtectedRoute>} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path="/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
-              <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-              <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
-              <Route path="/amenities" element={<ProtectedRoute><Amenities /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/amenities" element={<ProtectedRoute><Amenities /></ProtectedRoute>} />
-              <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+              
+              {/* Resident Routes */}
+              <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "@/contexts/SessionContext";
 import { useBuilding } from "@/contexts/BuildingContext";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
@@ -26,7 +28,9 @@ interface FeedPost {
 
 export default function Feed() {
   const { profile } = useAuth();
+  const { session, loading: sessionLoading } = useSession();
   const { currentBuildingId } = useBuilding();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +38,25 @@ export default function Feed() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Role guard for standalone feed route - residents only
+  useEffect(() => {
+    if (sessionLoading) return;
+    
+    // Allow if accessing via building route (managers/admins viewing building feed)
+    if (currentBuildingId) return;
+    
+    // For standalone /feed route, only residents allowed
+    if (session?.role !== 'resident') {
+      if (session?.role === 'admin') {
+        navigate('/admin');
+      } else if (session?.role === 'manager') {
+        navigate('/manager');
+      } else {
+        navigate('/auth');
+      }
+    }
+  }, [session, sessionLoading, currentBuildingId, navigate]);
 
   useEffect(() => {
     if (currentBuildingId) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "@/contexts/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Loader2, Ticket, CreditCard, UserPlus } from "lucide-react";
@@ -18,10 +19,24 @@ interface Building {
 
 export default function Manager() {
   const { profile, loading: authLoading } = useAuth();
+  const { session, loading: sessionLoading } = useSession();
   const navigate = useNavigate();
   const { setCurrentBuildingId } = useBuilding();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Role guard - only managers and admins allowed
+  useEffect(() => {
+    if (sessionLoading) return;
+    
+    if (session?.role !== 'manager' && session?.role !== 'admin') {
+      if (session?.role === 'resident') {
+        navigate('/feed');
+      } else {
+        navigate('/auth');
+      }
+    }
+  }, [session, sessionLoading, navigate]);
 
   useEffect(() => {
     if (profile?.id) {

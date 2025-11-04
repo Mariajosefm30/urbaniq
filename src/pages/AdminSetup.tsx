@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "@/contexts/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Building2, Loader2 } from "lucide-react";
 
 export default function AdminSetup() {
   const { profile } = useAuth();
+  const { session, loading: sessionLoading } = useSession();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -18,6 +20,21 @@ export default function AdminSetup() {
   const [orgName, setOrgName] = useState("");
   const [buildingName, setBuildingName] = useState("");
   const [buildingAddress, setBuildingAddress] = useState("");
+
+  // Role guard - only admins allowed
+  useEffect(() => {
+    if (sessionLoading) return;
+    
+    if (session?.role !== 'admin') {
+      if (session?.role === 'manager') {
+        navigate('/manager');
+      } else if (session?.role === 'resident') {
+        navigate('/feed');
+      } else {
+        navigate('/auth');
+      }
+    }
+  }, [session, sessionLoading, navigate]);
 
   const handleCreateOrganization = async () => {
     if (!orgName.trim()) {

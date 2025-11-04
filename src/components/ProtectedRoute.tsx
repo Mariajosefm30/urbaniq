@@ -60,14 +60,20 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     return <Navigate to="/auth" replace />;
   }
 
-  // Admin routes
+  // Admin routes - only admins allowed
   if (location.pathname.startsWith('/admin')) {
     if (session?.role !== 'admin') {
       console.info('[guard]', location.pathname, { 
         decision: 'forbidden (not admin)', 
         role: session?.role 
       });
-      return <Navigate to="/" replace />;
+      // Redirect non-admins to their home
+      if (session?.role === 'manager') {
+        return <Navigate to="/manager" replace />;
+      } else if (session?.role === 'resident') {
+        return <Navigate to="/feed" replace />;
+      }
+      return <Navigate to="/auth" replace />;
     }
 
     if (!session.org_id && location.pathname !== '/admin/setup') {
@@ -80,7 +86,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       return <Navigate to="/admin/setup" replace />;
     }
 
-    if (session.org_id && location.pathname === '/admin/setup' && !location.pathname.startsWith('/settings')) {
+    if (session.org_id && location.pathname === '/admin/setup') {
       console.info('[route-decider]', { 
         role: session.role, 
         org_id: session.org_id, 
@@ -91,14 +97,18 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
   }
 
-  // Manager routes
+  // Manager routes - managers and admins allowed
   if (location.pathname.startsWith('/manager') || location.pathname.startsWith('/buildings')) {
     if (session?.role !== 'admin' && session?.role !== 'manager') {
       console.info('[guard]', location.pathname, { 
         decision: 'forbidden (not admin/manager)', 
         role: session?.role 
       });
-      return <Navigate to="/" replace />;
+      // Redirect residents to feed
+      if (session?.role === 'resident') {
+        return <Navigate to="/feed" replace />;
+      }
+      return <Navigate to="/auth" replace />;
     }
 
     // Check building access for managers
@@ -109,6 +119,23 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         buildingId 
       });
       return <Navigate to="/manager" replace />;
+    }
+  }
+
+  // Feed route - residents only (unless manager/admin viewing building feed)
+  if (location.pathname === '/feed' && !buildingId) {
+    if (session?.role !== 'resident') {
+      console.info('[guard]', location.pathname, { 
+        decision: 'forbidden (not resident)', 
+        role: session?.role 
+      });
+      // Redirect non-residents to their home
+      if (session?.role === 'admin') {
+        return <Navigate to="/admin" replace />;
+      } else if (session?.role === 'manager') {
+        return <Navigate to="/manager" replace />;
+      }
+      return <Navigate to="/auth" replace />;
     }
   }
 
