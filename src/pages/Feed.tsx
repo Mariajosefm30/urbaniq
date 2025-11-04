@@ -39,12 +39,9 @@ export default function Feed() {
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Loop prevention guard for /feed route
+  // Access control for /feed route
   useEffect(() => {
     if (sessionLoading) return;
-    
-    // Allow if accessing via building route (managers/admins viewing building feed)
-    if (currentBuildingId) return;
     
     // Redirect to auth if not authenticated
     if (!session) {
@@ -52,7 +49,15 @@ export default function Feed() {
       return;
     }
     
-    // For standalone /feed route - residents stay, others redirect
+    // Allow if accessing via building route (managers/admins viewing building feed)
+    if (currentBuildingId) {
+      // Managers and admins can view building feeds
+      if (session.role === 'manager' || session.role === 'admin') {
+        return;
+      }
+    }
+    
+    // For standalone /feed route - only residents allowed
     if (session.role === 'resident') {
       // Do nothing - resident is on correct page
       return;

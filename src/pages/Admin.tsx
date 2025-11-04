@@ -13,9 +13,24 @@ export default function Admin() {
   const navigate = useNavigate();
   const [selectedBuilding, setSelectedBuilding] = useState<{ id: string; name: string } | null>(null);
 
+  // Admin-only access guard
   useEffect(() => {
-    if (!loading && profile?.role !== 'admin') {
-      navigate('/');
+    if (loading) return;
+    
+    if (!profile) {
+      navigate('/auth');
+      return;
+    }
+    
+    if (profile.role !== 'admin') {
+      // Redirect based on their actual role
+      if (profile.role === 'manager') {
+        navigate('/manager');
+      } else if (profile.role === 'resident') {
+        navigate('/feed');
+      } else {
+        navigate('/auth');
+      }
     }
   }, [loading, profile, navigate]);
 

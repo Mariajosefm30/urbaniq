@@ -35,7 +35,7 @@ export default function ManagerHome() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Loop prevention guard for /manager route
+  // Manager-only access guard (admins can access too for debugging)
   useEffect(() => {
     if (sessionLoading) return;
     
@@ -45,14 +45,12 @@ export default function ManagerHome() {
       return;
     }
     
-    // Managers stay, others redirect
-    if (session.role === 'manager') {
-      // Do nothing - manager is on correct page
+    // Allow managers and admins, block residents
+    if (session.role === 'manager' || session.role === 'admin') {
+      // Do nothing - authorized
       return;
     } else if (session.role === 'resident') {
       navigate('/feed');
-    } else if (session.role === 'admin') {
-      navigate('/admin');
     } else {
       navigate('/auth');
     }
