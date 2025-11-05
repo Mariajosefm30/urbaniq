@@ -26,8 +26,10 @@ import AdminPortfolio from "./pages/AdminPortfolio";
 import Manager from "./pages/Manager";
 import Units from "./pages/Units";
 import Payments from "./pages/Payments";
-import Amenities from "./pages/Amenities";
 import Feed from "./pages/Feed";
+import AdminAmenities from "./pages/AdminAmenities";
+import AdminBookings from "./pages/AdminBookings";
+import BuildingBookings from "./pages/BuildingBookings";
 
 const queryClient = new QueryClient();
 
@@ -58,7 +60,8 @@ const App = () => (
               <Route path="/admin/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/admin/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/admin/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
-              <Route path="/admin/amenities" element={<ProtectedRoute><Amenities /></ProtectedRoute>} />
+              <Route path="/admin/amenities" element={<ProtectedRoute><AdminAmenities /></ProtectedRoute>} />
+              <Route path="/admin/bookings" element={<ProtectedRoute><AdminBookings /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/admin/overview" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               
@@ -67,7 +70,7 @@ const App = () => (
               <Route path="/buildings/:buildingId/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/units" element={<ProtectedRoute><Units /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
-              <Route path="/buildings/:buildingId/amenities" element={<ProtectedRoute><Amenities /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/bookings" element={<ProtectedRoute><BuildingBookings /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
               
               {/* Resident Routes */}

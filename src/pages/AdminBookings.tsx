@@ -61,16 +61,27 @@ export default function AdminBookings() {
     try {
       const { data, error } = await supabase
         .from('amenity_bookings')
-        .select(`
-          *,
-          amenities(name),
-          profiles(email, name)
-        `)
+        .select('*, amenities(name)')
         .eq('building_id', currentBuildingId)
         .order('starts_at', { ascending: false });
 
       if (error) throw error;
-      setBookings(data || []);
+      
+      // Fetch user profiles separately
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map(b => b.user_id))];
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, email, name')
+          .in('id', userIds);
+        
+        const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+        const enrichedBookings = data.map(booking => ({
+          ...booking,
+          profiles: profilesMap.get(booking.user_id) || { email: 'Unknown', name: null }
+        }));
+        setBookings(enrichedBookings);
+      }
     } catch (error: any) {
       toast({
         title: "Error loading bookings",

@@ -50,11 +50,7 @@ export default function ManagerBookings() {
       // Load today's bookings
       const { data: todayData, error: todayError } = await supabase
         .from('amenity_bookings')
-        .select(`
-          *,
-          amenities(name),
-          profiles(email, name)
-        `)
+        .select('*, amenities(name)')
         .eq('building_id', currentBuildingId)
         .eq('status', 'confirmed')
         .gte('starts_at', todayStart.toISOString())
@@ -62,16 +58,27 @@ export default function ManagerBookings() {
         .order('starts_at');
 
       if (todayError) throw todayError;
-      setTodayBookings(todayData || []);
+      
+      // Fetch user profiles separately
+      if (todayData && todayData.length > 0) {
+        const userIds = [...new Set(todayData.map(b => b.user_id))];
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, email, name')
+          .in('id', userIds);
+        
+        const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+        const enrichedToday = todayData.map(booking => ({
+          ...booking,
+          profiles: profilesMap.get(booking.user_id) || { email: 'Unknown', name: null }
+        }));
+        setTodayBookings(enrichedToday);
+      }
 
       // Load this week's bookings
       const { data: weekData, error: weekError } = await supabase
         .from('amenity_bookings')
-        .select(`
-          *,
-          amenities(name),
-          profiles(email, name)
-        `)
+        .select('*, amenities(name)')
         .eq('building_id', currentBuildingId)
         .eq('status', 'confirmed')
         .gte('starts_at', weekStart.toISOString())
@@ -79,7 +86,22 @@ export default function ManagerBookings() {
         .order('starts_at');
 
       if (weekError) throw weekError;
-      setWeekBookings(weekData || []);
+      
+      // Fetch user profiles separately
+      if (weekData && weekData.length > 0) {
+        const userIds = [...new Set(weekData.map(b => b.user_id))];
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, email, name')
+          .in('id', userIds);
+        
+        const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+        const enrichedWeek = weekData.map(booking => ({
+          ...booking,
+          profiles: profilesMap.get(booking.user_id) || { email: 'Unknown', name: null }
+        }));
+        setWeekBookings(enrichedWeek);
+      }
     } catch (error: any) {
       toast({
         title: "Error loading bookings",
