@@ -11,9 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, MessageSquare, Calendar } from "lucide-react";
+import { Plus, MessageSquare, Calendar, Home } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import AmenitiesBooking from "@/components/amenities/AmenitiesBooking";
 
 interface FeedPost {
   id: string;
@@ -208,115 +210,129 @@ export default function Feed() {
 
   return (
     <Layout>
-      <div className="container mx-auto p-6 max-w-4xl">
-        {/* Debug Info */}
-        <div className="mb-4 p-3 bg-muted/50 rounded-md text-xs font-mono space-y-1">
-          <div><strong>Email:</strong> {profile?.email || 'N/A'}</div>
-          <div><strong>Role:</strong> {session?.role || 'N/A'}</div>
+      <div className="container mx-auto p-6 max-w-6xl">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">Resident Home</h1>
+          <p className="text-muted-foreground mt-1">
+            Your building community hub
+          </p>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Community Feed</h1>
-            <p className="text-muted-foreground mt-1">
-              Stay updated with building news and announcements
-            </p>
-          </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                New Post
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create a Post</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="What's your post about?"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="content">Content</Label>
-                  <Textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Share your message with the community..."
-                    rows={6}
-                  />
-                </div>
-                <Button
-                  onClick={handleCreatePost}
-                  disabled={submitting}
-                  className="w-full"
-                >
-                  {submitting ? "Publishing..." : "Publish Post"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Tabs defaultValue="feed" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="feed" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Community Feed
+            </TabsTrigger>
+            <TabsTrigger value="amenities" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Amenities
+            </TabsTrigger>
+          </TabsList>
 
-        {loading ? (
-          <div className="text-center py-12">Loading feed...</div>
-        ) : (
-          <div className="space-y-4">
-            {posts.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No posts yet. Be the first to share!</p>
-                </CardContent>
-              </Card>
-            ) : (
-              posts.map((post) => (
-                <Card key={post.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <CardTitle className="mb-2">{post.title}</CardTitle>
-                        <CardDescription className="flex items-center gap-2">
-                          <span className="font-medium">{post.author_name}</span>
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            post.author_role === 'manager' 
-                              ? 'bg-primary/10 text-primary' 
-                              : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {post.author_role}
-                          </span>
-                          <span className="flex items-center text-xs">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                          </span>
-                        </CardDescription>
-                      </div>
-                      {post.author_id === profile?.id && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeletePost(post.id)}
-                        >
-                          Delete
-                        </Button>
-                      )}
+          <TabsContent value="feed" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    New Post
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create a Post</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="What's your post about?"
+                      />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="whitespace-pre-wrap">{post.content}</p>
-                  </CardContent>
-                </Card>
-              ))
+                    <div>
+                      <Label htmlFor="content">Content</Label>
+                      <Textarea
+                        id="content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        placeholder="Share your message with the community..."
+                        rows={6}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCreatePost}
+                      disabled={submitting}
+                      className="w-full"
+                    >
+                      {submitting ? "Publishing..." : "Publish Post"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-12">Loading feed...</div>
+            ) : (
+              <div className="space-y-4">
+                {posts.length === 0 ? (
+                  <Card>
+                    <CardContent className="py-12 text-center">
+                      <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">No posts yet. Be the first to share!</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  posts.map((post) => (
+                    <Card key={post.id}>
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <CardTitle className="mb-2">{post.title}</CardTitle>
+                            <CardDescription className="flex items-center gap-2">
+                              <span className="font-medium">{post.author_name}</span>
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                post.author_role === 'manager' 
+                                  ? 'bg-primary/10 text-primary' 
+                                  : 'bg-muted text-muted-foreground'
+                              }`}>
+                                {post.author_role}
+                              </span>
+                              <span className="flex items-center text-xs">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                              </span>
+                            </CardDescription>
+                          </div>
+                          {post.author_id === profile?.id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeletePost(post.id)}
+                            >
+                              Delete
+                            </Button>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="whitespace-pre-wrap">{post.content}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
             )}
-          </div>
-        )}
+          </TabsContent>
+
+          <TabsContent value="amenities">
+            <AmenitiesBooking />
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );
