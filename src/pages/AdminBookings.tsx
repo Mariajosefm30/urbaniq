@@ -107,6 +107,15 @@ export default function AdminBookings() {
         description: `Booking ${newStatus === 'cancelled' ? 'cancelled' : 'confirmed'}`,
       });
 
+      // Trigger notification processing for waitlist if cancelled
+      if (newStatus === 'cancelled') {
+        try {
+          await supabase.functions.invoke('process-waitlist-notifications');
+        } catch (notifError) {
+          console.error('Error triggering notifications:', notifError);
+        }
+      }
+
       loadBookings();
     } catch (error: any) {
       toast({

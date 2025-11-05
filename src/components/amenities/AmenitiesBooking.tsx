@@ -325,6 +325,13 @@ export default function AmenitiesBooking() {
         description: "Your booking has been cancelled",
       });
 
+      // Trigger notification processing for waitlist
+      try {
+        await supabase.functions.invoke('process-waitlist-notifications');
+      } catch (notifError) {
+        console.error('Error triggering notifications:', notifError);
+      }
+
       loadMyBookings();
     } catch (error: any) {
       toast({

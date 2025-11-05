@@ -129,6 +129,13 @@ export default function ManagerBookings() {
         description: "The booking has been cancelled",
       });
 
+      // Trigger notification processing for waitlist
+      try {
+        await supabase.functions.invoke('process-waitlist-notifications');
+      } catch (notifError) {
+        console.error('Error triggering notifications:', notifError);
+      }
+
       loadBookings();
     } catch (error: any) {
       toast({
