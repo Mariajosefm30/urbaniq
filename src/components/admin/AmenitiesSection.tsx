@@ -72,30 +72,46 @@ export default function AmenitiesSection({ buildingId, buildingName }: Amenities
       return;
     }
 
+    if (!profile?.building_id) {
+      toast.error("Your profile is missing a building_id. Please contact support.");
+      return;
+    }
+
     setSubmitting(true);
     try {
+      const amenityData = {
+        building_id: buildingId,
+        name: formData.name.trim(),
+        description: formData.description.trim() || null,
+        rules: formData.rules.trim() || null,
+        capacity: formData.capacity ? parseInt(formData.capacity) : null,
+        open_time: formData.openTime,
+        close_time: formData.closeTime,
+        slot_minutes: parseInt(formData.slotMinutes),
+        image_url: formData.imageUrl.trim() || null,
+        created_by: profile?.id,
+      };
+
       const { error } = await supabase
         .from('amenities')
-        .insert({
-          building_id: buildingId,
-          name: formData.name.trim(),
-          description: formData.description.trim() || null,
-          rules: formData.rules.trim() || null,
-          capacity: formData.capacity ? parseInt(formData.capacity) : null,
-          open_time: formData.openTime,
-          close_time: formData.closeTime,
-          slot_minutes: parseInt(formData.slotMinutes),
-          image_url: formData.imageUrl.trim() || null,
-          created_by: profile?.id,
-        });
+        .insert(amenityData);
 
-      if (error) throw error;
+      if (error) {
+        // Show debug info
+        toast.error(`Error creating amenity: ${error.message}\n\nDebug Info:\nProfile Building: ${profile.building_id}\nSent Building: ${buildingId}\nCreated By: ${profile.id}`);
+        throw error;
+      }
 
       toast.success("Amenity created successfully");
       resetForm();
       loadAmenities();
     } catch (error: any) {
-      toast.error("Error creating amenity: " + error.message);
+      console.error("Amenity creation error details:", {
+        profileBuildingId: profile?.building_id,
+        sentBuildingId: buildingId,
+        createdBy: profile?.id,
+        error: error.message
+      });
     } finally {
       setSubmitting(false);
     }

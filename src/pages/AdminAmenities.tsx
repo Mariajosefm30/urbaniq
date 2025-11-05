@@ -98,24 +98,43 @@ export default function AdminAmenities() {
       return;
     }
 
+    if (!profile?.building_id) {
+      toast({
+        title: "Profile Error",
+        description: "Your profile is missing a building_id. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
+      const amenityData = {
+        building_id: currentBuildingId,
+        name: name.trim(),
+        description: description.trim() || null,
+        rules: rules.trim() || null,
+        capacity: capacity ? parseInt(capacity) : null,
+        open_time: openTime,
+        close_time: closeTime,
+        slot_minutes: parseInt(slotMinutes),
+        image_url: imageUrl.trim() || null,
+        created_by: profile?.id,
+      };
+
       const { error } = await supabase
         .from('amenities')
-        .insert({
-          building_id: currentBuildingId,
-          name: name.trim(),
-          description: description.trim() || null,
-          rules: rules.trim() || null,
-          capacity: capacity ? parseInt(capacity) : null,
-          open_time: openTime,
-          close_time: closeTime,
-          slot_minutes: parseInt(slotMinutes),
-          image_url: imageUrl.trim() || null,
-          created_by: profile?.id,
-        });
+        .insert(amenityData);
 
-      if (error) throw error;
+      if (error) {
+        // Show debug info as requested
+        toast({
+          title: "Error creating amenity",
+          description: `${error.message}\n\nDebug Info:\nRole: ${session?.role}\nProfile Building: ${profile.building_id}\nSent Building: ${currentBuildingId}\nCreated By: ${profile.id}`,
+          variant: "destructive",
+        });
+        throw error;
+      }
 
       toast({
         title: "Amenity created",
@@ -133,10 +152,12 @@ export default function AdminAmenities() {
       setDialogOpen(false);
       loadAmenities();
     } catch (error: any) {
-      toast({
-        title: "Error creating amenity",
-        description: error.message,
-        variant: "destructive",
+      console.error("Amenity creation error details:", {
+        role: session?.role,
+        profileBuildingId: profile?.building_id,
+        sentBuildingId: currentBuildingId,
+        createdBy: profile?.id,
+        error: error.message
       });
     } finally {
       setSubmitting(false);
