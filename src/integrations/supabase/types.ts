@@ -145,6 +145,70 @@ export type Database = {
           },
         ]
       }
+      amenity_waitlist: {
+        Row: {
+          amenity_id: string
+          building_id: string
+          created_at: string
+          id: string
+          notified_at: string | null
+          requested_date: string
+          requested_time_end: string
+          requested_time_start: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amenity_id: string
+          building_id: string
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          requested_date: string
+          requested_time_end: string
+          requested_time_start: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amenity_id?: string
+          building_id?: string
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          requested_date?: string
+          requested_time_end?: string
+          requested_time_start?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "amenity_waitlist_amenity_id_fkey"
+            columns: ["amenity_id"]
+            isOneToOne: false
+            referencedRelation: "amenities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amenity_waitlist_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amenity_waitlist_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           created_at: string | null
@@ -826,6 +890,65 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_notifications: {
+        Row: {
+          amenity_id: string
+          booking_id: string
+          created_at: string
+          id: string
+          processed: boolean
+          user_id: string
+          waitlist_id: string
+        }
+        Insert: {
+          amenity_id: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          processed?: boolean
+          user_id: string
+          waitlist_id: string
+        }
+        Update: {
+          amenity_id?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          processed?: boolean
+          user_id?: string
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_notifications_amenity_id_fkey"
+            columns: ["amenity_id"]
+            isOneToOne: false
+            referencedRelation: "amenities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "amenity_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_notifications_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "amenity_waitlist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       recurring_issues_60d: {
@@ -854,6 +977,7 @@ export type Database = {
         Args: { _building_id: string; _user_id: string }
         Returns: boolean
       }
+      cleanup_expired_waitlist: { Args: never; Returns: undefined }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: { Args: { _user_id: string }; Returns: string }
       has_role:

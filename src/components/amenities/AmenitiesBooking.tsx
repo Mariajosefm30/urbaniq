@@ -38,23 +38,36 @@ interface TimeSlot {
   ends_at: Date;
 }
 
+interface WaitlistEntry {
+  id: string;
+  amenity_id: string;
+  requested_date: string;
+  requested_time_start: string;
+  requested_time_end: string;
+  status: string;
+  created_at: string;
+}
+
 export default function AmenitiesBooking() {
   const { profile } = useAuth();
   const { currentBuildingId } = useBuilding();
   const { toast } = useToast();
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
+  const [myWaitlist, setMyWaitlist] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAmenity, setSelectedAmenity] = useState<Amenity | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [existingBookings, setExistingBookings] = useState<Booking[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedSlotForWaitlist, setSelectedSlotForWaitlist] = useState<TimeSlot | null>(null);
 
   useEffect(() => {
     if (currentBuildingId) {
       loadAmenities();
       loadMyBookings();
+      loadMyWaitlist();
     }
   }, [currentBuildingId]);
 
@@ -99,6 +112,23 @@ export default function AmenitiesBooking() {
       setMyBookings(data || []);
     } catch (error: any) {
       console.error('Error loading bookings:', error);
+    }
+  };
+
+  const loadMyWaitlist = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('amenity_waitlist')
+        .select('*')
+        .eq('user_id', profile?.id)
+        .eq('status', 'waiting')
+        .gte('requested_date', new Date().toISOString().split('T')[0])
+        .order('created_at');
+
+      if (error) throw error;
+      setMyWaitlist(data || []);
+    } catch (error: any) {
+      console.error('Error loading waitlist:', error);
     }
   };
 
@@ -217,6 +247,67 @@ export default function AmenitiesBooking() {
       });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleJoinWaitlist = async (slot: TimeSlot) => {
+    if (!selectedAmenity || !profile?.id || !currentBuildingId || !selectedDate) return;
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('amenity_waitlist')
+        .insert({
+          amenity_id: selectedAmenity.id,
+          user_id: profile.id,
+          building_id: currentBuildingId,
+          requested_date: selectedDate.toISOString().split('T')[0],
+          requested_time_start: slot.time,
+          requested_time_end: format(slot.ends_at, 'HH:mm'),
+          status: 'waiting',
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Added to waitlist",
+        description: "You'll be notified when this slot becomes available",
+      });
+
+      setSelectedSlotForWaitlist(null);
+      loadMyWaitlist();
+    } catch (error: any) {
+      toast({
+        title: "Failed to join waitlist",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRemoveFromWaitlist = async (waitlistId: string) => {
+    try {
+      const { error } = await supabase
+        .from('amenity_waitlist')
+        .delete()
+        .eq('id', waitlistId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Removed from waitlist",
+        description: "You've been removed from the waitlist",
+      });
+
+      loadMyWaitlist();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -371,18 +462,30 @@ export default function AmenitiesBooking() {
                   <p className="text-sm text-muted-foreground">Select a date to see available slots</p>
                 ) : (
                   timeSlots.map((slot, index) => (
-                    <Button
-                      key={index}
-                      variant={slot.available ? "outline" : "ghost"}
-                      className="w-full justify-between"
-                      disabled={!slot.available || submitting}
-                      onClick={() => slot.available && handleBookSlot(slot)}
-                    >
-                      <span>{slot.time} - {format(slot.ends_at, 'HH:mm')}</span>
-                      <span className={slot.available ? "text-green-600" : "text-red-600"}>
-                        {slot.available ? "Available" : "Booked"}
-                      </span>
-                    </Button>
+                    <div key={index} className="flex gap-2">
+                      <Button
+                        variant={slot.available ? "outline" : "ghost"}
+                        className="flex-1 justify-between"
+                        disabled={!slot.available || submitting}
+                        onClick={() => slot.available && handleBookSlot(slot)}
+                      >
+                        <span>{slot.time} - {format(slot.ends_at, 'HH:mm')}</span>
+                        <span className={slot.available ? "text-green-600" : "text-red-600"}>
+                          {slot.available ? "Available" : "Booked"}
+                        </span>
+                      </Button>
+                      {!slot.available && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={submitting}
+                          onClick={() => handleJoinWaitlist(slot)}
+                          title="Join waitlist for this slot"
+                        >
+                          Join Waitlist
+                        </Button>
+                      )}
+                    </div>
                   ))
                 )}
               </div>
@@ -390,6 +493,49 @@ export default function AmenitiesBooking() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* My Waitlist */}
+      {myWaitlist.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-bold mb-4">My Waitlist</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {myWaitlist.map((entry) => {
+              const amenity = amenities.find(a => a.id === entry.amenity_id);
+              return (
+                <Card key={entry.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      {amenity?.name || 'Unknown Amenity'}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveFromWaitlist(entry.id)}
+                      >
+                        <X className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center text-muted-foreground">
+                        <CalendarIcon className="h-4 w-4 mr-2" />
+                        {format(new Date(entry.requested_date), 'PPP')}
+                      </div>
+                      <div className="flex items-center text-muted-foreground">
+                        <Clock className="h-4 w-4 mr-2" />
+                        {entry.requested_time_start} - {entry.requested_time_end}
+                      </div>
+                      <div className="mt-2 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs inline-block">
+                        Waiting
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
