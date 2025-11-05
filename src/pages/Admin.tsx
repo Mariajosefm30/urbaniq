@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Building, Dumbbell } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BuildingsSection from "@/components/admin/BuildingsSection";
 import UnitsSection from "@/components/admin/UnitsSection";
+import AmenitiesSection from "@/components/admin/AmenitiesSection";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { useBuilding } from "@/contexts/BuildingContext";
 
 export default function Admin() {
   const { profile, loading } = useAuth();
@@ -70,10 +73,36 @@ export default function Admin() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Buildings
         </Button>
-        <UnitsSection 
-          buildingId={selectedBuilding.id} 
-          buildingName={selectedBuilding.name}
-        />
+        
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold">{selectedBuilding.name}</h2>
+          <p className="text-muted-foreground">Manage units and amenities</p>
+        </div>
+
+        <Tabs defaultValue="units" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="units" className="gap-2">
+              <Building className="h-4 w-4" />
+              Units
+            </TabsTrigger>
+            <TabsTrigger value="amenities" className="gap-2">
+              <Dumbbell className="h-4 w-4" />
+              Amenities
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="units" className="mt-6">
+            <UnitsSection 
+              buildingId={selectedBuilding.id} 
+              buildingName={selectedBuilding.name}
+            />
+          </TabsContent>
+          <TabsContent value="amenities" className="mt-6">
+            <AmenitiesSection 
+              buildingId={selectedBuilding.id} 
+              buildingName={selectedBuilding.name}
+            />
+          </TabsContent>
+        </Tabs>
       </AdminLayout>
     );
   }
