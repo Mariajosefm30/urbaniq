@@ -16,39 +16,48 @@ export type Database = {
     Tables: {
       amenities: {
         Row: {
-          available: boolean | null
           building_id: string
           capacity: number | null
+          close_time: string | null
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           image_url: string | null
-          location: string | null
           name: string
+          open_time: string | null
+          rules: string | null
+          slot_minutes: number | null
           updated_at: string
         }
         Insert: {
-          available?: boolean | null
           building_id: string
           capacity?: number | null
+          close_time?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
-          location?: string | null
           name: string
+          open_time?: string | null
+          rules?: string | null
+          slot_minutes?: number | null
           updated_at?: string
         }
         Update: {
-          available?: boolean | null
           building_id?: string
           capacity?: number | null
+          close_time?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
-          location?: string | null
           name?: string
+          open_time?: string | null
+          rules?: string | null
+          slot_minutes?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -59,17 +68,23 @@ export type Database = {
             referencedRelation: "buildings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "amenities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       amenity_bookings: {
         Row: {
           amenity_id: string
-          booking_date: string
+          building_id: string | null
           created_at: string
-          end_time: string
+          ends_at: string
           id: string
-          notes: string | null
-          start_time: string
+          starts_at: string
           status: string | null
           unit_id: string | null
           updated_at: string
@@ -77,12 +92,11 @@ export type Database = {
         }
         Insert: {
           amenity_id: string
-          booking_date: string
+          building_id?: string | null
           created_at?: string
-          end_time: string
+          ends_at?: string
           id?: string
-          notes?: string | null
-          start_time: string
+          starts_at?: string
           status?: string | null
           unit_id?: string | null
           updated_at?: string
@@ -90,12 +104,11 @@ export type Database = {
         }
         Update: {
           amenity_id?: string
-          booking_date?: string
+          building_id?: string | null
           created_at?: string
-          end_time?: string
+          ends_at?: string
           id?: string
-          notes?: string | null
-          start_time?: string
+          starts_at?: string
           status?: string | null
           unit_id?: string | null
           updated_at?: string
@@ -107,6 +120,13 @@ export type Database = {
             columns: ["amenity_id"]
             isOneToOne: false
             referencedRelation: "amenities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amenity_bookings_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
             referencedColumns: ["id"]
           },
           {
