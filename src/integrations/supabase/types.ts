@@ -996,6 +996,10 @@ export type Database = {
         Returns: boolean
       }
       refresh_recurring_alerts: { Args: never; Returns: undefined }
+      user_has_building_access: {
+        Args: { _building_id: string; _user_id: string }
+        Returns: boolean
+      }
       user_manages_building: {
         Args: { _building_id: string; _user_id: string }
         Returns: boolean
