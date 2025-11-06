@@ -25,6 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   
   const isManager = profile?.role === 'manager';
   const isAdmin = profile?.role === 'admin';
+  const isResident = profile?.role === 'resident';
   
   const showNav = !isAdmin;
 
@@ -232,51 +233,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </>
                   )}
                   
-                  {!isManager && (
+                  {isResident && currentBuildingId && (
                     <>
-                      <Link to="/tickets">
+                      <Link to={`/buildings/${currentBuildingId}/feed`}>
                         <Button
-                          variant={isActive("/tickets") ? "default" : "ghost"}
+                          variant={location.pathname.includes("/feed") ? "default" : "ghost"}
                           size="sm"
                           className="gap-2"
                         >
-                          <ClipboardList className="h-4 w-4" />
-                          <span className="hidden sm:inline">Tickets</span>
+                          <Rss className="h-4 w-4" />
+                          <span className="hidden sm:inline">Feed</span>
                         </Button>
                       </Link>
-                      <Link to="/guests">
+                      <Link to={`/buildings/${currentBuildingId}/amenities`}>
                         <Button
-                          variant={isActive("/guests") ? "default" : "ghost"}
-                          size="sm"
-                          className="gap-2"
-                        >
-                          <Users className="h-4 w-4" />
-                          <span className="hidden sm:inline">Guests</span>
-                        </Button>
-                      </Link>
-                      <Link to="/messages">
-                        <Button
-                          variant={isActive("/messages") ? "default" : "ghost"}
-                          size="sm"
-                          className="gap-2"
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          <span className="hidden sm:inline">Messages</span>
-                        </Button>
-                      </Link>
-                      <Link to="/payments">
-                        <Button
-                          variant={isActive("/payments") ? "default" : "ghost"}
-                          size="sm"
-                          className="gap-2"
-                        >
-                          <DollarSign className="h-4 w-4" />
-                          <span className="hidden sm:inline">Payments</span>
-                        </Button>
-                      </Link>
-                      <Link to="/amenities">
-                        <Button
-                          variant={isActive("/amenities") ? "default" : "ghost"}
+                          variant={location.pathname.includes("/amenities") ? "default" : "ghost"}
                           size="sm"
                           className="gap-2"
                         >
@@ -284,14 +255,34 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           <span className="hidden sm:inline">Amenities</span>
                         </Button>
                       </Link>
-                      <Link to="/feed">
+                      <Link to={`/buildings/${currentBuildingId}/guests`}>
                         <Button
-                          variant={isActive("/feed") ? "default" : "ghost"}
+                          variant={location.pathname.includes("/guests") ? "default" : "ghost"}
                           size="sm"
                           className="gap-2"
                         >
-                          <Rss className="h-4 w-4" />
-                          <span className="hidden sm:inline">Feed</span>
+                          <Users className="h-4 w-4" />
+                          <span className="hidden sm:inline">Guests</span>
+                        </Button>
+                      </Link>
+                      <Link to={`/buildings/${currentBuildingId}/tickets`}>
+                        <Button
+                          variant={location.pathname.includes("/tickets") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <ClipboardList className="h-4 w-4" />
+                          <span className="hidden sm:inline">Maintenance</span>
+                        </Button>
+                      </Link>
+                      <Link to={`/buildings/${currentBuildingId}/payments`}>
+                        <Button
+                          variant={location.pathname.includes("/payments") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <DollarSign className="h-4 w-4" />
+                          <span className="hidden sm:inline">Payments</span>
                         </Button>
                       </Link>
                     </>

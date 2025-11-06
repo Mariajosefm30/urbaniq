@@ -71,7 +71,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       if (session?.role === 'manager') {
         return <Navigate to="/manager" replace />;
       } else if (session?.role === 'resident') {
-        return <Navigate to="/feed" replace />;
+        const buildingId = profile?.building_id || profile?.last_building_id;
+        return <Navigate to={buildingId ? `/buildings/${buildingId}/feed` : '/feed'} replace />;
       }
       return <Navigate to="/auth" replace />;
     }
@@ -99,16 +100,36 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   // Manager routes - managers and admins allowed
   if (location.pathname.startsWith('/manager') || location.pathname.startsWith('/buildings')) {
-    if (session?.role !== 'admin' && session?.role !== 'manager') {
-      console.info('[guard]', location.pathname, { 
-        decision: 'forbidden (not admin/manager)', 
-        role: session?.role 
-      });
-      // Redirect residents to feed
-      if (session?.role === 'resident') {
-        return <Navigate to="/feed" replace />;
+    // Resident-allowed building routes
+    const residentPaths = ['/feed', '/amenities', '/guests', '/tickets', '/payments'];
+    const isResidentAllowedPath = buildingId && residentPaths.some(path => 
+      location.pathname.includes(path)
+    );
+
+    if (isResidentAllowedPath) {
+      // Allow resident, manager, and admin
+      const allowedRoles = ['resident', 'manager', 'admin'];
+      if (session?.role && !allowedRoles.includes(session.role)) {
+        console.info('[guard]', location.pathname, { 
+          decision: 'forbidden (not allowed role)', 
+          role: session?.role 
+        });
+        return <Navigate to="/auth" replace />;
       }
-      return <Navigate to="/auth" replace />;
+    } else {
+      // Manager/admin only paths
+      if (session?.role !== 'admin' && session?.role !== 'manager') {
+        console.info('[guard]', location.pathname, { 
+          decision: 'forbidden (not admin/manager)', 
+          role: session?.role 
+        });
+        // Redirect residents to their building feed
+        if (session?.role === 'resident') {
+          const buildingId = profile?.building_id || profile?.last_building_id;
+          return <Navigate to={buildingId ? `/buildings/${buildingId}/feed` : '/feed'} replace />;
+        }
+        return <Navigate to="/auth" replace />;
+      }
     }
 
     // Check building access for managers
@@ -119,23 +140,6 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         buildingId 
       });
       return <Navigate to="/manager" replace />;
-    }
-  }
-
-  // Feed route - residents only (unless manager/admin viewing building feed)
-  if (location.pathname === '/feed' && !buildingId) {
-    if (session?.role !== 'resident') {
-      console.info('[guard]', location.pathname, { 
-        decision: 'forbidden (not resident)', 
-        role: session?.role 
-      });
-      // Redirect non-residents to their home
-      if (session?.role === 'admin') {
-        return <Navigate to="/admin" replace />;
-      } else if (session?.role === 'manager') {
-        return <Navigate to="/manager" replace />;
-      }
-      return <Navigate to="/auth" replace />;
     }
   }
 
