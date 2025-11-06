@@ -47,25 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setProfile(profileData);
 
-      // Email-specific routing rule for mariajof@tepper.cmu.edu
-      if (profileData?.email === "mariajof@tepper.cmu.edu") {
-        const buildingId = profileData.building_id || profileData.last_building_id;
-        if (buildingId) {
-          const targetPath = `/buildings/${buildingId}/feed`;
-          console.info('[route-decider]', { 
-            email: profileData.email, 
-            target: targetPath,
-            buildingId,
-            currentPath: window.location.pathname 
-          });
-          if (window.location.pathname !== targetPath) {
-            navigate(targetPath);
-          }
-          setLoading(false);
-          return;
-        }
-      }
-
       // Use whoami data if available, otherwise fall back to profile
       let role, org_id, last_building_id;
       
@@ -88,42 +69,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentPath: window.location.pathname 
       });
 
-      // Redirect on SIGNED_IN event if we're on the auth page
-      if (event === 'SIGNED_IN' && window.location.pathname === '/auth') {
-        if (role === 'admin') {
-          if (!org_id) {
-            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin/setup' });
-            navigate('/admin/setup');
-          } else {
-            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin' });
-            navigate('/admin');
+      // Email-specific routing rule for mariajof@tepper.cmu.edu (resident)
+      if (profileData?.email === "mariajof@tepper.cmu.edu" && role === 'resident') {
+        const buildingId = profileData.building_id || profileData.last_building_id;
+        if (buildingId) {
+          const targetPath = `/buildings/${buildingId}/feed`;
+          console.info('[route-decider]', { 
+            email: profileData.email, 
+            target: targetPath,
+            buildingId,
+            currentPath: window.location.pathname 
+          });
+          if (window.location.pathname !== targetPath && (event === 'SIGNED_IN' || window.location.pathname === '/auth')) {
+            navigate(targetPath);
           }
-        } else if (role === 'manager') {
-          console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
-          navigate('/manager');
-        } else if (role === 'resident') {
-          console.info('[route-decider]', { role, org_id, last_building_id, target: '/feed' });
-          navigate('/feed');
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Admin routing - always check and redirect based on org setup
+      if (role === 'admin') {
+        const isOnAuthPage = window.location.pathname === '/auth';
+        const isOnFeedPage = window.location.pathname.includes('/feed');
+        const isOnWrongPage = isOnAuthPage || isOnFeedPage;
+        
+        if (!org_id && (isOnWrongPage || event === 'SIGNED_IN')) {
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin/setup' });
+          navigate('/admin/setup');
+          setLoading(false);
+          return;
+        } else if (org_id && (isOnWrongPage || event === 'SIGNED_IN')) {
+          console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin' });
+          navigate('/admin');
+          setLoading(false);
+          return;
         }
       }
       
-      // Also redirect after initial auth if on the auth page
-      if (!event && window.location.pathname === '/auth') {
-        if (role === 'admin') {
-          if (!org_id) {
-            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin/setup' });
-            navigate('/admin/setup');
-          } else {
-            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin' });
-            navigate('/admin');
-          }
-        } else if (role === 'manager') {
-          console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
-          navigate('/manager');
-        } else if (role === 'resident') {
-          console.info('[route-decider]', { role, org_id, last_building_id, target: '/feed' });
-          navigate('/feed');
-        }
+      // Manager routing
+      if (role === 'manager' && (event === 'SIGNED_IN' || window.location.pathname === '/auth')) {
+        console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
+        navigate('/manager');
+        setLoading(false);
+        return;
+      }
+      
+      // Resident routing
+      if (role === 'resident' && (event === 'SIGNED_IN' || window.location.pathname === '/auth')) {
+        console.info('[route-decider]', { role, org_id, last_building_id, target: '/feed' });
+        navigate('/feed');
+        setLoading(false);
+        return;
       }
 
       setLoading(false);
