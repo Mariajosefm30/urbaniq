@@ -47,6 +47,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setProfile(profileData);
 
+      // Email-specific routing rule for mariajof@tepper.cmu.edu
+      if (profileData?.email === "mariajof@tepper.cmu.edu") {
+        const buildingId = profileData.building_id || profileData.last_building_id;
+        if (buildingId) {
+          const targetPath = `/buildings/${buildingId}/feed`;
+          console.info('[route-decider]', { 
+            email: profileData.email, 
+            target: targetPath,
+            buildingId,
+            currentPath: window.location.pathname 
+          });
+          if (window.location.pathname !== targetPath) {
+            navigate(targetPath);
+          }
+          setLoading(false);
+          return;
+        }
+      }
+
       // Use whoami data if available, otherwise fall back to profile
       let role, org_id, last_building_id;
       
