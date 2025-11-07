@@ -127,7 +127,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               
               {showNav && (
                 <>
-                  {isManager && (
+                  {isManager && !currentBuildingId && (
                     <Link to="/manager">
                       <Button
                         variant={isActive("/manager") ? "default" : "ghost"}
@@ -142,6 +142,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   
                   {isManager && currentBuildingId && (
                     <>
+                      <Link to="/manager">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Building2 className="h-4 w-4" />
+                          <span className="hidden sm:inline">Back to Buildings</span>
+                        </Button>
+                      </Link>
                       <Link to={`/buildings/${currentBuildingId}/dashboard`}>
                         <Button
                           variant={location.pathname.includes("/dashboard") ? "default" : "ghost"}
@@ -222,6 +232,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           <span className="hidden sm:inline">Feed</span>
                         </Button>
                       </Link>
+                      <Link to="/settings">
+                        <Button
+                          variant={isActive("/settings") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span className="hidden sm:inline">Settings</span>
+                        </Button>
+                      </Link>
                     </>
                   )}
                   
@@ -277,19 +297,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           <span className="hidden sm:inline">Payments</span>
                         </Button>
                       </Link>
+                      <Link to="/settings">
+                        <Button
+                          variant={isActive("/settings") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span className="hidden sm:inline">Settings</span>
+                        </Button>
+                      </Link>
                     </>
                   )}
-                  
-                  <Link to="/settings">
-                    <Button
-                      variant={isActive("/settings") ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span className="hidden sm:inline">Settings</span>
-                    </Button>
-                  </Link>
                 </>
               )}
               
