@@ -127,7 +127,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               
               {showNav && (
                 <>
-                  {isManager && !currentBuildingId && (
+                  {isManager && (location.pathname === '/manager' || !currentBuildingId) && (
                     <Link to="/manager">
                       <Button
                         variant={isActive("/manager") ? "default" : "ghost"}
@@ -140,7 +140,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </Link>
                   )}
                   
-                  {isManager && currentBuildingId && (
+                  {isManager && currentBuildingId && location.pathname !== '/manager' && (
                     <>
                       <Link to="/manager">
                         <Button
