@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
-      // Manager routing
+      // Manager routing - always go to /manager to select building first
       if (role === 'manager' && (event === 'SIGNED_IN' || window.location.pathname === '/auth')) {
         console.info('[route-decider]', { role, org_id, last_building_id, target: '/manager' });
         navigate('/manager');

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBuilding } from "@/contexts/BuildingContext";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +49,8 @@ interface GuestPassResponse {
 
 export default function Guests() {
   const { user, profile } = useAuth();
+  const { buildingId } = useParams();
+  const { currentBuildingId, setCurrentBuildingId } = useBuilding();
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -61,8 +65,16 @@ export default function Guests() {
   const [validating, setValidating] = useState(false);
 
   useEffect(() => {
-    loadGuests();
-  }, [user, profile]);
+    if (buildingId && buildingId !== currentBuildingId) {
+      setCurrentBuildingId(buildingId);
+    }
+  }, [buildingId, currentBuildingId, setCurrentBuildingId]);
+
+  useEffect(() => {
+    if (currentBuildingId) {
+      loadGuests();
+    }
+  }, [user, profile, currentBuildingId]);
 
   const loadGuests = async () => {
     if (!user) return;

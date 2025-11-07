@@ -62,12 +62,7 @@ export default function ManagerHome() {
     }
   }, [profile]);
 
-  // Auto-redirect if building already selected
-  useEffect(() => {
-    if (currentBuildingId && !loading) {
-      navigate(`/buildings/${currentBuildingId}/tickets`);
-    }
-  }, [currentBuildingId, loading, navigate]);
+  // Don't auto-redirect - let users choose building first
 
   const loadOrganizationAndBuildings = async () => {
     setLoading(true);
@@ -157,7 +152,7 @@ export default function ManagerHome() {
     if (user) {
       await persistLastBuilding(buildingId, user.id);
     }
-    navigate(`/buildings/${buildingId}/tickets`);
+    navigate(`/buildings/${buildingId}/dashboard`);
   };
 
   if (profile?.role !== 'manager') {

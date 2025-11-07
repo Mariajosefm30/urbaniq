@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBuilding } from "@/contexts/BuildingContext";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,8 @@ interface UnitMessage {
 
 export default function Messages() {
   const { user, profile } = useAuth();
+  const { buildingId } = useParams();
+  const { currentBuildingId, setCurrentBuildingId } = useBuilding();
   const [messages, setMessages] = useState<UnitMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -39,8 +43,16 @@ export default function Messages() {
   const isManager = profile?.role === "manager";
 
   useEffect(() => {
-    loadMessages();
-  }, [user]);
+    if (buildingId && buildingId !== currentBuildingId) {
+      setCurrentBuildingId(buildingId);
+    }
+  }, [buildingId, currentBuildingId, setCurrentBuildingId]);
+
+  useEffect(() => {
+    if (currentBuildingId) {
+      loadMessages();
+    }
+  }, [user, currentBuildingId]);
 
   const loadMessages = async () => {
     if (!user) return;

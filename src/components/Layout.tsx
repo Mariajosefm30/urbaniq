@@ -71,7 +71,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (user) {
       await persistLastBuilding(buildingId, user.id);
     }
-    navigate(`/buildings/${buildingId}/tickets`);
+    navigate(`/buildings/${buildingId}/dashboard`);
   };
 
   return (
@@ -140,34 +140,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </Link>
                   )}
                   
-                  {isManager && (
-                    <Link to="/dashboard">
-                      <Button
-                        variant={isActive("/dashboard") ? "default" : "ghost"}
-                        size="sm"
-                        className="gap-2"
-                      >
-                        <BarChart3 className="h-4 w-4" />
-                        <span className="hidden sm:inline">Dashboard</span>
-                      </Button>
-                    </Link>
-                  )}
-                  
-                  {isManager && (
-                    <Link to="/messages">
-                      <Button
-                        variant={isActive("/messages") ? "default" : "ghost"}
-                        size="sm"
-                        className="gap-2"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        <span className="hidden sm:inline">Messages</span>
-                      </Button>
-                    </Link>
-                  )}
-                  
                   {isManager && currentBuildingId && (
                     <>
+                      <Link to={`/buildings/${currentBuildingId}/dashboard`}>
+                        <Button
+                          variant={location.pathname.includes("/dashboard") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                          <span className="hidden sm:inline">Dashboard</span>
+                        </Button>
+                      </Link>
+                      <Link to={`/buildings/${currentBuildingId}/messages`}>
+                        <Button
+                          variant={location.pathname.includes("/messages") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          <span className="hidden sm:inline">Messages</span>
+                        </Button>
+                      </Link>
                       <Link to={`/buildings/${currentBuildingId}/tickets`}>
                         <Button
                           variant={location.pathname.includes("/tickets") ? "default" : "ghost"}
@@ -178,21 +172,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           <span className="hidden sm:inline">Tickets</span>
                         </Button>
                       </Link>
-                      {isManager && (
-                        <Link to={`/buildings/${currentBuildingId}/units`}>
-                          <Button
-                            variant={location.pathname.includes("/units") ? "default" : "ghost"}
-                            size="sm"
-                            className="gap-2"
-                          >
-                            <Home className="h-4 w-4" />
-                            <span className="hidden sm:inline">Units</span>
-                          </Button>
-                        </Link>
-                      )}
-                      <Link to="/guests">
+                      <Link to={`/buildings/${currentBuildingId}/units`}>
                         <Button
-                          variant={isActive("/guests") ? "default" : "ghost"}
+                          variant={location.pathname.includes("/units") ? "default" : "ghost"}
+                          size="sm"
+                          className="gap-2"
+                        >
+                          <Home className="h-4 w-4" />
+                          <span className="hidden sm:inline">Units</span>
+                        </Button>
+                      </Link>
+                      <Link to={`/buildings/${currentBuildingId}/guests`}>
+                        <Button
+                          variant={location.pathname.includes("/guests") ? "default" : "ghost"}
                           size="sm"
                           className="gap-2"
                         >

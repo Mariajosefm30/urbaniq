@@ -67,9 +67,13 @@ const App = () => (
               
               {/* Manager Routes */}
               <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/units" element={<ProtectedRoute><Units /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/amenities" element={<ProtectedRoute><AdminAmenities /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/bookings" element={<ProtectedRoute><BuildingBookings /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
               

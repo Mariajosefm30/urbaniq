@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBuilding } from "@/contexts/BuildingContext";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,22 +30,34 @@ interface MonthlyData {
 
 export default function Dashboard() {
   const { profile } = useAuth();
+  const { buildingId } = useParams();
+  const { currentBuildingId, setCurrentBuildingId } = useBuilding();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (profile?.role === "manager") {
+    if (buildingId && buildingId !== currentBuildingId) {
+      setCurrentBuildingId(buildingId);
+    }
+  }, [buildingId, currentBuildingId, setCurrentBuildingId]);
+
+  useEffect(() => {
+    if (profile?.role === "manager" && currentBuildingId) {
       loadTickets();
     }
-  }, [profile]);
+  }, [profile, currentBuildingId]);
 
   const loadTickets = async () => {
+    if (!currentBuildingId) return;
+
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
+    // @ts-ignore - Supabase query type issue
     const { data, error } = await supabase
       .from("maintenance_tickets")
       .select("id, created_at, updated_at, status, actual_cost, satisfaction_rating")
+      .eq("building_id", currentBuildingId)
       .gte("created_at", sixMonthsAgo.toISOString());
 
     if (error) {
