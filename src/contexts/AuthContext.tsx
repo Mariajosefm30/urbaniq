@@ -69,6 +69,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentPath: window.location.pathname 
       });
 
+      // Email-specific routing rules
+      // Force admin dashboard for mfernandez email
+      if (profileData?.email === "mfernandezmelgar@gmail.com") {
+        const targetPath = "/admin";
+        console.info('[route-decider]', {
+          email: profileData.email,
+          target: targetPath,
+          currentPath: window.location.pathname
+        });
+        if (window.location.pathname !== targetPath && (event === 'SIGNED_IN' || window.location.pathname === '/auth')) {
+          navigate(targetPath);
+        }
+        setLoading(false);
+        return;
+      }
+
       // Email-specific routing rule for mariajof@tepper.cmu.edu (resident)
       if (profileData?.email === "mariajof@tepper.cmu.edu" && role === 'resident') {
         const buildingId = profileData.building_id || profileData.last_building_id;
@@ -87,7 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-
       // Admin routing - always check and redirect based on org setup
       if (role === 'admin') {
         const isOnAuthPage = window.location.pathname === '/auth';

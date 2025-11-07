@@ -46,9 +46,24 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    // Initial fetch (may 401 before the user is signed in)
     fetchSession();
-  }, []);
 
+    // Refresh session data on auth changes to avoid stale/empty session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        setLoading(true);
+        fetchSession();
+      }
+      if (event === "SIGNED_OUT") {
+        setSession(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   const refreshSession = async () => {
     setLoading(true);
     await fetchSession();
