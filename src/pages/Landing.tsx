@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2 } from "lucide-react";
+import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2, CreditCard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
@@ -283,7 +283,7 @@ export default function Landing() {
       <section className="container py-16">
         <div className="mx-auto max-w-6xl">
           <h2 className="text-3xl font-bold text-center mb-12">Core Features</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
             <Card>
               <CardHeader>
                 <Wrench className="h-10 w-10 text-primary mb-2" />
@@ -316,6 +316,18 @@ export default function Landing() {
               <CardContent>
                 <CardDescription>
                   Generate secure, time-limited QR codes for guests. All passes automatically expire after 24 hours for enhanced security.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CreditCard className="h-10 w-10 text-primary mb-2" />
+                <CardTitle>Payments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Manage rent, utilities, and maintenance fees in one place. Track payment history and upload receipts easily.
                 </CardDescription>
               </CardContent>
             </Card>
