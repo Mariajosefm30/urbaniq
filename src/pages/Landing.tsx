@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2, CreditCard, Quote, Sparkles, Layers, Home, Building, Warehouse } from "lucide-react";
+import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2, CreditCard, Quote, Sparkles, Layers, Home, Building, Warehouse, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
@@ -202,7 +202,7 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-              Comenzar Gratis
+              Unirse a la Lista de Espera
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8" onClick={handleBookDemo}>
               Agendar Demo
@@ -558,7 +558,189 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* Pricing Section */}
+      <section className="container py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Planes y Precios</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              El precio escala con tu edificio — más unidades, más administradores, análisis más profundos.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Plan Starter */}
+            <Card className="relative flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-xl">Starter</CardTitle>
+                <CardDescription>Hasta 12 unidades</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Feed en vivo y comunicación</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Solicitudes de mantenimiento básicas</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Registro manual de invitados y entregas</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Seguimiento de pagos (opcional)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">1 administrador</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Análisis básicos</span>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="p-6 pt-0">
+                <Button className="w-full" variant="outline" onClick={handleGetStarted}>
+                  Unirse a Lista de Espera
+                </Button>
+              </div>
+            </Card>
+
+            {/* Plan Growth */}
+            <Card className="relative flex flex-col border-primary">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
+                  Popular
+                </span>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Growth</CardTitle>
+                <CardDescription>13–50 unidades</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Todo lo de Starter</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Asignación y estado de mantenimiento</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Registros de invitados y entregas</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Pagos en línea con recordatorios</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Hasta 3 administradores</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Análisis en tiempo real (pagos, mantenimiento, actividad)</span>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="p-6 pt-0">
+                <Button className="w-full" onClick={handleGetStarted}>
+                  Unirse a Lista de Espera
+                </Button>
+              </div>
+            </Card>
+
+            {/* Plan Pro */}
+            <Card className="relative flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-xl">Pro</CardTitle>
+                <CardDescription>51–150 unidades</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Todo lo de Growth</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Flujos de mantenimiento avanzados</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Reglas de invitados y entregas</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Conciliación automática de pagos</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Hasta 10 administradores con permisos por rol</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Análisis avanzados (flujo de caja, rendimiento)</span>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="p-6 pt-0">
+                <Button className="w-full" variant="outline" onClick={handleGetStarted}>
+                  Unirse a Lista de Espera
+                </Button>
+              </div>
+            </Card>
+
+            {/* Plan Enterprise */}
+            <Card className="relative flex flex-col bg-muted/50">
+              <CardHeader>
+                <CardTitle className="text-xl">Enterprise / Desarrollador</CardTitle>
+                <CardDescription>150+ unidades o portafolios</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Todo lo de Pro</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Administradores ilimitados y roles personalizados</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Marca blanca (white-label)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Análisis a nivel de portafolio</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Onboarding y flujos personalizados</span>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="p-6 pt-0">
+                <Button className="w-full" variant="outline" onClick={handleBookDemo}>
+                  Contactar Ventas
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            Los planes escalan según el número de unidades, administradores y profundidad de análisis.
+          </p>
+        </div>
+      </section>
+
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold text-center mb-12">Preguntas Frecuentes</h2>
