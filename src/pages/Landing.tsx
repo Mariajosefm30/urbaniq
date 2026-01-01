@@ -233,140 +233,26 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* BLOQUE 3 — SOLUCIÓN */}
-      <section className="container py-16">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            PropPass centraliza todo lo que tu edificio necesita.
-          </h2>
-          <div className="space-y-4">
-            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
-              <Bell className="h-6 w-6 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Comunicación clara</p>
-                <p className="text-sm text-muted-foreground">Avisos y mensajes en un solo feed</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
-              <CreditCard className="h-6 w-6 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Pagos ordenados</p>
-                <p className="text-sm text-muted-foreground">Cobros, recordatorios y seguimiento</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
-              <Wrench className="h-6 w-6 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Mantenimiento organizado</p>
-                <p className="text-sm text-muted-foreground">Solicitudes con estado y responsables</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
-              <Package className="h-6 w-6 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Visitas y entregas</p>
-                <p className="text-sm text-muted-foreground">Registro simple y controlado</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
-              <UserCog className="h-6 w-6 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Roles claros</p>
-                <p className="text-sm text-muted-foreground">Cada persona ve solo lo que le corresponde</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
-              <BarChart3 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium">Datos en tiempo real</p>
-                <p className="text-sm text-muted-foreground">Todo visible, todo claro</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* BLOQUE 4 — PARA QUIÉN ES */}
-      <section className="container py-16 bg-muted/30">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-12">¿Para quién es PropPass?</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center">
-              <CardHeader className="pb-2">
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <Home className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">Condominios pequeños</CardTitle>
-                <CardDescription>10–12 departamentos</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Para edificios autogestionados que quieren orden sin complicarse.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader className="pb-2">
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">Juntas de propietarios</CardTitle>
-                <CardDescription>13–50 departamentos</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Para edificios con administrador que quieren verse más profesionales.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader className="pb-2">
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <Building className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">Edificios grandes</CardTitle>
-                <CardDescription>50+ departamentos</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Para quienes necesitan control, reportes y eficiencia a escala.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader className="pb-2">
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <Building2 className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">Desarrolladores</CardTitle>
-                <CardDescription>Proyectos inmobiliarios</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Entrega una experiencia moderna desde el primer día.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* BLOQUE 5 — FUNCIONALIDADES CLAVE */}
+      {/* BLOQUE 3 — SOLUCIÓN + FUNCIONALIDADES (FUSIONADO) */}
       <section className="container py-16">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Funciones que realmente se usan en un edificio</h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">
+              Todo lo que tu edificio necesita, en una sola plataforma.
+            </h2>
+            <p className="text-muted-foreground">
+              Funciona para edificios pequeños, condominios y proyectos inmobiliarios.
+            </p>
+          </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
                 <Bell className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Live Feed del edificio</CardTitle>
+                <CardTitle className="text-lg">Comunicación centralizada (Live Feed)</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Avisos, comunicados y mensajes visibles para todos.
+                  Avisos, comunicados y mensajes visibles para todos los vecinos.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -374,11 +260,11 @@ export default function Landing() {
             <Card>
               <CardHeader>
                 <CreditCard className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Pagos y cobranza</CardTitle>
+                <CardTitle className="text-lg">Pagos y cobranza del edificio</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Registro de pagos, recordatorios y estado por departamento.
+                  Registro de pagos, recordatorios automáticos y estado por departamento.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -386,11 +272,11 @@ export default function Landing() {
             <Card>
               <CardHeader>
                 <Wrench className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Solicitudes de mantenimiento</CardTitle>
+                <CardTitle className="text-lg">Mantenimiento y reclamos</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Reclamos con seguimiento y responsables asignados.
+                  Solicitudes con seguimiento, estado y responsables claros.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -398,11 +284,11 @@ export default function Landing() {
             <Card>
               <CardHeader>
                 <Package className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">Gestión de visitas y entregas</CardTitle>
+                <CardTitle className="text-lg">Visitas y entregas</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Control simple y ordenado, sin papeles.
+                  Registro ordenado y control de ingresos sin papeles.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -414,7 +300,7 @@ export default function Landing() {
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Admins, junta, residentes, mantenimiento — cada uno con su acceso.
+                  Admins, junta, residentes y personal, cada uno con su acceso.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -434,14 +320,82 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* BLOQUE 6 — PLANES Y PRECIOS */}
+      {/* BLOQUE 4 — PARA QUIÉN ES */}
+      <section className="container py-16 bg-muted/30">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-3xl font-bold text-center mb-12">¿Para quién es PropPass?</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Home className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Condominios pequeños</CardTitle>
+                <CardDescription>10–12 departamentos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Orden básico sin complicaciones ni costos altos.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Juntas de propietarios / HOAs</CardTitle>
+                <CardDescription>13–50 departamentos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Gestión clara, pagos organizados y mejor comunicación.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Building className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Administradores y edificios grandes</CardTitle>
+                <CardDescription>50+ departamentos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Control, reportes y eficiencia para operar a escala.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Building2 className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Desarrolladores inmobiliarios</CardTitle>
+                <CardDescription>Proyectos inmobiliarios</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Entrega una experiencia moderna desde el primer día.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* BLOQUE 5 — PLANES Y PRECIOS */}
       <section id="pricing" className="container py-16 bg-muted/30">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Planes simples según el tamaño de tu edificio</h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Plan Starter */}
             <Card className="relative flex flex-col border-2">
               <CardHeader className="text-center pb-2">
@@ -459,7 +413,7 @@ export default function Landing() {
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Live feed</span>
+                    <span className="text-sm">Comunicación (Live Feed)</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -513,7 +467,7 @@ export default function Landing() {
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Todo lo anterior</span>
+                    <span className="text-sm">Todo Starter</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -562,7 +516,7 @@ export default function Landing() {
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Todo lo anterior</span>
+                    <span className="text-sm">Todo Growth</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -592,10 +546,65 @@ export default function Landing() {
                 </Button>
               </div>
             </Card>
+
+            {/* Plan Developer / Enterprise */}
+            <Card className="relative flex flex-col border-2">
+              <CardHeader className="text-center pb-2">
+                <div className="inline-block px-3 py-1 rounded-full bg-gray-500/10 text-gray-600 text-xs font-medium mb-2">
+                  Developer / Enterprise
+                </div>
+                <CardTitle className="text-xl">Para proyectos inmobiliarios</CardTitle>
+                <div className="mt-4">
+                  <p className="text-3xl font-bold">Personalizado</p>
+                  <p className="text-sm text-muted-foreground">Precio a medida</p>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4 pt-6">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Todo Pro</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Pagos custom integrados al proyecto</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Reglas propias de cobro</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Métodos de pago personalizados</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Flujos adaptados al modelo del desarrollador</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Branding del proyecto</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Panel por edificio o proyecto</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Onboarding dedicado</span>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="p-6 pt-0">
+                <Button className="w-full" variant="outline" onClick={handleBookDemo}>
+                  Contactar para proyectos
+                </Button>
+              </div>
+            </Card>
           </div>
 
           <p className="text-center text-sm text-muted-foreground mt-8">
-            El precio escala según número de departamentos, admins y nivel de analítica.
+            Los precios escalan según número de departamentos, admins y nivel de analítica.
           </p>
         </div>
       </section>
@@ -615,43 +624,29 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* BLOQUE 8 — FAQ */}
+      {/* BLOQUE 7 — FAQ */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold text-center mb-12">Preguntas Frecuentes</h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger>¿Necesito que todos los vecinos usen la app?</AccordionTrigger>
+              <AccordionTrigger>¿Puedo empezar solo con pagos o solo avisos?</AccordionTrigger>
               <AccordionContent>
-                No. Cada edificio decide cómo usarla. Puedes empezar solo con el equipo de administración y gradualmente invitar a los residentes.
+                Sí. Puedes activar solo lo que tu edificio necesita. PropPass es modular y se adapta a tus prioridades.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2">
-              <AccordionTrigger>¿Se puede usar solo para pagos o avisos?</AccordionTrigger>
+              <AccordionTrigger>¿Los desarrolladores pueden definir sus propias reglas de pago?</AccordionTrigger>
               <AccordionContent>
-                Sí. Puedes empezar con lo básico y crecer luego. PropPass es modular y se adapta a las necesidades de tu edificio.
+                Sí. El plan Developer permite flujos y métodos de pago personalizados, adaptados al modelo de cada proyecto inmobiliario.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
-              <AccordionTrigger>¿Está pensado para Perú?</AccordionTrigger>
+              <AccordionTrigger>¿Esto está pensado para edificios en Perú?</AccordionTrigger>
               <AccordionContent>
-                Sí. PropPass está diseñado con flujos, lenguaje y casos reales de edificios peruanos. Entendemos cómo funcionan los condominios en Lima y otras ciudades del país.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-4">
-              <AccordionTrigger>¿Cómo funciona el registro de visitas?</AccordionTrigger>
-              <AccordionContent>
-                Los residentes pueden generar códigos QR para sus invitados. El personal de seguridad escanea el código y la visita queda registrada automáticamente, sin papeles ni registros manuales.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-5">
-              <AccordionTrigger>¿Puedo probar antes de pagar?</AccordionTrigger>
-              <AccordionContent>
-                Sí. Ofrecemos una demostración personalizada para que veas cómo funciona PropPass con las necesidades específicas de tu edificio. Contáctanos para agendar.
+                Sí. Está diseñado para la realidad de edificios y condominios peruanos, con flujos, lenguaje y casos reales del país.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
