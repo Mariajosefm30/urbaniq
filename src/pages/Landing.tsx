@@ -80,8 +80,8 @@ export default function Landing() {
     // For now, we'll just show a success message
     setTimeout(() => {
       toast({
-        title: "Demo Request Received!",
-        description: "We'll contact you shortly to schedule your demo.",
+        title: "¡Solicitud de Demo Recibida!",
+        description: "Te contactaremos pronto para agendar tu demo.",
       });
       setDemoDialogOpen(false);
       setDemoFormData({ name: "", email: "", company: "", message: "" });
@@ -103,54 +103,54 @@ export default function Landing() {
       <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Book a Demo</DialogTitle>
+            <DialogTitle>Agenda una Demo</DialogTitle>
             <DialogDescription>
-              Fill out the form below and we'll contact you to schedule a personalized demo.
+              Completa el formulario y te contactaremos para agendar una demo personalizada.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleDemoSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="demo-name">Name *</Label>
+              <Label htmlFor="demo-name">Nombre *</Label>
               <Input
                 id="demo-name"
                 value={demoFormData.name}
                 onChange={(e) => setDemoFormData({ ...demoFormData, name: e.target.value })}
-                placeholder="Your full name"
+                placeholder="Tu nombre completo"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="demo-email">Email *</Label>
+              <Label htmlFor="demo-email">Correo electrónico *</Label>
               <Input
                 id="demo-email"
                 type="email"
                 value={demoFormData.email}
                 onChange={(e) => setDemoFormData({ ...demoFormData, email: e.target.value })}
-                placeholder="your.email@company.com"
+                placeholder="tu.correo@empresa.com"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="demo-company">Company/Building Name</Label>
+              <Label htmlFor="demo-company">Empresa/Nombre del Edificio</Label>
               <Input
                 id="demo-company"
                 value={demoFormData.company}
                 onChange={(e) => setDemoFormData({ ...demoFormData, company: e.target.value })}
-                placeholder="Your property or company"
+                placeholder="Tu propiedad o empresa"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="demo-message">Message</Label>
+              <Label htmlFor="demo-message">Mensaje</Label>
               <Textarea
                 id="demo-message"
                 value={demoFormData.message}
                 onChange={(e) => setDemoFormData({ ...demoFormData, message: e.target.value })}
-                placeholder="Tell us about your needs..."
+                placeholder="Cuéntanos sobre tus necesidades..."
                 rows={3}
               />
             </div>
             <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Sending..." : "Request Demo"}
+              {submitting ? "Enviando..." : "Solicitar Demo"}
             </Button>
           </form>
         </DialogContent>
@@ -165,10 +165,10 @@ export default function Landing() {
           </div>
           <div className="flex gap-2">
             <Button onClick={() => navigate("/auth?mode=signin")} variant="outline">
-              Sign In
+              Iniciar Sesión
             </Button>
             <Button onClick={() => navigate("/auth?mode=signup")}>
-              Sign Up
+              Registrarse
             </Button>
           </div>
         </div>
@@ -177,22 +177,22 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="container py-20 md:py-28">
         <div className="mx-auto max-w-4xl text-center space-y-8">
-          <p className="text-sm font-medium text-primary uppercase tracking-wider">What Real Performance Looks Like</p>
+          <p className="text-sm font-medium text-primary uppercase tracking-wider">Así se ve el verdadero rendimiento</p>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-tight">
-            Happy Residents.<br />
-            Impressed Owners.<br />
-            Thriving Teams.
+            Residentes Felices.<br />
+            Propietarios Impresionados.<br />
+            Equipos Exitosos.
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Yesterday's property management might solve for efficiency, but faster task execution doesn't equal value. PropPass delivers real outcomes with unified data, smart automation, and streamlined operations.
+            La administración de propiedades tradicional puede resolver la eficiencia, pero ejecutar tareas más rápido no equivale a valor. PropPass entrega resultados reales con datos unificados, automatización inteligente y operaciones optimizadas.
           </p>
           
           {inviteOnly && (
             <div className="max-w-md mx-auto space-y-3">
-              <p className="text-sm text-muted-foreground">Have an invite code?</p>
+              <p className="text-sm text-muted-foreground">¿Tienes un código de invitación?</p>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Enter invite code"
+                  placeholder="Ingresa el código de invitación"
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value)}
                 />
@@ -202,10 +202,10 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-              Get Started Free
+              Comenzar Gratis
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8" onClick={handleBookDemo}>
-              Book a Demo
+              Agendar Demo
             </Button>
           </div>
         </div>
@@ -214,36 +214,36 @@ export default function Landing() {
       {/* Who It's For Section */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Who It's For</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">¿Para Quién Es?</h2>
           <Tabs defaultValue="managers" className="w-full">
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-              <TabsTrigger value="managers">For Buildings (Managers)</TabsTrigger>
-              <TabsTrigger value="residents">For Residents</TabsTrigger>
+              <TabsTrigger value="managers">Para Edificios (Administradores)</TabsTrigger>
+              <TabsTrigger value="residents">Para Residentes</TabsTrigger>
             </TabsList>
             <TabsContent value="managers" className="mt-8">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Building2 className="h-5 w-5 text-primary" />
-                    Building Managers & Property Teams
+                    Administradores y Equipos de Propiedad
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-muted-foreground">
-                    Streamline operations with centralized ticket management, automated technician suggestions, and real-time status updates. Keep residents happy and maintenance running smoothly.
+                    Optimiza las operaciones con gestión centralizada de tickets, sugerencias automáticas de técnicos y actualizaciones en tiempo real. Mantén a los residentes felices y el mantenimiento funcionando sin problemas.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Track all maintenance requests in one dashboard</span>
+                      <span>Rastrea todas las solicitudes de mantenimiento en un solo panel</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>AI-powered technician matching based on location and ratings</span>
+                      <span>Sugerencias de técnicos con IA basadas en ubicación y calificaciones</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Generate secure guest passes instantly</span>
+                      <span>Genera pases de invitado seguros al instante</span>
                     </li>
                   </ul>
                 </CardContent>
@@ -254,25 +254,25 @@ export default function Landing() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-primary" />
-                    Residents & Tenants
+                    Residentes e Inquilinos
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-muted-foreground">
-                    Report issues quickly, track progress in real-time, and manage guest access with ease. Stay informed every step of the way with automatic notifications.
+                    Reporta problemas rápidamente, rastrea el progreso en tiempo real y gestiona el acceso de invitados con facilidad. Mantente informado en cada paso con notificaciones automáticas.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Submit maintenance tickets in seconds</span>
+                      <span>Envía tickets de mantenimiento en segundos</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Get real-time updates via email and in-app notifications</span>
+                      <span>Recibe actualizaciones en tiempo real por correo y notificaciones en la app</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Create QR-based guest passes valid for 24 hours</span>
+                      <span>Crea pases QR para invitados válidos por 24 horas</span>
                     </li>
                   </ul>
                 </CardContent>
@@ -285,16 +285,16 @@ export default function Landing() {
       {/* Pillars Section */}
       <section className="container py-16">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Core Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Funcionalidades Principales</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
             <Card>
               <CardHeader>
                 <Wrench className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Maintenance Tracking</CardTitle>
+                <CardTitle>Seguimiento de Mantenimiento</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Create, assign, and monitor maintenance tickets from start to finish. Never lose track of building issues again.
+                  Crea, asigna y monitorea tickets de mantenimiento de principio a fin. Nunca pierdas de vista los problemas del edificio.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -302,11 +302,11 @@ export default function Landing() {
             <Card>
               <CardHeader>
                 <MapPin className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Smart Technician Suggestions</CardTitle>
+                <CardTitle>Sugerencias Inteligentes de Técnicos</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Get AI-powered recommendations for nearby technicians based on Google Maps ratings and proximity to your building.
+                  Obtén recomendaciones con IA de técnicos cercanos basadas en calificaciones de Google Maps y proximidad a tu edificio.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -314,11 +314,11 @@ export default function Landing() {
             <Card>
               <CardHeader>
                 <QrCode className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Guest QR Passes</CardTitle>
+                <CardTitle>Pases QR para Invitados</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Generate secure, time-limited QR codes for guests. All passes automatically expire after 24 hours for enhanced security.
+                  Genera códigos QR seguros con tiempo limitado para invitados. Todos los pases expiran automáticamente después de 24 horas.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -326,11 +326,11 @@ export default function Landing() {
             <Card>
               <CardHeader>
                 <CreditCard className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Payments</CardTitle>
+                <CardTitle>Pagos</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Manage rent, utilities, and maintenance fees in one place. Track payment history and upload receipts easily.
+                  Gestiona alquiler, servicios y cuotas de mantenimiento en un solo lugar. Rastrea el historial de pagos y sube recibos fácilmente.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -338,11 +338,11 @@ export default function Landing() {
             <Card>
               <CardHeader>
                 <Bell className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Real-Time Updates</CardTitle>
+                <CardTitle>Actualizaciones en Tiempo Real</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Stay informed with instant email notifications and in-app toast alerts whenever ticket status changes.
+                  Mantente informado con notificaciones instantáneas por correo y alertas en la app cuando cambie el estado de los tickets.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -353,15 +353,15 @@ export default function Landing() {
       {/* How It Works Section */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-4xl">
-          <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Cómo Funciona</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
                 <ClipboardList className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold">1. Report</h3>
+              <h3 className="text-xl font-semibold">1. Reportar</h3>
               <p className="text-muted-foreground">
-                Residents submit maintenance tickets with details, photos, and priority level.
+                Los residentes envían tickets de mantenimiento con detalles, fotos y nivel de prioridad.
               </p>
             </div>
 
@@ -369,9 +369,9 @@ export default function Landing() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
                 <UserCheck className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold">2. Assign</h3>
+              <h3 className="text-xl font-semibold">2. Asignar</h3>
               <p className="text-muted-foreground">
-                Managers review tickets and assign to in-house staff or recommended technicians.
+                Los administradores revisan tickets y asignan al personal interno o técnicos recomendados.
               </p>
             </div>
 
@@ -379,9 +379,9 @@ export default function Landing() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
                 <CheckCircle2 className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold">3. Resolve</h3>
+              <h3 className="text-xl font-semibold">3. Resolver</h3>
               <p className="text-muted-foreground">
-                Track progress, update status, and close tickets once work is complete.
+                Rastrea el progreso, actualiza el estado y cierra tickets cuando el trabajo esté completo.
               </p>
             </div>
           </div>
@@ -391,24 +391,24 @@ export default function Landing() {
       {/* Testimonials Section */}
       <section className="container py-16">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-4">Real Results for Real Properties</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">Resultados Reales para Propiedades Reales</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            See how property managers are transforming their operations with PropPass
+            Mira cómo los administradores de propiedades están transformando sus operaciones con PropPass
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="relative">
               <CardContent className="pt-8">
                 <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
                 <p className="text-muted-foreground italic mb-6">
-                  "Since adopting PropPass, we've streamlined maintenance across all our units. Our residents love the transparency and quick response times."
+                  "Desde que adoptamos PropPass, hemos optimizado el mantenimiento en todas nuestras unidades. Nuestros residentes aman la transparencia y los tiempos de respuesta rápidos."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <Users className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm">Maria Rodriguez</p>
-                    <p className="text-xs text-muted-foreground">Property Manager • 200+ units</p>
+                    <p className="font-semibold text-sm">María Rodríguez</p>
+                    <p className="text-xs text-muted-foreground">Administradora de Propiedad • 200+ unidades</p>
                   </div>
                 </div>
               </CardContent>
@@ -418,15 +418,15 @@ export default function Landing() {
               <CardContent className="pt-8">
                 <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
                 <p className="text-muted-foreground italic mb-6">
-                  "The guest QR passes have been a game-changer for security. No more manual logs or lost visitor badges."
+                  "Los pases QR para invitados han sido revolucionarios para la seguridad. No más registros manuales ni credenciales perdidas."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <Building2 className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm">James Chen</p>
-                    <p className="text-xs text-muted-foreground">Building Superintendent • 85 units</p>
+                    <p className="font-semibold text-sm">Carlos García</p>
+                    <p className="text-xs text-muted-foreground">Superintendente de Edificio • 85 unidades</p>
                   </div>
                 </div>
               </CardContent>
@@ -436,15 +436,15 @@ export default function Landing() {
               <CardContent className="pt-8">
                 <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
                 <p className="text-muted-foreground italic mb-6">
-                  "Having payments, maintenance, and communications in one place has cut our admin time in half. We can focus on what matters."
+                  "Tener pagos, mantenimiento y comunicaciones en un solo lugar ha reducido nuestro tiempo administrativo a la mitad. Podemos enfocarnos en lo que importa."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                     <Sparkles className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm">Sarah Thompson</p>
-                    <p className="text-xs text-muted-foreground">Operations Director • 500+ units</p>
+                    <p className="font-semibold text-sm">Ana López</p>
+                    <p className="text-xs text-muted-foreground">Directora de Operaciones • 500+ unidades</p>
                   </div>
                 </div>
               </CardContent>
@@ -460,43 +460,43 @@ export default function Landing() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
                 <Layers className="h-4 w-4" />
-                Unified Platform
+                Plataforma Unificada
               </div>
-              <h2 className="text-3xl font-bold">All in One Spot</h2>
+              <h2 className="text-3xl font-bold">Todo en un Solo Lugar</h2>
               <p className="text-muted-foreground">
-                Are you juggling multiple systems with your data all over the place? Get a unified experience that connects all property management operations across your portfolio. Work from anywhere, on any device.
+                ¿Estás manejando múltiples sistemas con tus datos por todas partes? Obtén una experiencia unificada que conecta todas las operaciones de administración de propiedades en tu portafolio. Trabaja desde cualquier lugar, en cualquier dispositivo.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>Single dashboard for all buildings and units</span>
+                  <span>Un solo panel para todos los edificios y unidades</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>Centralized communication with residents</span>
+                  <span>Comunicación centralizada con residentes</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>Complete visibility for your entire team</span>
+                  <span>Visibilidad completa para todo tu equipo</span>
                 </li>
               </ul>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <Card className="p-4 text-center">
                 <Wrench className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Maintenance</p>
+                <p className="text-sm font-medium">Mantenimiento</p>
               </Card>
               <Card className="p-4 text-center">
                 <CreditCard className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Payments</p>
+                <p className="text-sm font-medium">Pagos</p>
               </Card>
               <Card className="p-4 text-center">
                 <QrCode className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Guest Access</p>
+                <p className="text-sm font-medium">Acceso de Invitados</p>
               </Card>
               <Card className="p-4 text-center">
                 <Bell className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Notifications</p>
+                <p className="text-sm font-medium">Notificaciones</p>
               </Card>
             </div>
           </div>
@@ -506,26 +506,26 @@ export default function Landing() {
       {/* Property Types Section */}
       <section className="container py-16">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-4">Built for Every Property Type</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">Diseñado para Todo Tipo de Propiedad</h2>
           <p className="text-center text-muted-foreground mb-12">
-            From small apartment buildings to large residential communities
+            Desde pequeños edificios de apartamentos hasta grandes comunidades residenciales
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
               <Building2 className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Multifamily</p>
+              <p className="font-medium">Multifamiliar</p>
             </div>
             <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
               <Home className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Single-Family</p>
+              <p className="font-medium">Unifamiliar</p>
             </div>
             <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
               <Building className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Student Housing</p>
+              <p className="font-medium">Vivienda Estudiantil</p>
             </div>
             <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
               <Warehouse className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Commercial</p>
+              <p className="font-medium">Comercial</p>
             </div>
           </div>
         </div>
@@ -534,25 +534,25 @@ export default function Landing() {
       {/* Mini Gallery Section */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-12">See It In Action</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Míralo en Acción</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="space-y-3">
               <div className="aspect-video rounded-lg border bg-muted flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Tickets List View</p>
+                <p className="text-sm text-muted-foreground">Vista de Lista de Tickets</p>
               </div>
-              <p className="text-center text-sm font-medium">All Tickets Dashboard</p>
+              <p className="text-center text-sm font-medium">Panel de Todos los Tickets</p>
             </div>
             <div className="space-y-3">
               <div className="aspect-video rounded-lg border bg-muted flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Ticket Detail View</p>
+                <p className="text-sm text-muted-foreground">Vista de Detalle de Ticket</p>
               </div>
-              <p className="text-center text-sm font-medium">Detailed Ticket Management</p>
+              <p className="text-center text-sm font-medium">Gestión Detallada de Tickets</p>
             </div>
             <div className="space-y-3">
               <div className="aspect-video rounded-lg border bg-muted flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Guest Pass Verify</p>
+                <p className="text-sm text-muted-foreground">Verificación de Pase de Invitado</p>
               </div>
-              <p className="text-center text-sm font-medium">QR Code Verification</p>
+              <p className="text-center text-sm font-medium">Verificación de Código QR</p>
             </div>
           </div>
         </div>
@@ -561,40 +561,40 @@ export default function Landing() {
       {/* FAQ Section */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-3xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Preguntas Frecuentes</h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger>How does PropPass help manage maintenance?</AccordionTrigger>
+              <AccordionTrigger>¿Cómo ayuda PropPass a gestionar el mantenimiento?</AccordionTrigger>
               <AccordionContent>
-                PropPass centralizes all maintenance requests in one dashboard. Residents can submit tickets with photos and descriptions, managers can prioritize and assign work, and everyone gets real-time updates on progress. Our AI also suggests qualified technicians based on location and ratings.
+                PropPass centraliza todas las solicitudes de mantenimiento en un solo panel. Los residentes pueden enviar tickets con fotos y descripciones, los administradores pueden priorizar y asignar trabajo, y todos reciben actualizaciones en tiempo real sobre el progreso. Nuestra IA también sugiere técnicos calificados basándose en ubicación y calificaciones.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2">
-              <AccordionTrigger>What are guest QR passes?</AccordionTrigger>
+              <AccordionTrigger>¿Qué son los pases QR para invitados?</AccordionTrigger>
               <AccordionContent>
-                Guest passes are secure, scannable QR codes that residents can generate for visitors. Each pass includes visitor details and automatically expires after 24 hours, providing convenient access control without compromising security.
+                Los pases de invitados son códigos QR seguros y escaneables que los residentes pueden generar para visitantes. Cada pase incluye detalles del visitante y expira automáticamente después de 24 horas, proporcionando control de acceso conveniente sin comprometer la seguridad.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
-              <AccordionTrigger>How does technician matching work?</AccordionTrigger>
+              <AccordionTrigger>¿Cómo funciona la búsqueda de técnicos?</AccordionTrigger>
               <AccordionContent>
-                When you create a maintenance ticket, our system uses the ticket category and your building's address to search Google Maps for nearby qualified technicians. We display ratings, contact info, and locations so managers can make informed decisions quickly.
+                Cuando creas un ticket de mantenimiento, nuestro sistema usa la categoría del ticket y la dirección de tu edificio para buscar técnicos calificados cercanos en Google Maps. Mostramos calificaciones, información de contacto y ubicaciones para que los administradores puedan tomar decisiones informadas rápidamente.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-4">
-              <AccordionTrigger>Can residents track their maintenance requests?</AccordionTrigger>
+              <AccordionTrigger>¿Pueden los residentes rastrear sus solicitudes de mantenimiento?</AccordionTrigger>
               <AccordionContent>
-                Yes! Residents can view all their submitted tickets, see current status (open, in progress, resolved), add comments, and receive email notifications whenever there's an update. Complete transparency throughout the process.
+                ¡Sí! Los residentes pueden ver todos sus tickets enviados, ver el estado actual (abierto, en progreso, resuelto), agregar comentarios y recibir notificaciones por correo cuando haya una actualización. Transparencia completa durante todo el proceso.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-5">
-              <AccordionTrigger>Is PropPass suitable for small buildings?</AccordionTrigger>
+              <AccordionTrigger>¿Es PropPass adecuado para edificios pequeños?</AccordionTrigger>
               <AccordionContent>
-                Absolutely. PropPass scales to buildings of any size. Whether you manage a small apartment complex or a large residential tower, the platform adapts to your needs. Even small properties benefit from organized ticket tracking and secure guest access.
+                Absolutamente. PropPass se adapta a edificios de cualquier tamaño. Ya sea que administres un pequeño complejo de apartamentos o una gran torre residencial, la plataforma se adapta a tus necesidades. Incluso las propiedades pequeñas se benefician del seguimiento organizado de tickets y el acceso seguro de invitados.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -611,7 +611,7 @@ export default function Landing() {
                 <span className="font-bold">PropPass</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Modern property management for the digital age.
+                Administración de propiedades moderna para la era digital.
               </p>
             </div>
 
@@ -620,19 +620,19 @@ export default function Landing() {
               <ul className="space-y-2 text-sm">
                 <li>
                   <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Terms of Service
+                    Términos de Servicio
                   </a>
                 </li>
                 <li>
                   <a href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Privacy Policy
+                    Política de Privacidad
                   </a>
                 </li>
               </ul>
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold">Contact</h4>
+              <h4 className="font-semibold">Contacto</h4>
               <ul className="space-y-2 text-sm">
                 <li>
                   <a href="mailto:contact@proppass.com" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -641,7 +641,7 @@ export default function Landing() {
                 </li>
                 <li>
                   <a href="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Admin Portal
+                    Portal de Administrador
                   </a>
                 </li>
               </ul>
@@ -649,7 +649,7 @@ export default function Landing() {
           </div>
 
           <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} PropPass. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} PropPass. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
