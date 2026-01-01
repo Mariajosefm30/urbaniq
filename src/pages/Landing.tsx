@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2, CreditCard } from "lucide-react";
+import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2, CreditCard, Quote, Sparkles, Layers, Home, Building, Warehouse } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
@@ -176,12 +176,15 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="container py-20 md:py-28">
-        <div className="mx-auto max-w-3xl text-center space-y-8">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Modern Property Management Made Simple
+        <div className="mx-auto max-w-4xl text-center space-y-8">
+          <p className="text-sm font-medium text-primary uppercase tracking-wider">What Real Performance Looks Like</p>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-tight">
+            Happy Residents.<br />
+            Impressed Owners.<br />
+            Thriving Teams.
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Track maintenance, manage guest access, and collaborate seamlessly. PropPass brings everything your building needs into one powerful platform.
+            Yesterday's property management might solve for efficiency, but faster task execution doesn't equal value. PropPass delivers real outcomes with unified data, smart automation, and streamlined operations.
           </p>
           
           {inviteOnly && (
@@ -199,7 +202,7 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-              Get Started
+              Get Started Free
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8" onClick={handleBookDemo}>
               Book a Demo
@@ -385,8 +388,151 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Mini Gallery Section */}
+      {/* Testimonials Section */}
       <section className="container py-16">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-3xl font-bold text-center mb-4">Real Results for Real Properties</h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            See how property managers are transforming their operations with PropPass
+          </p>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="relative">
+              <CardContent className="pt-8">
+                <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
+                <p className="text-muted-foreground italic mb-6">
+                  "Since adopting PropPass, we've streamlined maintenance across all our units. Our residents love the transparency and quick response times."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">Maria Rodriguez</p>
+                    <p className="text-xs text-muted-foreground">Property Manager • 200+ units</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="relative">
+              <CardContent className="pt-8">
+                <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
+                <p className="text-muted-foreground italic mb-6">
+                  "The guest QR passes have been a game-changer for security. No more manual logs or lost visitor badges."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">James Chen</p>
+                    <p className="text-xs text-muted-foreground">Building Superintendent • 85 units</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="relative">
+              <CardContent className="pt-8">
+                <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
+                <p className="text-muted-foreground italic mb-6">
+                  "Having payments, maintenance, and communications in one place has cut our admin time in half. We can focus on what matters."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">Sarah Thompson</p>
+                    <p className="text-xs text-muted-foreground">Operations Director • 500+ units</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* All in One Section */}
+      <section className="container py-16 bg-muted/30">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                <Layers className="h-4 w-4" />
+                Unified Platform
+              </div>
+              <h2 className="text-3xl font-bold">All in One Spot</h2>
+              <p className="text-muted-foreground">
+                Are you juggling multiple systems with your data all over the place? Get a unified experience that connects all property management operations across your portfolio. Work from anywhere, on any device.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span>Single dashboard for all buildings and units</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span>Centralized communication with residents</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span>Complete visibility for your entire team</span>
+                </li>
+              </ul>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="p-4 text-center">
+                <Wrench className="h-8 w-8 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Maintenance</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <CreditCard className="h-8 w-8 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Payments</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <QrCode className="h-8 w-8 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Guest Access</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <Bell className="h-8 w-8 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Notifications</p>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Property Types Section */}
+      <section className="container py-16">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-3xl font-bold text-center mb-4">Built for Every Property Type</h2>
+          <p className="text-center text-muted-foreground mb-12">
+            From small apartment buildings to large residential communities
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
+              <Building2 className="h-10 w-10 text-primary mx-auto" />
+              <p className="font-medium">Multifamily</p>
+            </div>
+            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
+              <Home className="h-10 w-10 text-primary mx-auto" />
+              <p className="font-medium">Single-Family</p>
+            </div>
+            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
+              <Building className="h-10 w-10 text-primary mx-auto" />
+              <p className="font-medium">Student Housing</p>
+            </div>
+            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
+              <Warehouse className="h-10 w-10 text-primary mx-auto" />
+              <p className="font-medium">Commercial</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mini Gallery Section */}
+      <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-6xl">
           <h2 className="text-3xl font-bold text-center mb-12">See It In Action</h2>
           <div className="grid md:grid-cols-3 gap-6">
