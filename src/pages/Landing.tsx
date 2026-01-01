@@ -8,9 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Building2, Users, Wrench, MapPin, QrCode, Bell, ClipboardList, UserCheck, CheckCircle2, CreditCard, Quote, Sparkles, Layers, Home, Building, Warehouse, Check, X } from "lucide-react";
+import { Building2, Users, Wrench, Bell, CheckCircle2, CreditCard, MessageSquare, Package, BarChart3, UserCog, Home, Building, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
@@ -29,14 +28,11 @@ export default function Landing() {
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
   
-  // Check if INVITE_ONLY mode is enabled (you can set this via environment or config)
-  const inviteOnly = false; // Set to true to enable invite-only mode
+  const inviteOnly = false;
 
-  // Role-based redirects on page load with email overrides
   useEffect(() => {
     if (loading || !user) return;
 
-    // Email override - specific emails always go to their designated routes
     if (user.email === "mfernandezmelgar@gmail.com") {
       navigate("/admin");
       return;
@@ -50,7 +46,6 @@ export default function Landing() {
       return;
     }
 
-    // Role-based redirects
     if (session?.role === "admin") {
       navigate("/admin");
     } else if (session?.role === "manager") {
@@ -76,8 +71,6 @@ export default function Landing() {
     e.preventDefault();
     setSubmitting(true);
     
-    // Here you would typically send this to your backend
-    // For now, we'll just show a success message
     setTimeout(() => {
       toast({
         title: "¡Solicitud de Demo Recibida!",
@@ -91,14 +84,6 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Debug Info (only show if authenticated) */}
-      {user && (
-        <div className="fixed top-20 right-4 z-50 p-3 bg-background border rounded-md shadow-lg text-xs font-mono space-y-1 max-w-xs">
-          <div><strong>Email:</strong> {user.email || 'N/A'}</div>
-          <div><strong>Role:</strong> {session?.role || 'N/A'}</div>
-        </div>
-      )}
-
       {/* Demo Contact Dialog */}
       <Dialog open={demoDialogOpen} onOpenChange={setDemoDialogOpen}>
         <DialogContent className="sm:max-w-md">
@@ -174,15 +159,18 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* BLOQUE 1 — HERO */}
       <section className="container py-20 md:py-28">
-        <div className="mx-auto max-w-4xl text-center space-y-8">
-          <p className="text-sm font-medium text-primary uppercase tracking-wider">Así se ve el verdadero rendimiento</p>
+        <div className="mx-auto max-w-4xl text-center space-y-6">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-tight">
-            Administrar tu edificio ya no tiene por qué ser complicado.
+            Todo tu edificio, en un solo lugar.
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Pagos, avisos y mantenimiento en una sola plataforma.
+            Comunicación, pagos, mantenimiento y control del edificio<br />
+            sin WhatsApp, sin Excel y sin desorden.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Diseñado para edificios y condominios en Perú, desde 10 hasta más de 100 departamentos.
           </p>
           
           {inviteOnly && (
@@ -198,603 +186,472 @@ export default function Landing() {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-              Unirse a la Lista de Espera
+              Empieza ahora
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8" onClick={handleBookDemo}>
-              Agendar Demo
+            <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>
+              Ver planes
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Who It's For Section */}
-      <section className="container py-16 bg-muted/30">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-12">¿Para Quién Es?</h2>
-          <Tabs defaultValue="managers" className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-              <TabsTrigger value="managers">Para Edificios (Administradores)</TabsTrigger>
-              <TabsTrigger value="residents">Para Residentes</TabsTrigger>
-            </TabsList>
-            <TabsContent value="managers" className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-primary" />
-                    Administradores y Equipos de Propiedad
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground">
-                    Optimiza las operaciones con gestión centralizada de tickets, sugerencias automáticas de técnicos y actualizaciones en tiempo real. Mantén a los residentes felices y el mantenimiento funcionando sin problemas.
-                  </p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Rastrea todas las solicitudes de mantenimiento en un solo panel</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Sugerencias de técnicos con IA basadas en ubicación y calificaciones</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Genera pases de invitado seguros al instante</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="residents" className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-primary" />
-                    Residentes e Inquilinos
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground">
-                    Reporta problemas rápidamente, rastrea el progreso en tiempo real y gestiona el acceso de invitados con facilidad. Mantente informado en cada paso con notificaciones automáticas.
-                  </p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Envía tickets de mantenimiento en segundos</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Recibe actualizaciones en tiempo real por correo y notificaciones en la app</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>Crea pases QR para invitados válidos por 24 horas</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Pillars Section */}
-      <section className="container py-16">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Funcionalidades Principales</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-            <Card>
-              <CardHeader>
-                <Wrench className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Seguimiento de Mantenimiento</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Crea, asigna y monitorea tickets de mantenimiento de principio a fin. Nunca pierdas de vista los problemas del edificio.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <MapPin className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Sugerencias Inteligentes de Técnicos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Obtén recomendaciones con IA de técnicos cercanos basadas en calificaciones de Google Maps y proximidad a tu edificio.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <QrCode className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Pases QR para Invitados</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Genera códigos QR seguros con tiempo limitado para invitados. Todos los pases expiran automáticamente después de 24 horas.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CreditCard className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Pagos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Gestiona alquiler, servicios y cuotas de mantenimiento en un solo lugar. Rastrea el historial de pagos y sube recibos fácilmente.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Bell className="h-10 w-10 text-primary mb-2" />
-                <CardTitle>Actualizaciones en Tiempo Real</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Mantente informado con notificaciones instantáneas por correo y alertas en la app cuando cambie el estado de los tickets.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
+      {/* BLOQUE 2 — PROBLEMA */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-4xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Cómo Funciona</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
-                <ClipboardList className="h-8 w-8 text-primary" />
+          <h2 className="text-3xl font-bold text-center mb-12">¿Te suena familiar?</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="flex flex-col items-center text-center space-y-3 p-6">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                <MessageSquare className="h-6 w-6 text-destructive" />
               </div>
-              <h3 className="text-xl font-semibold">1. Reportar</h3>
-              <p className="text-muted-foreground">
-                Los residentes envían tickets de mantenimiento con detalles, fotos y nivel de prioridad.
-              </p>
+              <p className="text-sm">Avisos importantes perdidos en WhatsApp</p>
             </div>
-
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
-                <UserCheck className="h-8 w-8 text-primary" />
+            <div className="flex flex-col items-center text-center space-y-3 p-6">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 text-destructive" />
               </div>
-              <h3 className="text-xl font-semibold">2. Asignar</h3>
-              <p className="text-muted-foreground">
-                Los administradores revisan tickets y asignan al personal interno o técnicos recomendados.
-              </p>
+              <p className="text-sm">Pagos y deudas llevados en Excel</p>
             </div>
-
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
-                <CheckCircle2 className="h-8 w-8 text-primary" />
+            <div className="flex flex-col items-center text-center space-y-3 p-6">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                <Wrench className="h-6 w-6 text-destructive" />
               </div>
-              <h3 className="text-xl font-semibold">3. Resolver</h3>
-              <p className="text-muted-foreground">
-                Rastrea el progreso, actualiza el estado y cierra tickets cuando el trabajo esté completo.
-              </p>
+              <p className="text-sm">Reclamos sin seguimiento</p>
+            </div>
+            <div className="flex flex-col items-center text-center space-y-3 p-6">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                <Users className="h-6 w-6 text-destructive" />
+              </div>
+              <p className="text-sm">Nadie sabe qué se pagó, qué falta o qué sigue</p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="container py-16">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-4">Resultados Reales para Propiedades Reales</h2>
-          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Mira cómo los administradores de propiedades están transformando sus operaciones con PropPass
+          <p className="text-center text-muted-foreground mt-8">
+            Administrar un edificio así consume tiempo y genera conflictos.
           </p>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="relative">
-              <CardContent className="pt-8">
-                <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
-                <p className="text-muted-foreground italic mb-6">
-                  "Desde que adoptamos PropPass, hemos optimizado el mantenimiento en todas nuestras unidades. Nuestros residentes aman la transparencia y los tiempos de respuesta rápidos."
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">María Rodríguez</p>
-                    <p className="text-xs text-muted-foreground">Administradora de Propiedad • 200+ unidades</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        </div>
+      </section>
 
-            <Card className="relative">
-              <CardContent className="pt-8">
-                <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
-                <p className="text-muted-foreground italic mb-6">
-                  "Los pases QR para invitados han sido revolucionarios para la seguridad. No más registros manuales ni credenciales perdidas."
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">Carlos García</p>
-                    <p className="text-xs text-muted-foreground">Superintendente de Edificio • 85 unidades</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="relative">
-              <CardContent className="pt-8">
-                <Quote className="h-8 w-8 text-primary/20 absolute top-4 left-4" />
-                <p className="text-muted-foreground italic mb-6">
-                  "Tener pagos, mantenimiento y comunicaciones en un solo lugar ha reducido nuestro tiempo administrativo a la mitad. Podemos enfocarnos en lo que importa."
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">Ana López</p>
-                    <p className="text-xs text-muted-foreground">Directora de Operaciones • 500+ unidades</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      {/* BLOQUE 3 — SOLUCIÓN */}
+      <section className="container py-16">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            PropPass centraliza todo lo que tu edificio necesita.
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
+              <Bell className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Comunicación clara</p>
+                <p className="text-sm text-muted-foreground">Avisos y mensajes en un solo feed</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
+              <CreditCard className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Pagos ordenados</p>
+                <p className="text-sm text-muted-foreground">Cobros, recordatorios y seguimiento</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
+              <Wrench className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Mantenimiento organizado</p>
+                <p className="text-sm text-muted-foreground">Solicitudes con estado y responsables</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
+              <Package className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Visitas y entregas</p>
+                <p className="text-sm text-muted-foreground">Registro simple y controlado</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
+              <UserCog className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Roles claros</p>
+                <p className="text-sm text-muted-foreground">Cada persona ve solo lo que le corresponde</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors">
+              <BarChart3 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium">Datos en tiempo real</p>
+                <p className="text-sm text-muted-foreground">Todo visible, todo claro</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* All in One Section */}
+      {/* BLOQUE 4 — PARA QUIÉN ES */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                <Layers className="h-4 w-4" />
-                Plataforma Unificada
-              </div>
-              <h2 className="text-3xl font-bold">Todo en un Solo Lugar</h2>
-              <p className="text-muted-foreground">
-                ¿Estás manejando múltiples sistemas con tus datos por todas partes? Obtén una experiencia unificada que conecta todas las operaciones de administración de propiedades en tu portafolio. Trabaja desde cualquier lugar, en cualquier dispositivo.
-              </p>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>Un solo panel para todos los edificios y unidades</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>Comunicación centralizada con residentes</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span>Visibilidad completa para todo tu equipo</span>
-                </li>
-              </ul>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-4 text-center">
-                <Wrench className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Mantenimiento</p>
-              </Card>
-              <Card className="p-4 text-center">
-                <CreditCard className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Pagos</p>
-              </Card>
-              <Card className="p-4 text-center">
-                <QrCode className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Acceso de Invitados</p>
-              </Card>
-              <Card className="p-4 text-center">
-                <Bell className="h-8 w-8 text-primary mx-auto mb-2" />
-                <p className="text-sm font-medium">Notificaciones</p>
-              </Card>
-            </div>
+          <h2 className="text-3xl font-bold text-center mb-12">¿Para quién es PropPass?</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Home className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Condominios pequeños</CardTitle>
+                <CardDescription>10–12 departamentos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Para edificios autogestionados que quieren orden sin complicarse.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Juntas de propietarios</CardTitle>
+                <CardDescription>13–50 departamentos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Para edificios con administrador que quieren verse más profesionales.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Building className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Edificios grandes</CardTitle>
+                <CardDescription>50+ departamentos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Para quienes necesitan control, reportes y eficiencia a escala.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader className="pb-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <Building2 className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Desarrolladores</CardTitle>
+                <CardDescription>Proyectos inmobiliarios</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Entrega una experiencia moderna desde el primer día.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Property Types Section */}
+      {/* BLOQUE 5 — FUNCIONALIDADES CLAVE */}
       <section className="container py-16">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-4">Diseñado para Todo Tipo de Propiedad</h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Desde pequeños edificios de apartamentos hasta grandes comunidades residenciales
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
-              <Building2 className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Multifamiliar</p>
-            </div>
-            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
-              <Home className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Unifamiliar</p>
-            </div>
-            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
-              <Building className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Vivienda Estudiantil</p>
-            </div>
-            <div className="text-center space-y-3 p-6 rounded-lg border hover:border-primary/50 transition-colors cursor-pointer">
-              <Warehouse className="h-10 w-10 text-primary mx-auto" />
-              <p className="font-medium">Comercial</p>
-            </div>
+          <h2 className="text-3xl font-bold text-center mb-12">Funciones que realmente se usan en un edificio</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <Bell className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">Live Feed del edificio</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Avisos, comunicados y mensajes visibles para todos.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CreditCard className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">Pagos y cobranza</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Registro de pagos, recordatorios y estado por departamento.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Wrench className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">Solicitudes de mantenimiento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Reclamos con seguimiento y responsables asignados.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Package className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">Gestión de visitas y entregas</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Control simple y ordenado, sin papeles.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <UserCog className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">Roles y permisos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Admins, junta, residentes, mantenimiento — cada uno con su acceso.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <BarChart3 className="h-8 w-8 text-primary mb-2" />
+                <CardTitle className="text-lg">Analítica en tiempo real</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Pagos, morosidad, reclamos y actividad del edificio en un solo panel.
+                </CardDescription>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Mini Gallery Section */}
-      <section className="container py-16 bg-muted/30">
+      {/* BLOQUE 6 — PLANES Y PRECIOS */}
+      <section id="pricing" className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center mb-12">Míralo en Acción</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="space-y-3">
-              <div className="aspect-video rounded-lg border bg-muted flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Vista de Lista de Tickets</p>
-              </div>
-              <p className="text-center text-sm font-medium">Panel de Todos los Tickets</p>
-            </div>
-            <div className="space-y-3">
-              <div className="aspect-video rounded-lg border bg-muted flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Vista de Detalle de Ticket</p>
-              </div>
-              <p className="text-center text-sm font-medium">Gestión Detallada de Tickets</p>
-            </div>
-            <div className="space-y-3">
-              <div className="aspect-video rounded-lg border bg-muted flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">Verificación de Pase de Invitado</p>
-              </div>
-              <p className="text-center text-sm font-medium">Verificación de Código QR</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="container py-16">
-        <div className="mx-auto max-w-7xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Planes y Precios</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              El precio escala con tu edificio — más unidades, más administradores, análisis más profundos.
-            </p>
+            <h2 className="text-3xl font-bold mb-4">Planes simples según el tamaño de tu edificio</h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {/* Plan Starter */}
-            <Card className="relative flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-xl">Starter</CardTitle>
-                <CardDescription>Hasta 12 unidades</CardDescription>
+            <Card className="relative flex flex-col border-2">
+              <CardHeader className="text-center pb-2">
+                <div className="inline-block px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-xs font-medium mb-2">
+                  Starter
+                </div>
+                <CardTitle className="text-xl">Para edificios pequeños</CardTitle>
                 <div className="mt-4">
-                  <p className="text-sm text-muted-foreground">Desde</p>
-                  <p className="text-3xl font-bold">$20 <span className="text-base font-normal text-muted-foreground">USD/edificio/mes</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">Incluye 1 administrador</p>
+                  <p className="text-3xl font-bold">$20 <span className="text-base font-normal text-muted-foreground">USD</span></p>
+                  <p className="text-sm text-muted-foreground">/ edificio / mes</p>
+                  <p className="text-xs text-muted-foreground mt-2">Hasta 12 departamentos</p>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 space-y-4">
+              <CardContent className="flex-1 space-y-4 pt-6">
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Feed en vivo y comunicación</span>
+                    <span className="text-sm">Live feed</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Solicitudes de mantenimiento básicas</span>
+                    <span className="text-sm">Mantenimiento básico</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Registro manual de invitados y entregas</span>
+                    <span className="text-sm">Registro de visitas</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Seguimiento de pagos (opcional)</span>
+                    <span className="text-sm">Pagos (seguimiento)</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">1 administrador</span>
+                    <span className="text-sm">1 admin</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Análisis básicos</span>
-                  </div>
-                </div>
-              </CardContent>
-              <div className="p-6 pt-0">
-                <Button className="w-full" variant="outline" onClick={handleGetStarted}>
-                  Unirse a Lista de Espera
-                </Button>
-              </div>
-            </Card>
-
-            {/* Plan Growth */}
-            <Card className="relative flex flex-col border-primary">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
-                  Popular
-                </span>
-              </div>
-              <CardHeader>
-                <CardTitle className="text-xl">Growth</CardTitle>
-                <CardDescription>13–50 unidades</CardDescription>
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground">Desde</p>
-                  <p className="text-3xl font-bold">$2.00 <span className="text-base font-normal text-muted-foreground">USD/unidad/mes</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">Mín. $30/mes • Hasta 3 admins</p>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Todo lo de Starter</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Asignación y estado de mantenimiento</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Registros de invitados y entregas</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Pagos en línea con recordatorios</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Hasta 3 administradores</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Análisis en tiempo real (pagos, mantenimiento, actividad)</span>
+                    <span className="text-sm">Analítica básica</span>
                   </div>
                 </div>
               </CardContent>
               <div className="p-6 pt-0">
                 <Button className="w-full" onClick={handleGetStarted}>
-                  Unirse a Lista de Espera
+                  Empezar con Starter
+                </Button>
+              </div>
+            </Card>
+
+            {/* Plan Growth */}
+            <Card className="relative flex flex-col border-2 border-primary shadow-lg">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
+                  Popular
+                </span>
+              </div>
+              <CardHeader className="text-center pb-2">
+                <div className="inline-block px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium mb-2">
+                  Growth
+                </div>
+                <CardTitle className="text-xl">Para juntas y HOAs</CardTitle>
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground">Desde</p>
+                  <p className="text-3xl font-bold">$2 <span className="text-base font-normal text-muted-foreground">USD</span></p>
+                  <p className="text-sm text-muted-foreground">/ departamento / mes</p>
+                  <p className="text-xs text-muted-foreground mt-2">Mínimo $30/mes</p>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4 pt-6">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Todo lo anterior</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Pagos con recordatorios</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Mantenimiento con estados</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Registro completo de visitas</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Hasta 3 admins</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Analítica en tiempo real</span>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="p-6 pt-0">
+                <Button className="w-full" onClick={handleGetStarted}>
+                  Elegir Growth
                 </Button>
               </div>
             </Card>
 
             {/* Plan Pro */}
-            <Card className="relative flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-xl">Pro</CardTitle>
-                <CardDescription>51–150 unidades</CardDescription>
+            <Card className="relative flex flex-col border-2">
+              <CardHeader className="text-center pb-2">
+                <div className="inline-block px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 text-xs font-medium mb-2">
+                  Pro
+                </div>
+                <CardTitle className="text-xl">Para edificios administrados</CardTitle>
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">Desde</p>
-                  <p className="text-3xl font-bold">$1.25 <span className="text-base font-normal text-muted-foreground">USD/unidad/mes</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">Mín. $75/mes • Hasta 10 admins</p>
+                  <p className="text-3xl font-bold">$1.25 <span className="text-base font-normal text-muted-foreground">USD</span></p>
+                  <p className="text-sm text-muted-foreground">/ departamento / mes</p>
+                  <p className="text-xs text-muted-foreground mt-2">Mínimo $75/mes</p>
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 space-y-4">
+              <CardContent className="flex-1 space-y-4 pt-6">
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Todo lo de Growth</span>
+                    <span className="text-sm">Todo lo anterior</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Flujos de mantenimiento avanzados</span>
+                    <span className="text-sm">Flujos avanzados de mantenimiento</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Reglas de invitados y entregas</span>
+                    <span className="text-sm">Roles por área</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Conciliación automática de pagos</span>
+                    <span className="text-sm">Conciliación de pagos</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Hasta 10 administradores con permisos por rol</span>
+                    <span className="text-sm">Hasta 10 admins</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Análisis avanzados (flujo de caja, rendimiento)</span>
-                  </div>
-                </div>
-              </CardContent>
-              <div className="p-6 pt-0">
-                <Button className="w-full" variant="outline" onClick={handleGetStarted}>
-                  Unirse a Lista de Espera
-                </Button>
-              </div>
-            </Card>
-
-            {/* Plan Enterprise */}
-            <Card className="relative flex flex-col bg-muted/50">
-              <CardHeader>
-                <CardTitle className="text-xl">Enterprise / Desarrollador</CardTitle>
-                <CardDescription>150+ unidades o portafolios</CardDescription>
-                <div className="mt-4">
-                  <p className="text-3xl font-bold">Personalizado</p>
-                  <p className="text-xs text-muted-foreground mt-1">Contacta para cotización</p>
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Todo lo de Pro</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Administradores ilimitados y roles personalizados</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Marca blanca (white-label)</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Análisis a nivel de portafolio</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm">Onboarding y flujos personalizados</span>
+                    <span className="text-sm">Analítica avanzada</span>
                   </div>
                 </div>
               </CardContent>
               <div className="p-6 pt-0">
                 <Button className="w-full" variant="outline" onClick={handleBookDemo}>
-                  Contactar Ventas
+                  Hablar con ventas
                 </Button>
               </div>
             </Card>
           </div>
 
           <p className="text-center text-sm text-muted-foreground mt-8">
-            Los planes escalan según el número de unidades, administradores y profundidad de análisis.<br />
-            <span className="text-primary">Administradores adicionales: $5 USD por admin/mes</span>
+            El precio escala según número de departamentos, admins y nivel de analítica.
           </p>
         </div>
       </section>
 
+      {/* BLOQUE 7 — CTA FINAL */}
+      <section className="container py-20">
+        <div className="mx-auto max-w-2xl text-center space-y-6">
+          <h2 className="text-3xl font-bold">
+            Empieza a administrar tu edificio de forma simple y ordenada.
+          </h2>
+          <p className="text-muted-foreground">
+            Sin contratos largos. Sin complicaciones.
+          </p>
+          <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
+            Probar PropPass
+          </Button>
+        </div>
+      </section>
+
+      {/* BLOQUE 8 — FAQ */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-3xl font-bold text-center mb-12">Preguntas Frecuentes</h2>
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger>¿Cómo ayuda PropPass a gestionar el mantenimiento?</AccordionTrigger>
+              <AccordionTrigger>¿Necesito que todos los vecinos usen la app?</AccordionTrigger>
               <AccordionContent>
-                PropPass centraliza todas las solicitudes de mantenimiento en un solo panel. Los residentes pueden enviar tickets con fotos y descripciones, los administradores pueden priorizar y asignar trabajo, y todos reciben actualizaciones en tiempo real sobre el progreso. Nuestra IA también sugiere técnicos calificados basándose en ubicación y calificaciones.
+                No. Cada edificio decide cómo usarla. Puedes empezar solo con el equipo de administración y gradualmente invitar a los residentes.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2">
-              <AccordionTrigger>¿Qué son los pases QR para invitados?</AccordionTrigger>
+              <AccordionTrigger>¿Se puede usar solo para pagos o avisos?</AccordionTrigger>
               <AccordionContent>
-                Los pases de invitados son códigos QR seguros y escaneables que los residentes pueden generar para visitantes. Cada pase incluye detalles del visitante y expira automáticamente después de 24 horas, proporcionando control de acceso conveniente sin comprometer la seguridad.
+                Sí. Puedes empezar con lo básico y crecer luego. PropPass es modular y se adapta a las necesidades de tu edificio.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-3">
-              <AccordionTrigger>¿Cómo funciona la búsqueda de técnicos?</AccordionTrigger>
+              <AccordionTrigger>¿Está pensado para Perú?</AccordionTrigger>
               <AccordionContent>
-                Cuando creas un ticket de mantenimiento, nuestro sistema usa la categoría del ticket y la dirección de tu edificio para buscar técnicos calificados cercanos en Google Maps. Mostramos calificaciones, información de contacto y ubicaciones para que los administradores puedan tomar decisiones informadas rápidamente.
+                Sí. PropPass está diseñado con flujos, lenguaje y casos reales de edificios peruanos. Entendemos cómo funcionan los condominios en Lima y otras ciudades del país.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-4">
-              <AccordionTrigger>¿Pueden los residentes rastrear sus solicitudes de mantenimiento?</AccordionTrigger>
+              <AccordionTrigger>¿Cómo funciona el registro de visitas?</AccordionTrigger>
               <AccordionContent>
-                ¡Sí! Los residentes pueden ver todos sus tickets enviados, ver el estado actual (abierto, en progreso, resuelto), agregar comentarios y recibir notificaciones por correo cuando haya una actualización. Transparencia completa durante todo el proceso.
+                Los residentes pueden generar códigos QR para sus invitados. El personal de seguridad escanea el código y la visita queda registrada automáticamente, sin papeles ni registros manuales.
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-5">
-              <AccordionTrigger>¿Es PropPass adecuado para edificios pequeños?</AccordionTrigger>
+              <AccordionTrigger>¿Puedo probar antes de pagar?</AccordionTrigger>
               <AccordionContent>
-                Absolutamente. PropPass se adapta a edificios de cualquier tamaño. Ya sea que administres un pequeño complejo de apartamentos o una gran torre residencial, la plataforma se adapta a tus necesidades. Incluso las propiedades pequeñas se benefician del seguimiento organizado de tickets y el acceso seguro de invitados.
+                Sí. Ofrecemos una demostración personalizada para que veas cómo funciona PropPass con las necesidades específicas de tu edificio. Contáctanos para agendar.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -811,7 +668,7 @@ export default function Landing() {
                 <span className="font-bold">PropPass</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Administración de propiedades moderna para la era digital.
+                Administración de edificios moderna para Perú.
               </p>
             </div>
 
@@ -837,11 +694,6 @@ export default function Landing() {
                 <li>
                   <a href="mailto:contact@proppass.com" className="text-muted-foreground hover:text-foreground transition-colors">
                     contact@proppass.com
-                  </a>
-                </li>
-                <li>
-                  <a href="/admin" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Portal de Administrador
                   </a>
                 </li>
               </ul>
