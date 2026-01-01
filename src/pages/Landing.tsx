@@ -179,12 +179,10 @@ export default function Landing() {
         <div className="mx-auto max-w-4xl text-center space-y-8">
           <p className="text-sm font-medium text-primary uppercase tracking-wider">Así se ve el verdadero rendimiento</p>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl leading-tight">
-            Residentes Felices.<br />
-            Propietarios Impresionados.<br />
-            Equipos Exitosos.
+            Administrar tu edificio ya no tiene por qué ser complicado.
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            La administración de propiedades tradicional puede resolver la eficiencia, pero ejecutar tareas más rápido no equivale a valor. PropPass entrega resultados reales con datos unificados, automatización inteligente y operaciones optimizadas.
+            Pagos, avisos y mantenimiento en una sola plataforma.
           </p>
           
           {inviteOnly && (
