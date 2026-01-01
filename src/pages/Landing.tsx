@@ -574,6 +574,11 @@ export default function Landing() {
               <CardHeader>
                 <CardTitle className="text-xl">Starter</CardTitle>
                 <CardDescription>Hasta 12 unidades</CardDescription>
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground">Desde</p>
+                  <p className="text-3xl font-bold">$20 <span className="text-base font-normal text-muted-foreground">USD/edificio/mes</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Incluye 1 administrador</p>
+                </div>
               </CardHeader>
               <CardContent className="flex-1 space-y-4">
                 <div className="space-y-3">
@@ -620,6 +625,11 @@ export default function Landing() {
               <CardHeader>
                 <CardTitle className="text-xl">Growth</CardTitle>
                 <CardDescription>13–50 unidades</CardDescription>
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground">Desde</p>
+                  <p className="text-3xl font-bold">$2.00 <span className="text-base font-normal text-muted-foreground">USD/unidad/mes</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Mín. $30/mes • Hasta 3 admins</p>
+                </div>
               </CardHeader>
               <CardContent className="flex-1 space-y-4">
                 <div className="space-y-3">
@@ -661,6 +671,11 @@ export default function Landing() {
               <CardHeader>
                 <CardTitle className="text-xl">Pro</CardTitle>
                 <CardDescription>51–150 unidades</CardDescription>
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground">Desde</p>
+                  <p className="text-3xl font-bold">$1.25 <span className="text-base font-normal text-muted-foreground">USD/unidad/mes</span></p>
+                  <p className="text-xs text-muted-foreground mt-1">Mín. $75/mes • Hasta 10 admins</p>
+                </div>
               </CardHeader>
               <CardContent className="flex-1 space-y-4">
                 <div className="space-y-3">
@@ -702,6 +717,10 @@ export default function Landing() {
               <CardHeader>
                 <CardTitle className="text-xl">Enterprise / Desarrollador</CardTitle>
                 <CardDescription>150+ unidades o portafolios</CardDescription>
+                <div className="mt-4">
+                  <p className="text-3xl font-bold">Personalizado</p>
+                  <p className="text-xs text-muted-foreground mt-1">Contacta para cotización</p>
+                </div>
               </CardHeader>
               <CardContent className="flex-1 space-y-4">
                 <div className="space-y-3">
@@ -736,7 +755,8 @@ export default function Landing() {
           </div>
 
           <p className="text-center text-sm text-muted-foreground mt-8">
-            Los planes escalan según el número de unidades, administradores y profundidad de análisis.
+            Los planes escalan según el número de unidades, administradores y profundidad de análisis.<br />
+            <span className="text-primary">Administradores adicionales: $5 USD por admin/mes</span>
           </p>
         </div>
       </section>
