@@ -586,30 +586,45 @@ export type Database = {
       organizations: {
         Row: {
           created_at: string | null
+          current_tool: string | null
           id: string
           name: string
+          org_onboarding_completed: boolean | null
+          org_type: string | null
           primary_contact_email: string | null
           primary_contact_name: string | null
+          primary_intent: string[] | null
           secondary_contact_email: string | null
           secondary_contact_name: string | null
+          unit_count: number | null
         }
         Insert: {
           created_at?: string | null
+          current_tool?: string | null
           id?: string
           name: string
+          org_onboarding_completed?: boolean | null
+          org_type?: string | null
           primary_contact_email?: string | null
           primary_contact_name?: string | null
+          primary_intent?: string[] | null
           secondary_contact_email?: string | null
           secondary_contact_name?: string | null
+          unit_count?: number | null
         }
         Update: {
           created_at?: string | null
+          current_tool?: string | null
           id?: string
           name?: string
+          org_onboarding_completed?: boolean | null
+          org_type?: string | null
           primary_contact_email?: string | null
           primary_contact_name?: string | null
+          primary_intent?: string[] | null
           secondary_contact_email?: string | null
           secondary_contact_name?: string | null
+          unit_count?: number | null
         }
         Relationships: []
       }

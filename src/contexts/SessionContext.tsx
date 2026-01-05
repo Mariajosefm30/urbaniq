@@ -7,6 +7,7 @@ interface SessionData {
   role: string | null;
   org_id: string | null;
   last_building_id: string | null;
+  org_onboarding_completed: boolean | null;
 }
 
 interface SessionContextType {
@@ -32,7 +33,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         email: data.email || null,
         role: data.role || null,
         org_id: data.org_id || null,
-        last_building_id: data.last_building_id || null
+        last_building_id: data.last_building_id || null,
+        org_onboarding_completed: data.org_onboarding_completed ?? null,
       };
       
       setSession(sessionData);
