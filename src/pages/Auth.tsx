@@ -7,14 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Shield } from "lucide-react";
+import { Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const authSchema = z.object({
-  email: z.string().trim().email("Invalid email address").max(255),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  name: z.string().trim().min(1, "Name is required").max(100),
+const loginSchema = z.object({
+  email: z.string().trim().email("Email inválido").max(255),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
+const signupSchema = loginSchema.extend({
+  name: z.string().trim().min(1, "El nombre es requerido").max(100),
 });
 
 export default function Auth() {
@@ -24,38 +27,28 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [unit, setUnit] = useState("");
-  const [role, setRole] = useState<string>("resident");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { session, loading: sessionLoading } = useSession();
 
-  // Role-based redirects on page load with email overrides
+  // Role-based redirects when already logged in
   useEffect(() => {
-    if (sessionLoading || !user) return;
+    if (sessionLoading || !user || !session) return;
 
-    // Email override - specific emails always go to their designated routes
-    if (user.email === "mfernandezmelgar@gmail.com") {
-      navigate("/admin");
-      return;
-    }
-    if (user.email === "manager@test.com") {
-      navigate("/manager");
-      return;
-    }
-    if (user.email === "mariajof@tepper.cmu.edu") {
-      navigate("/feed");
-      return;
-    }
-
-    // Role-based redirects
-    if (session?.role === "admin") {
-      navigate("/admin");
-    } else if (session?.role === "manager") {
-      navigate("/manager");
-    } else if (session?.role === "resident") {
-      navigate("/feed");
+    // Route based on role
+    if (session.role === "admin") {
+      if (!session.org_id) {
+        navigate("/admin/setup", { replace: true });
+      } else if (session.org_onboarding_completed === false) {
+        navigate("/admin/onboarding", { replace: true });
+      } else {
+        navigate("/admin", { replace: true });
+      }
+    } else if (session.role === "manager") {
+      navigate("/manager", { replace: true });
+    } else if (session.role === "resident") {
+      navigate("/feed", { replace: true });
     }
   }, [user, session, sessionLoading, navigate]);
 
@@ -65,7 +58,7 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        const validation = authSchema.omit({ name: true }).safeParse({ email, password });
+        const validation = loginSchema.safeParse({ email, password });
         if (!validation.success) {
           toast.error(validation.error.errors[0].message);
           setLoading(false);
@@ -75,10 +68,10 @@ export default function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         
-        toast.success("Welcome back!");
-        // Let AuthContext handle routing based on role
+        toast.success("¡Bienvenido de vuelta!");
+        // AuthContext handles routing based on role
       } else {
-        const validation = authSchema.safeParse({ email, password, name });
+        const validation = signupSchema.safeParse({ email, password, name });
         if (!validation.success) {
           toast.error(validation.error.errors[0].message);
           setLoading(false);
@@ -91,24 +84,38 @@ export default function Auth() {
           password,
           options: {
             emailRedirectTo: redirectUrl,
-            data: { name, unit, role }
+            data: { name }
           }
         });
         
         if (error) throw error;
-        toast.success("Account created! You can now log in.");
-        // Let AuthContext handle routing based on role
+        toast.success("¡Cuenta creada! Ya puedes iniciar sesión.");
+        setIsLogin(true);
+        setPassword("");
       }
     } catch (error: any) {
-      toast.error(error.message || "Authentication failed");
+      if (error.message?.includes("already registered")) {
+        toast.error("Este email ya está registrado. Intenta iniciar sesión.");
+      } else {
+        toast.error(error.message || "Error de autenticación");
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  // Show loading while checking session
+  if (sessionLoading && user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
-      <Card className="w-full max-w-md shadow-[var(--shadow-elegant)]">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-primary/10 rounded-full">
@@ -117,80 +124,37 @@ export default function Auth() {
           </div>
           <CardTitle className="text-2xl font-bold">PropPass</CardTitle>
           <CardDescription>
-            {isLogin ? "Sign in to your account" : "Create your account"}
+            {isLogin ? "Inicia sesión en tu cuenta" : "Crea tu cuenta"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
             {!isLogin && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="unit">Unit (optional)</Label>
-                  <Input
-                    id="unit"
-                    type="text"
-                    placeholder="e.g. 101, A-5"
-                    value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant={role === "resident" ? "default" : "outline"}
-                      className="flex-1"
-                      onClick={() => setRole("resident")}
-                    >
-                      Resident
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={role === "manager" ? "default" : "outline"}
-                      className="flex-1 gap-2"
-                      onClick={() => setRole("manager")}
-                    >
-                      <Shield className="h-4 w-4" />
-                      Manager
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={role === "admin" ? "default" : "outline"}
-                      className="flex-1 gap-2"
-                      onClick={() => setRole("admin")}
-                    >
-                      <Shield className="h-4 w-4" />
-                      Admin
-                    </Button>
-                  </div>
-                </div>
-              </>
+              <div className="space-y-2">
+                <Label htmlFor="name">Nombre completo</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Juan Pérez"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <Input
                 id="password"
                 type="password"
@@ -201,7 +165,16 @@ export default function Auth() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Cargando...
+                </>
+              ) : isLogin ? (
+                "Iniciar sesión"
+              ) : (
+                "Crear cuenta"
+              )}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
@@ -209,9 +182,15 @@ export default function Auth() {
               onClick={() => setIsLogin(!isLogin)}
               className="text-primary hover:underline"
             >
-              {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
+              {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
             </button>
           </div>
+          
+          {!isLogin && (
+            <p className="mt-4 text-xs text-muted-foreground text-center">
+              Tu rol será asignado por el administrador de tu edificio.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
