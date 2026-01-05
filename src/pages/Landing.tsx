@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Building2, Users, Wrench, Bell, CheckCircle2, CreditCard, MessageSquare, Package, BarChart3, UserCog, Home, Building, Check } from "lucide-react";
+import { Building2, Users, Wrench, Bell, CheckCircle2, CreditCard, MessageSquare, Package, BarChart3, UserCog, Home, Building, Check, Quote } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
@@ -188,7 +188,7 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-              Únete al waitlist
+              Empieza ahora
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>
               Ver planes
@@ -606,6 +606,68 @@ export default function Landing() {
           <p className="text-center text-sm text-muted-foreground mt-8">
             Los precios escalan según número de departamentos, admins y nivel de analítica.
           </p>
+        </div>
+      </section>
+
+      {/* BLOQUE — TESTIMONIOS */}
+      <section className="py-16 bg-primary/5">
+        <div className="container">
+          <h2 className="text-3xl font-bold text-center mb-12">Lo que dicen nuestros usuarios</h2>
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="bg-background">
+              <CardContent className="pt-6">
+                <Quote className="h-8 w-8 text-primary/30 mb-4" />
+                <p className="text-muted-foreground mb-6">
+                  "Antes usábamos WhatsApp para todo y era un caos. Ahora con PropPass los avisos llegan a todos y tenemos control de los pagos."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-primary">MC</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">María C.</p>
+                    <p className="text-xs text-muted-foreground">Administradora, Miraflores</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-background">
+              <CardContent className="pt-6">
+                <Quote className="h-8 w-8 text-primary/30 mb-4" />
+                <p className="text-muted-foreground mb-6">
+                  "La junta directiva está feliz. Finalmente tenemos visibilidad de qué vecinos pagaron y quiénes deben. Todo en un solo lugar."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-primary">RL</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Roberto L.</p>
+                    <p className="text-xs text-muted-foreground">Presidente de Junta, San Isidro</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-background">
+              <CardContent className="pt-6">
+                <Quote className="h-8 w-8 text-primary/30 mb-4" />
+                <p className="text-muted-foreground mb-6">
+                  "Como residente, me encanta poder ver los avisos del edificio y reportar problemas de mantenimiento desde mi celular."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-primary">AG</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Ana G.</p>
+                    <p className="text-xs text-muted-foreground">Residente, Surco</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
