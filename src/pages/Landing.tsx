@@ -188,7 +188,7 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-              Empieza ahora
+              Únete al waitlist
             </Button>
             <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>
               Ver planes
