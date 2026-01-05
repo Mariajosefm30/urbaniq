@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import ManagerHome from "./pages/ManagerHome";
 import Admin from "./pages/Admin";
 import AdminSetup from "./pages/AdminSetup";
+import AdminOnboarding from "./pages/AdminOnboarding";
 import AdminProfile from "./pages/AdminProfile";
 import AdminPortfolio from "./pages/AdminPortfolio";
 import Manager from "./pages/Manager";
@@ -53,6 +54,7 @@ const App = () => (
               {/* Admin Routes */}
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
               <Route path="/admin/setup" element={<ProtectedRoute><AdminSetup /></ProtectedRoute>} />
+              <Route path="/admin/onboarding" element={<ProtectedRoute><AdminOnboarding /></ProtectedRoute>} />
               <Route path="/admin/profile" element={<ProtectedRoute><AdminProfile /></ProtectedRoute>} />
               <Route path="/admin/portfolio" element={<ProtectedRoute><AdminPortfolio /></ProtectedRoute>} />
               <Route path="/admin/guests" element={<ProtectedRoute><Guests /></ProtectedRoute>} />

@@ -49,12 +49,29 @@ Deno.serve(async (req) => {
       console.error('[whoami] Error fetching profile:', profileError);
     }
 
+    // Fetch organization onboarding status if user has org_id
+    let orgOnboardingCompleted = null;
+    if (profileData?.org_id) {
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .select('org_onboarding_completed')
+        .eq('id', profileData.org_id)
+        .single();
+      
+      if (orgError) {
+        console.error('[whoami] Error fetching org data:', orgError);
+      } else {
+        orgOnboardingCompleted = orgData?.org_onboarding_completed ?? false;
+      }
+    }
+
     const response = {
       user_id: user.id,
       email: user.email,
       role: profileData?.role || 'unknown',
       org_id: profileData?.org_id || null,
       last_building_id: profileData?.last_building_id || null,
+      org_onboarding_completed: orgOnboardingCompleted,
     };
 
     console.log('[whoami] User info:', response);

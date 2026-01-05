@@ -77,6 +77,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       return <Navigate to="/auth" replace />;
     }
 
+    // Redirect to setup if no org_id
     if (!session.org_id && location.pathname !== '/admin/setup') {
       console.info('[route-decider]', { 
         role: session.role, 
@@ -87,11 +88,40 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       return <Navigate to="/admin/setup" replace />;
     }
 
+    // Redirect from setup if org_id exists
     if (session.org_id && location.pathname === '/admin/setup') {
       console.info('[route-decider]', { 
         role: session.role, 
         org_id: session.org_id, 
         last_building_id: session.last_building_id, 
+        target: '/admin/onboarding' 
+      });
+      // Check if onboarding is completed
+      if (session.org_onboarding_completed === false) {
+        return <Navigate to="/admin/onboarding" replace />;
+      }
+      return <Navigate to="/admin" replace />;
+    }
+
+    // Redirect to onboarding if not completed (except when on onboarding or setup page)
+    if (session.org_id && 
+        session.org_onboarding_completed === false && 
+        location.pathname !== '/admin/onboarding' && 
+        location.pathname !== '/admin/setup') {
+      console.info('[route-decider]', { 
+        role: session.role, 
+        org_id: session.org_id, 
+        org_onboarding_completed: session.org_onboarding_completed,
+        target: '/admin/onboarding' 
+      });
+      return <Navigate to="/admin/onboarding" replace />;
+    }
+
+    // Redirect from onboarding if already completed
+    if (location.pathname === '/admin/onboarding' && session.org_onboarding_completed === true) {
+      console.info('[route-decider]', { 
+        role: session.role, 
+        org_onboarding_completed: session.org_onboarding_completed,
         target: '/admin' 
       });
       return <Navigate to="/admin" replace />;

@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-      // Admin routing - always check and redirect based on org setup
+      // Admin routing - always check and redirect based on org setup and onboarding
       if (role === 'admin') {
         const isOnAuthPage = window.location.pathname === '/auth';
         const isOnFeedPage = window.location.pathname.includes('/feed');
@@ -115,8 +115,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setLoading(false);
           return;
         } else if (org_id && (isOnWrongPage || event === 'SIGNED_IN')) {
-          console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin' });
-          navigate('/admin');
+          // Check onboarding status from whoami
+          if (whoamiData?.org_onboarding_completed === false) {
+            console.info('[route-decider]', { role, org_id, org_onboarding_completed: false, target: '/admin/onboarding' });
+            navigate('/admin/onboarding');
+          } else {
+            console.info('[route-decider]', { role, org_id, last_building_id, target: '/admin' });
+            navigate('/admin');
+          }
           setLoading(false);
           return;
         }
