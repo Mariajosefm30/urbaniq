@@ -38,30 +38,30 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Fetch role from user_roles table (primary source)
+    // Fetch role from user_roles table (ONLY source of truth for roles)
     const { data: userRoleData, error: userRoleError } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .single();
 
+    // Only use role from user_roles table - ignore profiles.role
+    const role = userRoleData?.role || null;
+    
     if (userRoleError && userRoleError.code !== 'PGRST116') {
       console.error('[whoami] Error fetching user_roles:', userRoleError);
     }
 
-    // Fetch the user's profile data
+    // Fetch the user's profile data (for org_id and last_building_id only)
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('role, org_id, last_building_id')
+      .select('org_id, last_building_id')
       .eq('id', user.id)
       .single();
 
     if (profileError) {
       console.error('[whoami] Error fetching profile:', profileError);
     }
-
-    // Use user_roles as primary, fall back to profile role
-    const role = userRoleData?.role || profileData?.role || null;
 
     // Fetch organization onboarding status if user has org_id
     let orgOnboardingCompleted = null;
