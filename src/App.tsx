@@ -31,6 +31,7 @@ import Feed from "./pages/Feed";
 import AdminAmenities from "./pages/AdminAmenities";
 import AdminBookings from "./pages/AdminBookings";
 import BuildingBookings from "./pages/BuildingBookings";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,9 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-static" element={<VerifyStatic />} />
+              
+              {/* Onboarding - Role Selection */}
+              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
               
               {/* Admin Routes */}

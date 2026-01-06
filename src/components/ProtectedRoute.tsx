@@ -60,6 +60,17 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     return <Navigate to="/auth" replace />;
   }
 
+  // Allow onboarding page for users without a role
+  if (location.pathname === '/onboarding') {
+    return <>{children}</>;
+  }
+
+  // If user has no role, redirect to onboarding (except when already there)
+  if (!session?.role) {
+    console.info('[guard]', location.pathname, { decision: 'redirect to /onboarding (no role)' });
+    return <Navigate to="/onboarding" replace />;
+  }
+
   // Admin routes - only admins allowed
   if (location.pathname.startsWith('/admin')) {
     if (session?.role !== 'admin') {
