@@ -38,6 +38,17 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Fetch role from user_roles table (primary source)
+    const { data: userRoleData, error: userRoleError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    if (userRoleError && userRoleError.code !== 'PGRST116') {
+      console.error('[whoami] Error fetching user_roles:', userRoleError);
+    }
+
     // Fetch the user's profile data
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
@@ -48,6 +59,9 @@ Deno.serve(async (req) => {
     if (profileError) {
       console.error('[whoami] Error fetching profile:', profileError);
     }
+
+    // Use user_roles as primary, fall back to profile role
+    const role = userRoleData?.role || profileData?.role || null;
 
     // Fetch organization onboarding status if user has org_id
     let orgOnboardingCompleted = null;
@@ -68,7 +82,7 @@ Deno.serve(async (req) => {
     const response = {
       user_id: user.id,
       email: user.email,
-      role: profileData?.role || 'unknown',
+      role: role,
       org_id: profileData?.org_id || null,
       last_building_id: profileData?.last_building_id || null,
       org_onboarding_completed: orgOnboardingCompleted,

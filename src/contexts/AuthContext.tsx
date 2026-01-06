@@ -80,6 +80,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // If no role, redirect to role selection onboarding
+      if (!role) {
+        console.info('[route-decider]', { role: 'none', target: '/onboarding' });
+        navigate('/onboarding');
+        setLoading(false);
+        return;
+      }
+
       // Admin routing - check org setup and onboarding
       if (role === 'admin') {
         if (!org_id) {
@@ -114,8 +122,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Unknown role - stay on current page or go to auth
-      console.warn('[route-decider] Unknown role:', role);
+      // Unknown role - redirect to onboarding
+      console.warn('[route-decider] Unknown role, redirecting to onboarding:', role);
+      navigate('/onboarding');
       setLoading(false);
     } catch (error) {
       console.error('[auth-routing] Error:', error);
