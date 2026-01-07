@@ -72,8 +72,8 @@ export default function AmenitiesSection({ buildingId, buildingName }: Amenities
       return;
     }
 
-    if (!profile?.building_id) {
-      toast.error("Your profile is missing a building_id. Please contact support.");
+    if (!buildingId) {
+      toast.error("No building selected. Please open Amenities from a specific building.");
       return;
     }
 
@@ -89,7 +89,7 @@ export default function AmenitiesSection({ buildingId, buildingName }: Amenities
         close_time: formData.closeTime,
         slot_minutes: parseInt(formData.slotMinutes),
         image_url: formData.imageUrl.trim() || null,
-        created_by: profile?.id,
+        created_by: profile?.id || null,
       };
 
       const { error } = await supabase
@@ -97,8 +97,7 @@ export default function AmenitiesSection({ buildingId, buildingName }: Amenities
         .insert(amenityData);
 
       if (error) {
-        // Show debug info
-        toast.error(`Error creating amenity: ${error.message}\n\nDebug Info:\nProfile Building: ${profile.building_id}\nSent Building: ${buildingId}\nCreated By: ${profile.id}`);
+        toast.error(`Error creating amenity: ${error.message}`);
         throw error;
       }
 
@@ -106,12 +105,7 @@ export default function AmenitiesSection({ buildingId, buildingName }: Amenities
       resetForm();
       loadAmenities();
     } catch (error: any) {
-      console.error("Amenity creation error details:", {
-        profileBuildingId: profile?.building_id,
-        sentBuildingId: buildingId,
-        createdBy: profile?.id,
-        error: error.message
-      });
+      console.error("Amenity creation error:", error.message);
     } finally {
       setSubmitting(false);
     }
