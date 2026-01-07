@@ -45,14 +45,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq("id", userId)
         .single();
       
-      setProfile(profileData);
+      // Fetch role from user_roles table (source of truth for RLS)
+      const { data: userRoleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
+      
+      // Merge profile with authoritative role from user_roles
+      const profileWithRole = profileData ? {
+        ...profileData,
+        role: userRoleData?.role || profileData.role
+      } : null;
+      
+      setProfile(profileWithRole);
 
       // Use whoami data if available, otherwise fall back to profile
       let role, org_id, last_building_id, org_onboarding_completed;
       
       if (whoamiError || !whoamiData) {
         console.warn('[auth-routing] whoami failed, using profile data:', whoamiError);
-        role = profileData?.role;
+        role = userRoleData?.role || profileData?.role;
         org_id = profileData?.org_id;
         last_building_id = profileData?.last_building_id;
         org_onboarding_completed = null;
