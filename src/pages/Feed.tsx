@@ -199,9 +199,18 @@ export default function Feed() {
             <CardHeader>
               <CardTitle>No Building Selected</CardTitle>
               <CardDescription>
-                Please select a building to view the community feed
+                {session?.role === 'admin' 
+                  ? "Go to the Admin section to create or select a building first."
+                  : "Please select a building to view the community feed"}
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              {session?.role === 'admin' && (
+                <Button onClick={() => navigate('/admin')}>
+                  Go to Admin
+                </Button>
+              )}
+            </CardContent>
           </Card>
         </div>
       </Layout>
