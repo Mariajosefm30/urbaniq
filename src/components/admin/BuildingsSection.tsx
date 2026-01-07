@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -9,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useBuilding } from "@/contexts/BuildingContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface BuildingsSectionProps {
   orgId: string;
@@ -16,6 +18,8 @@ interface BuildingsSectionProps {
 }
 
 export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsSectionProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { setCurrentBuildingId } = useBuilding();
   const [buildings, setBuildings] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -86,11 +90,28 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
         toast.error("Failed to create building");
         console.error(error);
       } else {
+        // Create admin membership for current user
+        if (user) {
+          const { error: membershipError } = await supabase
+            .from('building_memberships')
+            .insert({
+              building_id: newBuilding.id,
+              user_id: user.id,
+              role: 'admin',
+            });
+
+          if (membershipError) {
+            console.error('Failed to create admin membership:', membershipError);
+          }
+        }
+
         toast.success("Building created");
         // Auto-set this as the current building for immediate access
         setCurrentBuildingId(newBuilding.id);
-        loadBuildings();
         resetForm();
+        
+        // Navigate to building admin page
+        navigate(`/buildings/${newBuilding.id}/admin`);
       }
     }
 
@@ -248,7 +269,7 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
                 <TableRow 
                   key={building.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => onBuildingSelect?.(building.id, building.name)}
+                  onClick={() => navigate(`/buildings/${building.id}/admin`)}
                 >
                   <TableCell className="font-medium">{building.name}</TableCell>
                   <TableCell>{building.manager_name || "—"}</TableCell>

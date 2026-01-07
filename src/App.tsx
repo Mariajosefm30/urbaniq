@@ -32,6 +32,8 @@ import AdminAmenities from "./pages/AdminAmenities";
 import AdminBookings from "./pages/AdminBookings";
 import BuildingBookings from "./pages/BuildingBookings";
 import Onboarding from "./pages/Onboarding";
+import BuildingPeople from "./pages/BuildingPeople";
+import BuildingAdmin from "./pages/BuildingAdmin";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,7 @@ const App = () => (
               
               {/* Manager Routes */}
               <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/admin" element={<ProtectedRoute><BuildingAdmin /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
@@ -82,6 +85,7 @@ const App = () => (
               <Route path="/buildings/:buildingId/amenities" element={<ProtectedRoute><AdminAmenities /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/bookings" element={<ProtectedRoute><BuildingBookings /></ProtectedRoute>} />
               <Route path="/buildings/:buildingId/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+              <Route path="/buildings/:buildingId/people" element={<ProtectedRoute><BuildingPeople /></ProtectedRoute>} />
               
               {/* Resident Routes */}
               <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />

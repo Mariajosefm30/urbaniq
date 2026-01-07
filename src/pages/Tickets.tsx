@@ -219,13 +219,17 @@ export default function Tickets() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Maintenance Tickets</h2>
+        {profile?.role === "manager" || profile?.role === "admin" ? (
             <p className="text-muted-foreground">
-              {profile?.role === "manager" 
-                ? "Review and manage maintenance requests" 
-                : "Submit and track maintenance requests"}
+              Review and manage maintenance requests
             </p>
+          ) : (
+            <p className="text-muted-foreground">
+              Submit and track maintenance requests
+            </p>
+          )}
           </div>
-          {profile?.role !== "manager" && (
+          {profile?.role !== "manager" && profile?.role !== "admin" && (
             <CreateTicketDialog
               onSubmit={createTicket}
               submitting={submitting}
@@ -235,7 +239,7 @@ export default function Tickets() {
           )}
         </div>
 
-        {profile?.role === "manager" && <AlertsCard />}
+        {(profile?.role === "manager" || profile?.role === "admin") && <AlertsCard />}
 
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading tickets...</div>
@@ -253,7 +257,7 @@ export default function Tickets() {
               <TicketCard
                 key={ticket.id}
                 ticket={ticket}
-                isManager={profile?.role === "manager"}
+                isManager={profile?.role === "manager" || profile?.role === "admin"}
                 onStatusUpdate={updateStatus}
                 onPriorityUpdate={updatePriority}
                 onTechnicianAssign={assignTechnician}

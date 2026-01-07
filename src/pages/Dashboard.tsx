@@ -42,7 +42,8 @@ export default function Dashboard() {
   }, [buildingId, currentBuildingId, setCurrentBuildingId]);
 
   useEffect(() => {
-    if (profile?.role === "manager" && currentBuildingId) {
+    const isManagerOrAdmin = profile?.role === "manager" || profile?.role === "admin";
+    if (isManagerOrAdmin && currentBuildingId) {
       loadTickets();
     }
   }, [profile, currentBuildingId]);
@@ -156,12 +157,14 @@ export default function Dashboard() {
   const metrics = computeMetrics();
   const monthlyData = computeMonthlyTrends();
 
-  if (profile?.role !== "manager") {
+  const isManagerOrAdmin = profile?.role === "manager" || profile?.role === "admin";
+
+  if (!isManagerOrAdmin) {
     return (
       <Layout>
         <div className="text-center py-12">
           <p className="text-lg text-muted-foreground">
-            Dashboard is only available for managers
+            Dashboard is only available for managers and admins
           </p>
         </div>
       </Layout>

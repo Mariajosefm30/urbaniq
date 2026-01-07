@@ -233,6 +233,48 @@ export type Database = {
         }
         Relationships: []
       }
+      building_memberships: {
+        Row: {
+          building_id: string
+          created_at: string
+          id: string
+          role: string
+          unit_id: string | null
+          user_id: string
+        }
+        Insert: {
+          building_id: string
+          created_at?: string
+          id?: string
+          role: string
+          unit_id?: string | null
+          user_id: string
+        }
+        Update: {
+          building_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          unit_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "building_memberships_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings_new"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "building_memberships_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buildings: {
         Row: {
           address: string | null
@@ -995,6 +1037,10 @@ export type Database = {
       cleanup_expired_waitlist: { Args: never; Returns: undefined }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: { Args: { _user_id: string }; Returns: string }
+      has_building_role: {
+        Args: { _building_id: string; _role: string; _user_id: string }
+        Returns: boolean
+      }
       has_role:
         | {
             Args: {
@@ -1006,6 +1052,14 @@ export type Database = {
         | { Args: { _role: string; _user_id: string }; Returns: boolean }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_admin_or_manager: { Args: { _user_id: string }; Returns: boolean }
+      is_building_admin: {
+        Args: { _building_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_building_admin_or_manager: {
+        Args: { _building_id: string; _user_id: string }
+        Returns: boolean
+      }
       manager_has_building_access: {
         Args: { _building_id: string; _user_id: string }
         Returns: boolean
