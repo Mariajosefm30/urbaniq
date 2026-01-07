@@ -65,7 +65,7 @@ export type Database = {
             foreignKeyName: "amenities_building_id_fkey"
             columns: ["building_id"]
             isOneToOne: false
-            referencedRelation: "buildings"
+            referencedRelation: "buildings_new"
             referencedColumns: ["id"]
           },
           {
