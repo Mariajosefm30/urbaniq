@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "@/contexts/SessionContext";
 import { useBuilding } from "@/contexts/BuildingContext";
@@ -31,8 +31,12 @@ export default function AdminAmenities() {
   const { profile } = useAuth();
   const { session, loading: sessionLoading } = useSession();
   const { currentBuildingId } = useBuilding();
+  const { buildingId: routeBuildingId } = useParams<{ buildingId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Prioritize route param, fallback to context
+  const buildingId = routeBuildingId || currentBuildingId;
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -62,18 +66,18 @@ export default function AdminAmenities() {
   }, [session, sessionLoading, navigate]);
 
   useEffect(() => {
-    if (currentBuildingId) {
+    if (buildingId) {
       loadAmenities();
     }
-  }, [currentBuildingId]);
+  }, [buildingId]);
 
   const loadAmenities = async () => {
     try {
       const { data, error } = await supabase
         .from('amenities')
         .select('*')
-        .eq('building_id', currentBuildingId)
-        .order('name');
+        .eq('building_id', buildingId!)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setAmenities(data || []);
@@ -89,7 +93,7 @@ export default function AdminAmenities() {
   };
 
   const handleCreateAmenity = async () => {
-    if (!name.trim() || !currentBuildingId) {
+    if (!name.trim()) {
       toast({
         title: "Missing information",
         description: "Please fill in the amenity name",
@@ -98,10 +102,10 @@ export default function AdminAmenities() {
       return;
     }
 
-    if (!profile?.building_id) {
+    if (!buildingId) {
       toast({
-        title: "Profile Error",
-        description: "Your profile is missing a building_id. Please contact support.",
+        title: "No building selected",
+        description: "Please open Amenities from a specific building.",
         variant: "destructive",
       });
       return;
@@ -110,7 +114,7 @@ export default function AdminAmenities() {
     setSubmitting(true);
     try {
       const amenityData = {
-        building_id: currentBuildingId,
+        building_id: buildingId,
         name: name.trim(),
         description: description.trim() || null,
         rules: rules.trim() || null,
@@ -119,7 +123,7 @@ export default function AdminAmenities() {
         close_time: closeTime,
         slot_minutes: parseInt(slotMinutes),
         image_url: imageUrl.trim() || null,
-        created_by: profile?.id,
+        created_by: profile?.id || null,
       };
 
       const { error } = await supabase
@@ -127,10 +131,9 @@ export default function AdminAmenities() {
         .insert(amenityData);
 
       if (error) {
-        // Show debug info as requested
         toast({
           title: "Error creating amenity",
-          description: `${error.message}\n\nDebug Info:\nRole: ${session?.role}\nProfile Building: ${profile.building_id}\nSent Building: ${currentBuildingId}\nCreated By: ${profile.id}`,
+          description: error.message,
           variant: "destructive",
         });
         throw error;
@@ -152,13 +155,7 @@ export default function AdminAmenities() {
       setDialogOpen(false);
       loadAmenities();
     } catch (error: any) {
-      console.error("Amenity creation error details:", {
-        role: session?.role,
-        profileBuildingId: profile?.building_id,
-        sentBuildingId: currentBuildingId,
-        createdBy: profile?.id,
-        error: error.message
-      });
+      console.error("Amenity creation error:", error.message);
     } finally {
       setSubmitting(false);
     }
@@ -190,7 +187,7 @@ export default function AdminAmenities() {
     }
   };
 
-  if (!currentBuildingId) {
+  if (!buildingId) {
     return (
       <Layout>
         <div className="container mx-auto p-6">
@@ -198,9 +195,14 @@ export default function AdminAmenities() {
             <CardHeader>
               <CardTitle>No Building Selected</CardTitle>
               <CardDescription>
-                Please select a building to manage amenities
+                Please open Amenities from a specific Building.
               </CardDescription>
             </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate('/admin')}>
+                Back to Buildings
+              </Button>
+            </CardContent>
           </Card>
         </div>
       </Layout>
