@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useBuilding } from "@/contexts/BuildingContext";
 
 interface BuildingsSectionProps {
   orgId: string;
@@ -15,6 +16,7 @@ interface BuildingsSectionProps {
 }
 
 export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsSectionProps) {
+  const { setCurrentBuildingId } = useBuilding();
   const [buildings, setBuildings] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState<any>(null);
@@ -74,15 +76,19 @@ export default function BuildingsSection({ orgId, onBuildingSelect }: BuildingsS
         resetForm();
       }
     } else {
-      const { error } = await supabase
+      const { data: newBuilding, error } = await supabase
         .from('buildings_new')
-        .insert({ org_id: orgId, ...buildingData });
+        .insert({ org_id: orgId, ...buildingData })
+        .select()
+        .single();
 
       if (error) {
         toast.error("Failed to create building");
         console.error(error);
       } else {
         toast.success("Building created");
+        // Auto-set this as the current building for immediate access
+        setCurrentBuildingId(newBuilding.id);
         loadBuildings();
         resetForm();
       }
