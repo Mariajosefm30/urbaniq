@@ -325,12 +325,14 @@ export default function Units() {
     toast.success("Unit deleted");
   };
 
-  if (profile?.role !== 'manager') {
+  const isManagerOrAdmin = profile?.role === 'manager' || profile?.role === 'admin';
+
+  if (!isManagerOrAdmin) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
-          <p className="text-muted-foreground">This page is only accessible to managers.</p>
+          <p className="text-muted-foreground">This page is only accessible to managers and admins.</p>
         </div>
       </Layout>
     );
