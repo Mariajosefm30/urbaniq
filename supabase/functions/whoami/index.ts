@@ -18,14 +18,22 @@ Deno.serve(async (req) => {
     
     // Create Supabase client with user's auth token
     const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - No valid session found' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
     const supabase = createClient(supabaseUrl, supabaseKey, {
       global: {
-        headers: authHeader ? { Authorization: authHeader } : {},
+        headers: { Authorization: authHeader },
       },
     });
 
-    // Get the current user from the session
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    // SECURITY: Must pass token explicitly when verify_jwt=false
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
       console.error('[whoami] No authenticated user:', userError?.message);
