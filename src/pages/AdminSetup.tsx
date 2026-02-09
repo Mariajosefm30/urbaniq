@@ -12,7 +12,7 @@ import { Building2, Loader2 } from "lucide-react";
 
 export default function AdminSetup() {
   const { profile } = useAuth();
-  const { session, loading: sessionLoading } = useSession();
+  const { session, loading: sessionLoading, refreshSession } = useSession();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -103,7 +103,11 @@ export default function AdminSetup() {
       if (buildingError) throw buildingError;
 
       toast.success("Building created successfully!");
-      navigate("/admin");
+      
+      // Refresh session so SessionContext picks up the new org_id
+      await refreshSession();
+      // Force full reload so AuthContext refetches profile with org_id
+      window.location.href = "/admin";
     } catch (error: any) {
       console.error("Error creating building:", error);
       toast.error(error.message || "Failed to create building");
