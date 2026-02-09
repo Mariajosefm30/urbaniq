@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home, AlertCircle, DollarSign, Dumbbell, Rss } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Building2, ClipboardList, Users, LogOut, Shield, MessageSquare, BarChart3, Settings, Home, AlertCircle, DollarSign, Dumbbell, Rss, ArrowLeft } from "lucide-react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,6 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { currentBuildingId, setCurrentBuildingId, persistLastBuilding } = useBuilding();
   const location = useLocation();
   const navigate = useNavigate();
+  const { buildingId } = useParams();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [paymentsMode, setPaymentsMode] = useState<string>('disabled');
   
@@ -28,6 +29,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isResident = profile?.role === 'resident';
   
   const showNav = !isAdmin;
+  
+  // Detect if we're on a building sub-page (not the admin hub itself)
+  const activeBuildingId = buildingId || currentBuildingId;
+  const isOnBuildingSubPage = location.pathname.match(/^\/buildings\/[^/]+\/.+/) && !location.pathname.endsWith('/admin');
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -94,6 +99,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   )}
                 </div>
               </Link>
+              
+              {isOnBuildingSubPage && activeBuildingId && (
+                <Link to={isAdmin ? `/buildings/${activeBuildingId}/admin` : `/manager`}>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="hidden sm:inline">Back to Home</span>
+                  </Button>
+                </Link>
+              )}
             </div>
             <nav className="flex items-center gap-2">
               <Badge 
