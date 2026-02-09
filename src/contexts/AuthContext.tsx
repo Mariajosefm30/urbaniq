@@ -38,12 +38,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: whoamiData, error: whoamiError } = await supabase.functions.invoke('whoami');
       
+      // If whoami returns 401, the auth user no longer exists — sign out stale session
+      if (whoamiError && whoamiError.message?.includes('non-2xx')) {
+        console.warn('[auth-routing] Session is stale (user deleted), signing out');
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setLoading(false);
+        navigate('/auth');
+        return;
+      }
+      
       // Fetch profile for other components and as fallback
       const { data: profileData } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
-        .single();
+        .maybeSingle();
       
       // Fetch role from user_roles table (source of truth for RLS)
       const { data: userRoleData } = await supabase
