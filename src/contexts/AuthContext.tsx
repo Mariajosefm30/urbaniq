@@ -73,34 +73,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(profileWithRole);
 
       // Use whoami data if available, otherwise fall back to profile
-      let role, org_id, last_building_id, org_onboarding_completed;
-      
+      let role, org_id, last_building_id, org_onboarding_completed, is_superadmin;
+
       if (whoamiError || !whoamiData) {
         console.warn('[auth-routing] whoami failed, using profile data:', whoamiError);
         role = userRoleData?.role || profileData?.role;
         org_id = profileData?.org_id;
         last_building_id = profileData?.last_building_id;
         org_onboarding_completed = null;
+        is_superadmin = false;
       } else {
         role = whoamiData.role;
         org_id = whoamiData.org_id;
         last_building_id = whoamiData.last_building_id;
         org_onboarding_completed = whoamiData.org_onboarding_completed;
+        is_superadmin = whoamiData.is_superadmin === true;
       }
 
-      console.info('[route-decider]', { 
-        role, 
-        org_id, 
-        last_building_id,
-        org_onboarding_completed,
-        event,
-        currentPath: window.location.pathname 
+      console.info('[route-decider]', {
+        role, is_superadmin, org_id, last_building_id,
+        org_onboarding_completed, event,
+        currentPath: window.location.pathname
       });
 
       const isOnAuthPage = window.location.pathname === '/auth';
       const shouldRedirect = event === 'SIGNED_IN' || isOnAuthPage;
 
       if (!shouldRedirect) {
+        setLoading(false);
+        return;
+      }
+
+      // Superadmin → dedicated console
+      if (is_superadmin) {
+        navigate('/superadmin');
         setLoading(false);
         return;
       }
