@@ -273,6 +273,36 @@ export default function Superadmin() {
       <Button variant="ghost" onClick={() => navigate("/admin")}>
         <ArrowLeft className="h-4 w-4 mr-2" /> Ir al panel de administrador
       </Button>
+
+      <Dialog open={!!inviteLink} onOpenChange={(o) => { if (!o) { setInviteLink(null); setCopied(false); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Enlace de invitación</DialogTitle>
+            <DialogDescription>
+              Comparte este enlace con <strong>{inviteLink?.email}</strong>. Al registrarse con ese correo, quedará vinculado automáticamente como administrador de <strong>{inviteLink?.orgName}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2">
+            <Input readOnly value={inviteLink?.url || ""} className="font-mono text-xs" />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={async () => {
+                if (!inviteLink) return;
+                await navigator.clipboard.writeText(inviteLink.url);
+                setCopied(true);
+                toast.success("Enlace copiado");
+                setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => { setInviteLink(null); setCopied(false); }}>Listo</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
