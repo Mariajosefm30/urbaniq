@@ -30,6 +30,8 @@ export default function Superadmin() {
   const [newAdminOrgId, setNewAdminOrgId] = useState<string>("");
   const [newOrgName, setNewOrgName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [inviteLink, setInviteLink] = useState<{ url: string; email: string; orgName: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Guard
   useEffect(() => {
