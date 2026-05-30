@@ -74,10 +74,8 @@ export default function OrganizationSection({ organization, onUpdate }: Organiza
       .update({
         name: result.data.name,
         primary_contact_email: result.data.primaryEmail,
-        primary_contact_phone: result.data.primaryPhone,
         secondary_contact_email: result.data.secondaryEmail || null,
-        secondary_contact_phone: result.data.secondaryPhone || null,
-      })
+      } as any)
       .eq('id', organization.id);
 
     if (error) {
