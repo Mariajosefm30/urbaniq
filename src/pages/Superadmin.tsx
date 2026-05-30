@@ -104,32 +104,26 @@ export default function Superadmin() {
     }
     setCreating(true);
 
-    const email = newAdminEmail.trim().toLowerCase();
-    const { data: prof, error: profErr } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
+    const { data, error } = await supabase.functions.invoke("invite-admin", {
+      body: { email: newAdminEmail.trim().toLowerCase(), org_id: newAdminOrgId },
+    });
 
-    if (profErr || !prof) {
-      toast.error("Ese usuario aún no se ha registrado. Pídele que cree su cuenta primero.");
+    if (error || (data as any)?.error) {
+      toast.error((data as any)?.error || error?.message || "No se pudo enviar la invitación");
       setCreating(false);
       return;
     }
 
-    // Set org on profile + insert admin role
-    const [{ error: updErr }, { error: roleErr }] = await Promise.all([
-      supabase.from("profiles").update({ org_id: newAdminOrgId, role: "admin" } as any).eq("id", prof.id),
-      supabase.from("user_roles").insert({ user_id: prof.id, role: "admin" as any }),
-    ]);
-
-    if (updErr || (roleErr && roleErr.code !== "23505")) {
-      toast.error("No se pudo asignar el administrador");
-      setCreating(false);
-      return;
+    if ((data as any)?.emailSent) {
+      toast.success("Invitación enviada por correo");
+    } else {
+      toast.success("Invitación registrada", {
+        description: (data as any)?.emailError
+          ? `No se pudo enviar el correo: ${(data as any).emailError}`
+          : "El usuario podrá registrarse y quedará vinculado automáticamente.",
+      });
     }
 
-    toast.success("Administrador asignado");
     setNewAdminEmail("");
     setCreating(false);
     load();
