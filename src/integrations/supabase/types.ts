@@ -740,6 +740,36 @@ export type Database = {
           },
         ]
       }
+      pending_admins: {
+        Row: {
+          claimed_at: string | null
+          claimed_by_user_id: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          org_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          org_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          org_id?: string
+        }
+        Relationships: []
+      }
       pending_residents: {
         Row: {
           building_id: string
