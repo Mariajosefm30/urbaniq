@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2, Shield, User, Home, AlertTriangle } from "lucide-react";
+import ResidentsSection from "@/components/admin/ResidentsSection";
 
 interface Membership {
   id: string;
@@ -43,6 +44,7 @@ export default function BuildingPeople() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [buildingName, setBuildingName] = useState("");
+  const [buildingOrgId, setBuildingOrgId] = useState<string | null>(null);
   
   // Add member dialog
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -76,12 +78,13 @@ export default function BuildingPeople() {
 
     const { data } = await supabase
       .from('buildings_new')
-      .select('name')
+      .select('name, org_id')
       .eq('id', buildingId)
       .single();
 
     if (data) {
       setBuildingName(data.name);
+      setBuildingOrgId(data.org_id ?? null);
     }
   };
 
@@ -153,18 +156,58 @@ export default function BuildingPeople() {
 
   const handleAddMember = async () => {
     if (!email.trim()) {
-      toast.error("Please enter an email address");
+      toast.error("Ingresa un correo");
       return;
     }
 
     if (selectedRole === "resident" && !selectedUnitId) {
-      toast.error("Please select a unit for the resident");
+      toast.error("Selecciona una unidad para el residente");
       return;
     }
 
     setSubmitting(true);
 
-    // Find user by email
+    // Residents: create a pending invitation (they may not have an account yet)
+    if (selectedRole === "resident") {
+      // Get org_id of the building so the trigger can link it on signup
+      const { data: bldg } = await supabase
+        .from("buildings_new")
+        .select("org_id")
+        .eq("id", buildingId!)
+        .single();
+
+      const { error: pendErr } = await (supabase as any)
+        .from("pending_residents")
+        .insert({
+          email: email.trim().toLowerCase(),
+          building_id: buildingId!,
+          unit_id: selectedUnitId,
+          org_id: bldg?.org_id ?? null,
+          invited_by: user?.id,
+        });
+
+      if (pendErr) {
+        if (pendErr.code === "23505") {
+          toast.error("Ya invitaste a este correo en este edificio");
+        } else {
+          console.error(pendErr);
+          toast.error("No se pudo crear la invitación");
+        }
+        setSubmitting(false);
+        return;
+      }
+
+      toast.success("Residente pre-cargado. Al registrarse con ese correo entrará directo a su edificio.");
+      setDialogOpen(false);
+      setEmail("");
+      setSelectedRole("resident");
+      setSelectedUnitId(null);
+      setSubmitting(false);
+      loadMemberships();
+      return;
+    }
+
+    // Admin / Manager: must already have an account
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -172,18 +215,17 @@ export default function BuildingPeople() {
       .maybeSingle();
 
     if (profileError) {
-      toast.error("Error looking up user");
+      toast.error("Error al buscar el usuario");
       setSubmitting(false);
       return;
     }
 
     if (!profileData) {
-      toast.error("User must sign up first. No account found with this email.");
+      toast.error("Ese usuario aún no tiene cuenta. Pídele que se registre primero.");
       setSubmitting(false);
       return;
     }
 
-    // Check if membership already exists
     const { data: existingMembership } = await supabase
       .from('building_memberships')
       .select('id')
@@ -192,29 +234,28 @@ export default function BuildingPeople() {
       .maybeSingle();
 
     if (existingMembership) {
-      toast.error("This user already has a role in this building");
+      toast.error("Este usuario ya tiene un rol en este edificio");
       setSubmitting(false);
       return;
     }
 
-    // Insert membership
     const { error: insertError } = await supabase
       .from('building_memberships')
       .insert({
         building_id: buildingId!,
         user_id: profileData.id,
         role: selectedRole,
-        unit_id: selectedRole === "resident" ? selectedUnitId : null,
+        unit_id: null,
       });
 
     if (insertError) {
       console.error('Insert error:', insertError);
-      toast.error("Failed to add member");
+      toast.error("No se pudo agregar el miembro");
       setSubmitting(false);
       return;
     }
 
-    toast.success("Member added successfully");
+    toast.success("Miembro agregado");
     setDialogOpen(false);
     setEmail("");
     setSelectedRole("resident");
@@ -509,6 +550,8 @@ export default function BuildingPeople() {
             )}
           </CardContent>
         </Card>
+
+        <ResidentsSection buildingId={buildingId!} orgId={buildingOrgId} />
       </div>
     </Layout>
   );

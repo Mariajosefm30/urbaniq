@@ -54,8 +54,7 @@ export default function Dashboard() {
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-    // @ts-ignore - Supabase query type issue
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("maintenance_tickets")
       .select("id, created_at, updated_at, status, actual_cost, satisfaction_rating")
       .eq("building_id", currentBuildingId)

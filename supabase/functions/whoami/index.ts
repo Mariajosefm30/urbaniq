@@ -5,9 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Lovable Cloud - whoami (auth required)
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -15,8 +13,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    
-    // Create Supabase client with user's auth token
+
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
@@ -27,70 +24,52 @@ Deno.serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: {
-        headers: { Authorization: authHeader },
-      },
+      global: { headers: { Authorization: authHeader } },
     });
 
-    // SECURITY: Must pass token explicitly when verify_jwt=false
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
-      console.error('[whoami] No authenticated user:', userError?.message);
       return new Response(
         JSON.stringify({ error: 'Unauthorized - No valid session found' }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Fetch role from user_roles table (ONLY source of truth for roles)
-    const { data: userRoleData, error: userRoleError } = await supabase
+    // Fetch ALL roles for this user (superadmin can co-exist with admin etc.)
+    const { data: userRolesData } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', user.id)
-      .single();
+      .eq('user_id', user.id);
 
-    // Only use role from user_roles table - ignore profiles.role
-    const role = userRoleData?.role || null;
-    
-    if (userRoleError && userRoleError.code !== 'PGRST116') {
-      console.error('[whoami] Error fetching user_roles:', userRoleError);
-    }
+    const roles: string[] = (userRolesData || []).map((r: any) => r.role);
+    const isSuperadmin = roles.includes('superadmin');
 
-    // Fetch the user's profile data (for org_id and last_building_id only)
-    const { data: profileData, error: profileError } = await supabase
+    // Effective role precedence: superadmin > admin > manager > resident
+    const precedence = ['superadmin', 'admin', 'manager', 'resident'];
+    const role = precedence.find((p) => roles.includes(p)) || null;
+
+    const { data: profileData } = await supabase
       .from('profiles')
       .select('org_id, last_building_id')
       .eq('id', user.id)
       .single();
 
-    if (profileError) {
-      console.error('[whoami] Error fetching profile:', profileError);
-    }
-
-    // Fetch organization onboarding status if user has org_id
     let orgOnboardingCompleted = null;
     if (profileData?.org_id) {
-      const { data: orgData, error: orgError } = await supabase
+      const { data: orgData } = await supabase
         .from('organizations')
         .select('org_onboarding_completed')
         .eq('id', profileData.org_id)
         .single();
-      
-      if (orgError) {
-        console.error('[whoami] Error fetching org data:', orgError);
-      } else {
-        orgOnboardingCompleted = orgData?.org_onboarding_completed ?? false;
-      }
+      orgOnboardingCompleted = orgData?.org_onboarding_completed ?? false;
     }
 
     const response = {
       user_id: user.id,
       email: user.email,
-      role: role,
+      role,
+      is_superadmin: isSuperadmin,
       org_id: profileData?.org_id || null,
       last_building_id: profileData?.last_building_id || null,
       org_onboarding_completed: orgOnboardingCompleted,
@@ -98,22 +77,15 @@ Deno.serve(async (req) => {
 
     console.log('[whoami] User info:', response);
 
-    return new Response(
-      JSON.stringify(response),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
-
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('[whoami] Unexpected error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });

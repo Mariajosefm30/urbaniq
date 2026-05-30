@@ -34,6 +34,7 @@ import BuildingBookings from "./pages/BuildingBookings";
 import Onboarding from "./pages/Onboarding";
 import BuildingPeople from "./pages/BuildingPeople";
 import BuildingAdmin from "./pages/BuildingAdmin";
+import Superadmin from "./pages/Superadmin";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,9 @@ const App = () => (
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/validate" element={<ProtectedRoute><Validate /></ProtectedRoute>} />
               
+              {/* Superadmin */}
+              <Route path="/superadmin" element={<ProtectedRoute><Superadmin /></ProtectedRoute>} />
+
               {/* Admin Routes */}
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
               <Route path="/admin/setup" element={<ProtectedRoute><AdminSetup /></ProtectedRoute>} />

@@ -5,6 +5,7 @@ interface SessionData {
   user_id: string | null;
   email: string | null;
   role: string | null;
+  is_superadmin: boolean;
   org_id: string | null;
   last_building_id: string | null;
   org_onboarding_completed: boolean | null;
@@ -32,6 +33,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         user_id: data.user_id || null,
         email: data.email || null,
         role: data.role || null,
+        is_superadmin: data.is_superadmin === true,
         org_id: data.org_id || null,
         last_building_id: data.last_building_id || null,
         org_onboarding_completed: data.org_onboarding_completed ?? null,
