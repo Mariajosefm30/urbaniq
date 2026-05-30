@@ -68,55 +68,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Build signup URL
+    // Build signup URL (link-based invitation, no email sent)
     const origin = APP_URL || req.headers.get('origin') || '';
     const signupUrl = `${origin}/auth?mode=signup&email=${encodeURIComponent(email)}`;
 
-    // Send invitation email
-    let emailSent = false;
-    let emailError: string | null = null;
-    if (RESEND_API_KEY) {
-      const html = `
-        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1a1a1a">
-          <h1 style="font-size:22px;margin:0 0 16px">Has sido invitado como administrador</h1>
-          <p style="font-size:15px;line-height:1.5;color:#444">
-            Te han invitado a administrar <strong>${orgName}</strong> en la plataforma.
-            Como administrador podrás registrar tus edificios, asignar managers y cargar a tus residentes.
-          </p>
-          <p style="margin:24px 0">
-            <a href="${signupUrl}" style="background:#0d0d0d;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">
-              Crear mi cuenta
-            </a>
-          </p>
-          <p style="font-size:13px;color:#888">
-            Si el botón no funciona, copia este enlace en tu navegador:<br/>
-            <span style="word-break:break-all">${signupUrl}</span>
-          </p>
-          <p style="font-size:13px;color:#888;margin-top:32px">
-            Usa este correo (${email}) al registrarte; tu cuenta quedará vinculada automáticamente a ${orgName}.
-          </p>
-        </div>`;
-
-      const resp = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: FROM_EMAIL,
-          to: [email],
-          subject: `Invitación para administrar ${orgName}`,
-          html,
-        }),
-      });
-      emailSent = resp.ok;
-      if (!resp.ok) emailError = await resp.text();
-    } else {
-      emailError = 'RESEND_API_KEY no configurado';
-    }
-
-    return new Response(JSON.stringify({ ok: true, emailSent, emailError, signupUrl }), {
+    return new Response(JSON.stringify({ ok: true, signupUrl, orgName }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e) {

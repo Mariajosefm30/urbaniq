@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Shield, Building2, ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2, Shield, Building2, ArrowLeft, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 interface Org { id: string; name: string; }
@@ -29,6 +30,8 @@ export default function Superadmin() {
   const [newAdminOrgId, setNewAdminOrgId] = useState<string>("");
   const [newOrgName, setNewOrgName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [inviteLink, setInviteLink] = useState<{ url: string; email: string; orgName: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // Guard
   useEffect(() => {
@@ -114,14 +117,13 @@ export default function Superadmin() {
       return;
     }
 
-    if ((data as any)?.emailSent) {
-      toast.success("Invitación enviada por correo");
+    const url = (data as any)?.signupUrl as string | undefined;
+    const orgName = (data as any)?.orgName as string | undefined;
+    if (url) {
+      setInviteLink({ url, email: newAdminEmail.trim().toLowerCase(), orgName: orgName || "la organización" });
+      toast.success("Invitación creada", { description: "Comparte el enlace con el administrador." });
     } else {
-      toast.success("Invitación registrada", {
-        description: (data as any)?.emailError
-          ? `No se pudo enviar el correo: ${(data as any).emailError}`
-          : "El usuario podrá registrarse y quedará vinculado automáticamente.",
-      });
+      toast.success("Invitación registrada");
     }
 
     setNewAdminEmail("");
@@ -193,7 +195,7 @@ export default function Superadmin() {
         <CardHeader>
           <CardTitle>Asignar administrador</CardTitle>
           <CardDescription>
-            Envía una invitación por correo. El usuario podrá registrarse y quedará vinculado como administrador de la organización elegida.
+            Genera un enlace de invitación que puedes compartir manualmente (WhatsApp, correo, etc.). Cuando el usuario se registre con ese correo, quedará vinculado automáticamente como administrador de la organización.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -221,7 +223,7 @@ export default function Superadmin() {
           </div>
           <Button onClick={handleAssignAdmin} disabled={creating} className="w-full">
             {creating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-            Enviar invitación
+            Generar enlace de invitación
           </Button>
         </CardContent>
       </Card>
@@ -271,6 +273,36 @@ export default function Superadmin() {
       <Button variant="ghost" onClick={() => navigate("/admin")}>
         <ArrowLeft className="h-4 w-4 mr-2" /> Ir al panel de administrador
       </Button>
+
+      <Dialog open={!!inviteLink} onOpenChange={(o) => { if (!o) { setInviteLink(null); setCopied(false); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Enlace de invitación</DialogTitle>
+            <DialogDescription>
+              Comparte este enlace con <strong>{inviteLink?.email}</strong>. Al registrarse con ese correo, quedará vinculado automáticamente como administrador de <strong>{inviteLink?.orgName}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2">
+            <Input readOnly value={inviteLink?.url || ""} className="font-mono text-xs" />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={async () => {
+                if (!inviteLink) return;
+                await navigator.clipboard.writeText(inviteLink.url);
+                setCopied(true);
+                toast.success("Enlace copiado");
+                setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => { setInviteLink(null); setCopied(false); }}>Listo</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
