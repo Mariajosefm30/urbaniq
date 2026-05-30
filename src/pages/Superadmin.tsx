@@ -221,7 +221,7 @@ export default function Superadmin() {
           </div>
           <Button onClick={handleAssignAdmin} disabled={creating} className="w-full">
             {creating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-            Asignar como administrador
+            Enviar invitación
           </Button>
         </CardContent>
       </Card>
