@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2, Shield, User, Home, AlertTriangle } from "lucide-react";
+import ResidentsSection from "@/components/admin/ResidentsSection";
 
 interface Membership {
   id: string;
@@ -43,6 +44,7 @@ export default function BuildingPeople() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [buildingName, setBuildingName] = useState("");
+  const [buildingOrgId, setBuildingOrgId] = useState<string | null>(null);
   
   // Add member dialog
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -76,12 +78,13 @@ export default function BuildingPeople() {
 
     const { data } = await supabase
       .from('buildings_new')
-      .select('name')
+      .select('name, org_id')
       .eq('id', buildingId)
       .single();
 
     if (data) {
       setBuildingName(data.name);
+      setBuildingOrgId(data.org_id ?? null);
     }
   };
 
@@ -547,6 +550,8 @@ export default function BuildingPeople() {
             )}
           </CardContent>
         </Card>
+
+        <ResidentsSection buildingId={buildingId!} orgId={buildingOrgId} />
       </div>
     </Layout>
   );
