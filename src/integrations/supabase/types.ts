@@ -740,6 +740,42 @@ export type Database = {
           },
         ]
       }
+      pending_residents: {
+        Row: {
+          building_id: string
+          claimed_at: string | null
+          claimed_by_user_id: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          org_id: string | null
+          unit_id: string | null
+        }
+        Insert: {
+          building_id: string
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          org_id?: string | null
+          unit_id?: string | null
+        }
+        Update: {
+          building_id?: string
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          org_id?: string | null
+          unit_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           building_address: string | null
@@ -1060,6 +1096,7 @@ export type Database = {
         Args: { _building_id: string; _user_id: string }
         Returns: boolean
       }
+      is_superadmin: { Args: { _user_id: string }; Returns: boolean }
       manager_has_building_access: {
         Args: { _building_id: string; _user_id: string }
         Returns: boolean
