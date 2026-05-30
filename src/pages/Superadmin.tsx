@@ -195,7 +195,7 @@ export default function Superadmin() {
         <CardHeader>
           <CardTitle>Asignar administrador</CardTitle>
           <CardDescription>
-            Envía una invitación por correo. El usuario podrá registrarse y quedará vinculado como administrador de la organización elegida.
+            Genera un enlace de invitación que puedes compartir manualmente (WhatsApp, correo, etc.). Cuando el usuario se registre con ese correo, quedará vinculado automáticamente como administrador de la organización.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
