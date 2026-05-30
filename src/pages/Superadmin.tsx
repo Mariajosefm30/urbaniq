@@ -193,7 +193,7 @@ export default function Superadmin() {
         <CardHeader>
           <CardTitle>Asignar administrador</CardTitle>
           <CardDescription>
-            El usuario debe haberse registrado previamente. Recibirá acceso de administrador para la organización elegida.
+            Envía una invitación por correo. El usuario podrá registrarse y quedará vinculado como administrador de la organización elegida.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
