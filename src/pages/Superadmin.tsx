@@ -117,14 +117,13 @@ export default function Superadmin() {
       return;
     }
 
-    if ((data as any)?.emailSent) {
-      toast.success("Invitación enviada por correo");
+    const url = (data as any)?.signupUrl as string | undefined;
+    const orgName = (data as any)?.orgName as string | undefined;
+    if (url) {
+      setInviteLink({ url, email: newAdminEmail.trim().toLowerCase(), orgName: orgName || "la organización" });
+      toast.success("Invitación creada", { description: "Comparte el enlace con el administrador." });
     } else {
-      toast.success("Invitación registrada", {
-        description: (data as any)?.emailError
-          ? `No se pudo enviar el correo: ${(data as any).emailError}`
-          : "El usuario podrá registrarse y quedará vinculado automáticamente.",
-      });
+      toast.success("Invitación registrada");
     }
 
     setNewAdminEmail("");
