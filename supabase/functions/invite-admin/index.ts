@@ -68,8 +68,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Build signup URL (link-based invitation, no email sent)
-    const origin = APP_URL || req.headers.get('origin') || '';
+    // Build signup URL using only the origin (strip any path from APP_URL)
+    let origin = req.headers.get('origin') || '';
+    if (!origin && APP_URL) {
+      try { origin = new URL(APP_URL).origin; } catch { origin = APP_URL.replace(/\/.*$/, ''); }
+    }
     const signupUrl = `${origin}/auth?mode=signup&email=${encodeURIComponent(email)}`;
 
     return new Response(JSON.stringify({ ok: true, signupUrl, orgName }), {

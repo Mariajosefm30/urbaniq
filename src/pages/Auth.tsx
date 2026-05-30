@@ -24,7 +24,7 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
   const [isLogin, setIsLogin] = useState(mode !== "signup");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(searchParams.get("email") || "");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
