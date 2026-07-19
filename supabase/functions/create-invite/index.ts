@@ -23,28 +23,36 @@ Deno.serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    // Fetch caller memberships to check permissions
     const { data: myMems } = await admin.from('memberships').select('building_id, role').eq('user_id', user.id);
     const isPlatformAdmin = (myMems ?? []).some((m) => m.role === 'platform_admin');
 
-    const { email, role, building_id, unit_id } = await req.json();
+    const {
+      email, role, building_id, unit_id,
+      resident_name, phone, resident_type,
+      reassign, // when true and role=admin_board, revoke pending admin_board invites first
+    } = await req.json();
+
     if (!email || !role) return json({ ok: false, error: 'email y role requeridos' }, 400);
 
     const validRoles = ['admin_board', 'manager', 'resident', 'platform_admin'];
     if (!validRoles.includes(role)) return json({ ok: false, error: 'Rol inválido' }, 400);
 
-    // Authorization
     if (role === 'platform_admin' && !isPlatformAdmin) return json({ ok: false, error: 'Solo platform_admin' }, 403);
     if (role === 'admin_board' && !isPlatformAdmin) return json({ ok: false, error: 'Solo platform_admin puede invitar admin_board' }, 403);
     if (role !== 'platform_admin' && !building_id) return json({ ok: false, error: 'building_id requerido' }, 400);
     if (role === 'resident' && !unit_id) return json({ ok: false, error: 'unit_id requerido' }, 400);
+    if (resident_type && !['owner','tenant'].includes(resident_type)) return json({ ok: false, error: 'resident_type inválido' }, 400);
 
     if (role === 'resident' || role === 'manager') {
       const isBoardHere = (myMems ?? []).some((m) => m.building_id === building_id && m.role === 'admin_board');
       if (!isBoardHere && !isPlatformAdmin) return json({ ok: false, error: 'Sin permiso para este edificio' }, 403);
     }
 
-    // Seat cap for admin_board
+    if (role === 'admin_board' && reassign) {
+      await admin.from('invites').delete()
+        .eq('building_id', building_id).eq('role', 'admin_board').is('accepted_at', null);
+    }
+
     if (role === 'admin_board') {
       const { data: bldg } = await admin.from('buildings').select('tier').eq('id', building_id).maybeSingle();
       const tier = (bldg as { tier: string } | null)?.tier ?? 'starter';
@@ -70,6 +78,9 @@ Deno.serve(async (req) => {
         role,
         building_id: role === 'platform_admin' ? null : building_id,
         unit_id: unit_id ?? null,
+        resident_name: resident_name ?? null,
+        phone: phone ?? null,
+        resident_type: resident_type ?? null,
         invited_by: user.id,
       })
       .select('token')

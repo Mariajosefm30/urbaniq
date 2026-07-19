@@ -5,38 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, LogOut, Copy, Plus, Mail } from "lucide-react";
+import { Building2, LogOut, Copy, Plus, Mail, UserCog } from "lucide-react";
 import { TIER_LABELS, TIER_SEATS, type Tier } from "@/lib/tiers";
 import { Link } from "react-router-dom";
+import { ReassignSeatDialog } from "@/components/platform/ReassignSeatDialog";
 
-interface Building {
-  id: string;
-  name: string;
-  tier: Tier;
-  address: string | null;
-  created_at: string;
-}
-
-interface Invite {
-  id: string;
-  email: string;
-  role: string;
-  building_id: string | null;
-  token: string;
-  accepted_at: string | null;
-  expires_at: string;
-  created_at: string;
-}
+interface Building { id: string; name: string; tier: Tier; address: string | null; created_at: string; }
+interface Invite { id: string; email: string; role: string; building_id: string | null; token: string; accepted_at: string | null; }
+interface AdminMembership { id: string; user_id: string; building_id: string; }
 
 export default function PlatformAdmin() {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
+  const [adminMems, setAdminMems] = useState<AdminMembership[]>([]);
   const [loading, setLoading] = useState(true);
   const [newBuilding, setNewBuilding] = useState({ name: "", tier: "starter" as Tier, address: "" });
   const [creatingBuilding, setCreatingBuilding] = useState(false);
@@ -44,15 +31,18 @@ export default function PlatformAdmin() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteBusy, setInviteBusy] = useState(false);
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
+  const [reassign, setReassign] = useState<{ open: boolean; buildingId: string; membershipId: string | null }>({ open: false, buildingId: "", membershipId: null });
 
   const load = async () => {
     setLoading(true);
-    const [bRes, iRes] = await Promise.all([
+    const [bRes, iRes, mRes] = await Promise.all([
       supabase.from("buildings").select("*").order("created_at", { ascending: false }),
       supabase.from("invites").select("*").order("created_at", { ascending: false }),
+      supabase.from("memberships").select("id, user_id, building_id").eq("role", "admin_board"),
     ]);
     if (bRes.data) setBuildings(bRes.data as Building[]);
     if (iRes.data) setInvites(iRes.data as Invite[]);
+    if (mRes.data) setAdminMems(mRes.data as AdminMembership[]);
     setLoading(false);
   };
 
@@ -62,15 +52,10 @@ export default function PlatformAdmin() {
     if (!newBuilding.name) return;
     setCreatingBuilding(true);
     const { error } = await supabase.from("buildings").insert({
-      name: newBuilding.name,
-      tier: newBuilding.tier,
-      address: newBuilding.address || null,
+      name: newBuilding.name, tier: newBuilding.tier, address: newBuilding.address || null,
     });
     setCreatingBuilding(false);
-    if (error) {
-      toast({ title: "Error creando edificio", description: error.message, variant: "destructive" });
-      return;
-    }
+    if (error) { toast({ title: "Error creando edificio", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Edificio creado" });
     setNewBuilding({ name: "", tier: "starter", address: "" });
     load();
@@ -83,19 +68,20 @@ export default function PlatformAdmin() {
       body: { email: inviteEmail, role: "admin_board", building_id: inviteDialog.buildingId },
     });
     setInviteBusy(false);
-    if (error || !data?.ok) {
-      toast({ title: "Error", description: data?.error || error?.message || "No se pudo crear", variant: "destructive" });
-      return;
-    }
+    if (error || !data?.ok) { toast({ title: "Error", description: data?.error || error?.message, variant: "destructive" }); return; }
     setInviteDialog({ open: false, buildingId: "" });
     setInviteEmail("");
     setLinkDialog({ open: true, url: data.activation_url });
     load();
   };
 
-  const copy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({ title: "Copiado al portapapeles" });
+  const copy = (text: string) => { navigator.clipboard.writeText(text); toast({ title: "Copiado al portapapeles" }); };
+
+  const seatStatus = (b: Building) => {
+    const active = adminMems.filter((m) => m.building_id === b.id).length;
+    const pending = invites.filter((i) => i.building_id === b.id && i.role === "admin_board" && !i.accepted_at).length;
+    const cap = TIER_SEATS[b.tier];
+    return { active, pending, cap };
   };
 
   return (
@@ -109,9 +95,7 @@ export default function PlatformAdmin() {
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="h-4 w-4 mr-2" /> Salir
-          </Button>
+          <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4 mr-2" /> Salir</Button>
         </div>
       </header>
 
@@ -152,45 +136,50 @@ export default function PlatformAdmin() {
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Edificios ({buildings.length})</h2>
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Cargando...</p>
-          ) : buildings.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aún no hay edificios.</p>
-          ) : (
-            <div className="grid gap-3">
-              {buildings.map((b) => (
-                <Card key={b.id}>
-                  <CardContent className="flex items-center justify-between py-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{b.name}</p>
-                        <Badge variant="secondary">{TIER_LABELS[b.tier]}</Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {TIER_SEATS[b.tier] ?? "∞"} asiento(s) admin
-                        </span>
-                      </div>
-                      {b.address && <p className="text-xs text-muted-foreground">{b.address}</p>}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setInviteDialog({ open: true, buildingId: b.id })}>
-                        <Mail className="h-4 w-4 mr-1" /> Invitar admin
-                      </Button>
-                      <Button asChild size="sm" variant="ghost">
-                        <Link to={`/board/${b.id}`}>Abrir</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          {loading ? <p className="text-sm text-muted-foreground">Cargando...</p>
+            : buildings.length === 0 ? <p className="text-sm text-muted-foreground">Aún no hay edificios.</p>
+            : (
+              <div className="grid gap-3">
+                {buildings.map((b) => {
+                  const s = seatStatus(b);
+                  const seatFull = s.cap !== null && s.active + s.pending >= s.cap;
+                  const currentAdmin = adminMems.find((m) => m.building_id === b.id) ?? null;
+                  return (
+                    <Card key={b.id}>
+                      <CardContent className="flex items-center justify-between py-4 gap-3 flex-wrap">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-medium">{b.name}</p>
+                            <Badge variant="secondary">{TIER_LABELS[b.tier]}</Badge>
+                            <Badge variant={seatFull ? "destructive" : "outline"}>
+                              Admin: {s.active + s.pending}/{s.cap ?? "∞"}
+                              {s.pending > 0 && ` · ${s.pending} pend.`}
+                            </Badge>
+                          </div>
+                          {b.address && <p className="text-xs text-muted-foreground">{b.address}</p>}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" disabled={seatFull}
+                            onClick={() => setInviteDialog({ open: true, buildingId: b.id })}>
+                            <Mail className="h-4 w-4 mr-1" /> Invitar admin
+                          </Button>
+                          <Button size="sm" variant="outline"
+                            onClick={() => setReassign({ open: true, buildingId: b.id, membershipId: currentAdmin?.id ?? null })}>
+                            <UserCog className="h-4 w-4 mr-1" /> Reasignar
+                          </Button>
+                          <Button asChild size="sm" variant="ghost"><Link to={`/board/${b.id}`}>Abrir</Link></Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
         </div>
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Invitaciones ({invites.length})</h2>
-          {invites.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Sin invitaciones.</p>
-          ) : (
+          {invites.length === 0 ? <p className="text-sm text-muted-foreground">Sin invitaciones.</p> : (
             <div className="space-y-2">
               {invites.map((i) => {
                 const url = `${window.location.origin}/activate?token=${i.token}`;
@@ -199,14 +188,10 @@ export default function PlatformAdmin() {
                     <CardContent className="flex items-center justify-between py-3">
                       <div>
                         <p className="text-sm font-medium">{i.email}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {i.role} · {i.accepted_at ? "aceptada" : "pendiente"}
-                        </p>
+                        <p className="text-xs text-muted-foreground">{i.role} · {i.accepted_at ? "aceptada" : "pendiente"}</p>
                       </div>
                       {!i.accepted_at && (
-                        <Button size="sm" variant="outline" onClick={() => copy(url)}>
-                          <Copy className="h-4 w-4 mr-1" /> Copiar link
-                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => copy(url)}><Copy className="h-4 w-4 mr-1" /> Copiar link</Button>
                       )}
                     </CardContent>
                   </Card>
@@ -223,13 +208,8 @@ export default function PlatformAdmin() {
             <DialogTitle>Invitar administrador del edificio</DialogTitle>
             <DialogDescription>Se generará un enlace de activación para copiar.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label>Correo</Label>
-            <Input type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
-          </div>
-          <DialogFooter>
-            <Button onClick={inviteBoard} disabled={inviteBusy || !inviteEmail}>Crear invitación</Button>
-          </DialogFooter>
+          <div className="space-y-2"><Label>Correo</Label><Input type="email" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} /></div>
+          <DialogFooter><Button onClick={inviteBoard} disabled={inviteBusy || !inviteEmail}>Crear invitación</Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -237,7 +217,7 @@ export default function PlatformAdmin() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Enlace de activación</DialogTitle>
-            <DialogDescription>Comparte este enlace con el nuevo admin. Es de un solo uso.</DialogDescription>
+            <DialogDescription>Comparte este enlace. Es de un solo uso.</DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
             <Input readOnly value={linkDialog.url} />
@@ -245,6 +225,14 @@ export default function PlatformAdmin() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ReassignSeatDialog
+        open={reassign.open}
+        onOpenChange={(o) => setReassign({ ...reassign, open: o })}
+        buildingId={reassign.buildingId}
+        currentMembershipId={reassign.membershipId}
+        onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
+      />
     </div>
   );
 }
