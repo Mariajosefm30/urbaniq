@@ -32,9 +32,22 @@ export default function Auth() {
   const { user } = useAuth();
   const { session, loading: sessionLoading } = useSession();
 
+  // Preserve `?next=<same-origin-path>` for OAuth consent return
+  const nextParam = searchParams.get("next");
+  const safeNext =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : null;
+
   // Role-based redirects when already logged in
   useEffect(() => {
     if (sessionLoading || !user || !session) return;
+
+    // If we came here from an OAuth consent flow, return there.
+    if (safeNext) {
+      window.location.replace(safeNext);
+      return;
+    }
 
     // Route based on role
     if (session.role === "admin") {
@@ -50,7 +63,7 @@ export default function Auth() {
     } else if (session.role === "resident") {
       navigate("/feed", { replace: true });
     }
-  }, [user, session, sessionLoading, navigate]);
+  }, [user, session, sessionLoading, navigate, safeNext]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +91,9 @@ export default function Auth() {
           return;
         }
 
-        const redirectUrl = `${window.location.origin}/auth`;
+        const redirectUrl = safeNext
+          ? `${window.location.origin}/auth?next=${encodeURIComponent(safeNext)}`
+          : `${window.location.origin}/auth`;
         const { error } = await supabase.auth.signUp({
           email,
           password,

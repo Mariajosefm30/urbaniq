@@ -35,6 +35,7 @@ import Onboarding from "./pages/Onboarding";
 import BuildingPeople from "./pages/BuildingPeople";
 import BuildingAdmin from "./pages/BuildingAdmin";
 import Superadmin from "./pages/Superadmin";
+import OAuthConsent from "./pages/OAuthConsent";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-static" element={<VerifyStatic />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               
               {/* Onboarding - Role Selection */}
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
