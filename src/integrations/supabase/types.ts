@@ -14,1143 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      amenities: {
-        Row: {
-          building_id: string
-          capacity: number | null
-          close_time: string | null
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          image_url: string | null
-          name: string
-          open_time: string | null
-          rules: string | null
-          slot_minutes: number | null
-          updated_at: string
-        }
-        Insert: {
-          building_id: string
-          capacity?: number | null
-          close_time?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          name: string
-          open_time?: string | null
-          rules?: string | null
-          slot_minutes?: number | null
-          updated_at?: string
-        }
-        Update: {
-          building_id?: string
-          capacity?: number | null
-          close_time?: string | null
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          name?: string
-          open_time?: string | null
-          rules?: string | null
-          slot_minutes?: number | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "amenities_building_id_fkey"
-            columns: ["building_id"]
-            isOneToOne: false
-            referencedRelation: "buildings_new"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "amenities_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      amenity_bookings: {
-        Row: {
-          amenity_id: string
-          building_id: string | null
-          created_at: string
-          ends_at: string
-          id: string
-          starts_at: string
-          status: string | null
-          unit_id: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amenity_id: string
-          building_id?: string | null
-          created_at?: string
-          ends_at?: string
-          id?: string
-          starts_at?: string
-          status?: string | null
-          unit_id?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amenity_id?: string
-          building_id?: string | null
-          created_at?: string
-          ends_at?: string
-          id?: string
-          starts_at?: string
-          status?: string | null
-          unit_id?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "amenity_bookings_amenity_id_fkey"
-            columns: ["amenity_id"]
-            isOneToOne: false
-            referencedRelation: "amenities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "amenity_bookings_building_id_fkey"
-            columns: ["building_id"]
-            isOneToOne: false
-            referencedRelation: "buildings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "amenity_bookings_unit_id_fkey"
-            columns: ["unit_id"]
-            isOneToOne: false
-            referencedRelation: "units"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "amenity_bookings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      amenity_waitlist: {
-        Row: {
-          amenity_id: string
-          building_id: string
-          created_at: string
-          id: string
-          notified_at: string | null
-          requested_date: string
-          requested_time_end: string
-          requested_time_start: string
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amenity_id: string
-          building_id: string
-          created_at?: string
-          id?: string
-          notified_at?: string | null
-          requested_date: string
-          requested_time_end: string
-          requested_time_start: string
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amenity_id?: string
-          building_id?: string
-          created_at?: string
-          id?: string
-          notified_at?: string | null
-          requested_date?: string
-          requested_time_end?: string
-          requested_time_start?: string
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "amenity_waitlist_amenity_id_fkey"
-            columns: ["amenity_id"]
-            isOneToOne: false
-            referencedRelation: "amenities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "amenity_waitlist_building_id_fkey"
-            columns: ["building_id"]
-            isOneToOne: false
-            referencedRelation: "buildings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "amenity_waitlist_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      assets: {
-        Row: {
-          created_at: string | null
-          id: string
-          location: string | null
-          name: string
-          type: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          location?: string | null
-          name: string
-          type?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          location?: string | null
-          name?: string
-          type?: string | null
-        }
-        Relationships: []
-      }
-      building_memberships: {
-        Row: {
-          building_id: string
-          created_at: string
-          id: string
-          role: string
-          unit_id: string | null
-          user_id: string
-        }
-        Insert: {
-          building_id: string
-          created_at?: string
-          id?: string
-          role: string
-          unit_id?: string | null
-          user_id: string
-        }
-        Update: {
-          building_id?: string
-          created_at?: string
-          id?: string
-          role?: string
-          unit_id?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "building_memberships_building_id_fkey"
-            columns: ["building_id"]
-            isOneToOne: false
-            referencedRelation: "buildings_new"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "building_memberships_unit_id_fkey"
-            columns: ["unit_id"]
-            isOneToOne: false
-            referencedRelation: "units"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       buildings: {
         Row: {
           address: string | null
-          created_at: string | null
-          id: string
-          lat: number | null
-          lng: number | null
-          name: string | null
-          org_id: string | null
-        }
-        Insert: {
-          address?: string | null
-          created_at?: string | null
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          name?: string | null
-          org_id?: string | null
-        }
-        Update: {
-          address?: string | null
-          created_at?: string | null
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          name?: string | null
-          org_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "buildings_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      buildings_new: {
-        Row: {
-          city: string | null
-          country: string | null
-          created_at: string | null
-          id: string
-          lat: number | null
-          lng: number | null
-          manager_email: string | null
-          manager_name: string | null
-          name: string
-          org_id: string
-          street_address: string | null
-        }
-        Insert: {
-          city?: string | null
-          country?: string | null
-          created_at?: string | null
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          manager_email?: string | null
-          manager_name?: string | null
-          name: string
-          org_id: string
-          street_address?: string | null
-        }
-        Update: {
-          city?: string | null
-          country?: string | null
-          created_at?: string | null
-          id?: string
-          lat?: number | null
-          lng?: number | null
-          manager_email?: string | null
-          manager_name?: string | null
-          name?: string
-          org_id?: string
-          street_address?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "buildings_new_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      feed_posts: {
-        Row: {
-          author_id: string
-          author_name: string
-          author_role: string
-          building_id: string
-          content: string
           created_at: string
           id: string
-          image_url: string | null
-          title: string
+          name: string
+          tier: Database["public"]["Enums"]["building_tier"]
           updated_at: string
         }
         Insert: {
-          author_id: string
-          author_name: string
-          author_role: string
-          building_id: string
-          content: string
+          address?: string | null
           created_at?: string
           id?: string
-          image_url?: string | null
-          title: string
+          name: string
+          tier?: Database["public"]["Enums"]["building_tier"]
           updated_at?: string
         }
         Update: {
-          author_id?: string
-          author_name?: string
-          author_role?: string
-          building_id?: string
-          content?: string
+          address?: string | null
           created_at?: string
-          id?: string
-          image_url?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feed_posts_building_id_fkey"
-            columns: ["building_id"]
-            isOneToOne: false
-            referencedRelation: "buildings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      guests: {
-        Row: {
-          arrival_at: string
-          created_at: string
-          demo_code: string | null
-          demo_code_attempts: number | null
-          demo_code_status: string | null
-          demo_code_verified_at: string | null
-          host_id: string
-          id: string
-          name: string
-          qr_expires_at: string
-          qr_token_hash: string | null
-          redeemed_at: string | null
-          status: Database["public"]["Enums"]["guest_status"]
-          unit: string | null
-          valid_from: string | null
-        }
-        Insert: {
-          arrival_at: string
-          created_at?: string
-          demo_code?: string | null
-          demo_code_attempts?: number | null
-          demo_code_status?: string | null
-          demo_code_verified_at?: string | null
-          host_id: string
-          id?: string
-          name: string
-          qr_expires_at: string
-          qr_token_hash?: string | null
-          redeemed_at?: string | null
-          status?: Database["public"]["Enums"]["guest_status"]
-          unit?: string | null
-          valid_from?: string | null
-        }
-        Update: {
-          arrival_at?: string
-          created_at?: string
-          demo_code?: string | null
-          demo_code_attempts?: number | null
-          demo_code_status?: string | null
-          demo_code_verified_at?: string | null
-          host_id?: string
           id?: string
           name?: string
-          qr_expires_at?: string
-          qr_token_hash?: string | null
-          redeemed_at?: string | null
-          status?: Database["public"]["Enums"]["guest_status"]
-          unit?: string | null
-          valid_from?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "guests_host_id_fkey"
-            columns: ["host_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      maintenance_alerts: {
-        Row: {
-          acknowledged_at: string | null
-          acknowledged_by: string | null
-          created_at: string | null
-          details: Json | null
-          id: string
-          issue_key: string
-          severity: string | null
-          title: string
-        }
-        Insert: {
-          acknowledged_at?: string | null
-          acknowledged_by?: string | null
-          created_at?: string | null
-          details?: Json | null
-          id?: string
-          issue_key: string
-          severity?: string | null
-          title: string
-        }
-        Update: {
-          acknowledged_at?: string | null
-          acknowledged_by?: string | null
-          created_at?: string | null
-          details?: Json | null
-          id?: string
-          issue_key?: string
-          severity?: string | null
-          title?: string
+          tier?: Database["public"]["Enums"]["building_tier"]
+          updated_at?: string
         }
         Relationships: []
       }
-      maintenance_tickets: {
+      invites: {
         Row: {
-          access_code: string | null
-          access_code_attempts: number | null
-          access_code_status: string | null
-          access_code_verified_at: string | null
-          actual_cost: number | null
-          asset_id: string | null
-          category: string
+          accepted_at: string | null
+          building_id: string | null
           created_at: string
-          description: string
+          email: string
+          expires_at: string
           id: string
-          image_url: string | null
-          photo_url: string | null
-          priority: string | null
-          reporter_id: string
-          resolved_at: string | null
-          satisfaction_rating: number | null
-          status: Database["public"]["Enums"]["ticket_status"]
-          technician_id: string | null
-          title: string
-          unit: string | null
-          updated_at: string
-        }
-        Insert: {
-          access_code?: string | null
-          access_code_attempts?: number | null
-          access_code_status?: string | null
-          access_code_verified_at?: string | null
-          actual_cost?: number | null
-          asset_id?: string | null
-          category: string
-          created_at?: string
-          description: string
-          id?: string
-          image_url?: string | null
-          photo_url?: string | null
-          priority?: string | null
-          reporter_id: string
-          resolved_at?: string | null
-          satisfaction_rating?: number | null
-          status?: Database["public"]["Enums"]["ticket_status"]
-          technician_id?: string | null
-          title: string
-          unit?: string | null
-          updated_at?: string
-        }
-        Update: {
-          access_code?: string | null
-          access_code_attempts?: number | null
-          access_code_status?: string | null
-          access_code_verified_at?: string | null
-          actual_cost?: number | null
-          asset_id?: string | null
-          category?: string
-          created_at?: string
-          description?: string
-          id?: string
-          image_url?: string | null
-          photo_url?: string | null
-          priority?: string | null
-          reporter_id?: string
-          resolved_at?: string | null
-          satisfaction_rating?: number | null
-          status?: Database["public"]["Enums"]["ticket_status"]
-          technician_id?: string | null
-          title?: string
-          unit?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_ticket_asset"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "assets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "maintenance_tickets_reporter_id_fkey"
-            columns: ["reporter_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "maintenance_tickets_technician_id_fkey"
-            columns: ["technician_id"]
-            isOneToOne: false
-            referencedRelation: "technicians"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      manager_buildings: {
-        Row: {
-          building_id: string
-          created_at: string | null
-          user_id: string
-        }
-        Insert: {
-          building_id: string
-          created_at?: string | null
-          user_id: string
-        }
-        Update: {
-          building_id?: string
-          created_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "manager_buildings_building_id_fkey"
-            columns: ["building_id"]
-            isOneToOne: false
-            referencedRelation: "buildings_new"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organizations: {
-        Row: {
-          created_at: string | null
-          current_tool: string | null
-          id: string
-          name: string
-          org_onboarding_completed: boolean | null
-          org_type: string | null
-          primary_contact_email: string | null
-          primary_contact_name: string | null
-          primary_intent: string[] | null
-          secondary_contact_email: string | null
-          secondary_contact_name: string | null
-          unit_count: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          current_tool?: string | null
-          id?: string
-          name: string
-          org_onboarding_completed?: boolean | null
-          org_type?: string | null
-          primary_contact_email?: string | null
-          primary_contact_name?: string | null
-          primary_intent?: string[] | null
-          secondary_contact_email?: string | null
-          secondary_contact_name?: string | null
-          unit_count?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          current_tool?: string | null
-          id?: string
-          name?: string
-          org_onboarding_completed?: boolean | null
-          org_type?: string | null
-          primary_contact_email?: string | null
-          primary_contact_name?: string | null
-          primary_intent?: string[] | null
-          secondary_contact_email?: string | null
-          secondary_contact_name?: string | null
-          unit_count?: number | null
-        }
-        Relationships: []
-      }
-      payments: {
-        Row: {
-          amount: number
-          building_id: string
-          created_at: string
-          description: string | null
-          due_date: string
-          id: string
-          paid_date: string | null
-          receipt_url: string | null
-          status: Database["public"]["Enums"]["payment_status"]
-          type: Database["public"]["Enums"]["payment_type"]
+          invited_by: string | null
+          role: Database["public"]["Enums"]["app_role_v2"]
+          token: string
           unit_id: string | null
-          updated_at: string
-          user_id: string
         }
         Insert: {
-          amount: number
-          building_id: string
+          accepted_at?: string | null
+          building_id?: string | null
           created_at?: string
-          description?: string | null
-          due_date: string
+          email: string
+          expires_at?: string
           id?: string
-          paid_date?: string | null
-          receipt_url?: string | null
-          status?: Database["public"]["Enums"]["payment_status"]
-          type: Database["public"]["Enums"]["payment_type"]
+          invited_by?: string | null
+          role: Database["public"]["Enums"]["app_role_v2"]
+          token?: string
           unit_id?: string | null
-          updated_at?: string
-          user_id: string
         }
         Update: {
-          amount?: number
-          building_id?: string
+          accepted_at?: string | null
+          building_id?: string | null
           created_at?: string
-          description?: string | null
-          due_date?: string
+          email?: string
+          expires_at?: string
           id?: string
-          paid_date?: string | null
-          receipt_url?: string | null
-          status?: Database["public"]["Enums"]["payment_status"]
-          type?: Database["public"]["Enums"]["payment_type"]
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["app_role_v2"]
+          token?: string
           unit_id?: string | null
-          updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "payments_building_id_fkey"
+            foreignKeyName: "invites_building_id_fkey"
             columns: ["building_id"]
             isOneToOne: false
             referencedRelation: "buildings"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "payments_unit_id_fkey"
+            foreignKeyName: "invites_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "payments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
-      pending_admins: {
+      memberships: {
         Row: {
-          claimed_at: string | null
-          claimed_by_user_id: string | null
-          created_at: string
-          email: string
-          id: string
-          invited_by: string | null
-          org_id: string
-        }
-        Insert: {
-          claimed_at?: string | null
-          claimed_by_user_id?: string | null
-          created_at?: string
-          email: string
-          id?: string
-          invited_by?: string | null
-          org_id: string
-        }
-        Update: {
-          claimed_at?: string | null
-          claimed_by_user_id?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          invited_by?: string | null
-          org_id?: string
-        }
-        Relationships: []
-      }
-      pending_residents: {
-        Row: {
-          building_id: string
-          claimed_at: string | null
-          claimed_by_user_id: string | null
-          created_at: string
-          email: string
-          id: string
-          invited_by: string | null
-          org_id: string | null
-          unit_id: string | null
-        }
-        Insert: {
-          building_id: string
-          claimed_at?: string | null
-          claimed_by_user_id?: string | null
-          created_at?: string
-          email: string
-          id?: string
-          invited_by?: string | null
-          org_id?: string | null
-          unit_id?: string | null
-        }
-        Update: {
-          building_id?: string
-          claimed_at?: string | null
-          claimed_by_user_id?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          invited_by?: string | null
-          org_id?: string | null
-          unit_id?: string | null
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          building_address: string | null
           building_id: string | null
           created_at: string
-          email: string | null
-          full_name: string | null
           id: string
-          last_building_id: string | null
-          name: string | null
-          org_id: string | null
-          role: string | null
-          unit: string | null
+          role: Database["public"]["Enums"]["app_role_v2"]
+          unit_id: string | null
+          user_id: string
         }
         Insert: {
-          building_address?: string | null
           building_id?: string | null
           created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id: string
-          last_building_id?: string | null
-          name?: string | null
-          org_id?: string | null
-          role?: string | null
-          unit?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role_v2"]
+          unit_id?: string | null
+          user_id: string
         }
         Update: {
-          building_address?: string | null
           building_id?: string | null
           created_at?: string
-          email?: string | null
-          full_name?: string | null
           id?: string
-          last_building_id?: string | null
-          name?: string | null
-          org_id?: string | null
-          role?: string | null
-          unit?: string | null
+          role?: Database["public"]["Enums"]["app_role_v2"]
+          unit_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_building_id_fkey"
+            foreignKeyName: "memberships_building_id_fkey"
             columns: ["building_id"]
             isOneToOne: false
             referencedRelation: "buildings"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "profiles_last_building_id_fkey"
-            columns: ["last_building_id"]
+            foreignKeyName: "memberships_unit_id_fkey"
+            columns: ["unit_id"]
             isOneToOne: false
-            referencedRelation: "buildings_new"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
+            referencedRelation: "units"
             referencedColumns: ["id"]
           },
         ]
-      }
-      technicians: {
-        Row: {
-          category: string
-          created_at: string
-          distance: number | null
-          id: string
-          maps_url: string | null
-          name: string
-          phone: string
-          rating: number | null
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          distance?: number | null
-          id?: string
-          maps_url?: string | null
-          name: string
-          phone: string
-          rating?: number | null
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          distance?: number | null
-          id?: string
-          maps_url?: string | null
-          name?: string
-          phone?: string
-          rating?: number | null
-        }
-        Relationships: []
-      }
-      ticket_messages: {
-        Row: {
-          created_at: string
-          id: string
-          message: string
-          sender_id: string
-          ticket_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          message: string
-          sender_id: string
-          ticket_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          message?: string
-          sender_id?: string
-          ticket_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ticket_messages_ticket_id_fkey"
-            columns: ["ticket_id"]
-            isOneToOne: false
-            referencedRelation: "maintenance_tickets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      unit_messages: {
-        Row: {
-          created_at: string
-          id: string
-          message: string
-          sender_id: string
-          subject: string
-          unit: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          message: string
-          sender_id: string
-          subject: string
-          unit: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          message?: string
-          sender_id?: string
-          subject?: string
-          unit?: string
-        }
-        Relationships: []
       }
       units: {
         Row: {
           building_id: string
           code: string
-          contact_information: string | null
-          created_at: string | null
+          created_at: string
           id: string
-          resident_name: string | null
-          resident_user_id: string | null
         }
         Insert: {
           building_id: string
-          code?: string
-          contact_information?: string | null
-          created_at?: string | null
+          code: string
+          created_at?: string
           id?: string
-          resident_name?: string | null
-          resident_user_id?: string | null
         }
         Update: {
           building_id?: string
           code?: string
-          contact_information?: string | null
-          created_at?: string | null
-          id?: string
-          resident_name?: string | null
-          resident_user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-      waitlist_notifications: {
-        Row: {
-          amenity_id: string
-          booking_id: string
-          created_at: string
-          id: string
-          processed: boolean
-          user_id: string
-          waitlist_id: string
-        }
-        Insert: {
-          amenity_id: string
-          booking_id: string
           created_at?: string
           id?: string
-          processed?: boolean
-          user_id: string
-          waitlist_id: string
-        }
-        Update: {
-          amenity_id?: string
-          booking_id?: string
-          created_at?: string
-          id?: string
-          processed?: boolean
-          user_id?: string
-          waitlist_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "waitlist_notifications_amenity_id_fkey"
-            columns: ["amenity_id"]
+            foreignKeyName: "units_building_id_fkey"
+            columns: ["building_id"]
             isOneToOne: false
-            referencedRelation: "amenities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "waitlist_notifications_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "amenity_bookings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "waitlist_notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "waitlist_notifications_waitlist_id_fkey"
-            columns: ["waitlist_id"]
-            isOneToOne: false
-            referencedRelation: "amenity_waitlist"
+            referencedRelation: "buildings"
             referencedColumns: ["id"]
           },
         ]
       }
     }
     Views: {
-      recurring_issues_60d: {
-        Row: {
-          asset_id: string | null
-          category: string | null
-          first_seen: string | null
-          incidents: number | null
-          issue_key: string | null
-          last_seen: string | null
-          unit: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_ticket_asset"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "assets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      building_in_admin_org: {
-        Args: { _building_id: string; _user_id: string }
+      has_any_building_access: {
+        Args: { _building_id: string; _uid: string }
         Returns: boolean
       }
-      cleanup_expired_waitlist: { Args: never; Returns: undefined }
-      get_user_org_id: { Args: { _user_id: string }; Returns: string }
-      get_user_role: { Args: { _user_id: string }; Returns: string }
       has_building_role: {
-        Args: { _building_id: string; _role: string; _user_id: string }
+        Args: {
+          _building_id: string
+          _role: Database["public"]["Enums"]["app_role_v2"]
+          _uid: string
+        }
         Returns: boolean
       }
-      has_role:
-        | {
-            Args: {
-              _role: Database["public"]["Enums"]["app_role"]
-              _user_id: string
-            }
-            Returns: boolean
-          }
-        | { Args: { _role: string; _user_id: string }; Returns: boolean }
-      is_admin: { Args: { _user_id: string }; Returns: boolean }
-      is_admin_or_manager: { Args: { _user_id: string }; Returns: boolean }
-      is_building_admin: {
-        Args: { _building_id: string; _user_id: string }
+      is_board_or_admin: {
+        Args: { _building_id: string; _uid: string }
         Returns: boolean
       }
-      is_building_admin_or_manager: {
-        Args: { _building_id: string; _user_id: string }
-        Returns: boolean
-      }
-      is_superadmin: { Args: { _user_id: string }; Returns: boolean }
-      manager_has_building_access: {
-        Args: { _building_id: string; _user_id: string }
-        Returns: boolean
-      }
-      refresh_recurring_alerts: { Args: never; Returns: undefined }
-      user_has_building_access: {
-        Args: { _building_id: string; _user_id: string }
-        Returns: boolean
-      }
-      user_manages_building: {
-        Args: { _building_id: string; _user_id: string }
-        Returns: boolean
-      }
-      user_manages_resident: {
-        Args: { _resident_id: string; _user_id: string }
-        Returns: boolean
-      }
-      user_manages_unit: {
-        Args: { _unit_id: string; _user_id: string }
-        Returns: boolean
-      }
+      is_platform_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "resident" | "manager" | "admin" | "superadmin"
+      app_role_v2: "platform_admin" | "admin_board" | "manager" | "resident"
+      building_tier: "starter" | "growth" | "pro" | "developer"
       guest_status: "scheduled" | "expired" | "revoked"
       payment_status: "pending" | "paid" | "overdue" | "cancelled"
       payment_type: "rental" | "maintenance" | "utilities" | "other"
@@ -1282,7 +323,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["resident", "manager", "admin", "superadmin"],
+      app_role_v2: ["platform_admin", "admin_board", "manager", "resident"],
+      building_tier: ["starter", "growth", "pro", "developer"],
       guest_status: ["scheduled", "expired", "revoked"],
       payment_status: ["pending", "paid", "overdue", "cancelled"],
       payment_type: ["rental", "maintenance", "utilities", "other"],
