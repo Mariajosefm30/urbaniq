@@ -54,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
+        setLoading(true);
         setTimeout(() => loadMemberships(s.user.id).finally(() => setLoading(false)), 0);
       } else {
         setMemberships([]);
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
+        setLoading(true);
         loadMemberships(s.user.id).finally(() => setLoading(false));
       } else {
         setLoading(false);
