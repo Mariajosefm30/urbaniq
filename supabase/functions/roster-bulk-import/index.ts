@@ -7,10 +7,10 @@ const corsHeaders = {
 
 interface Row {
   unit: string;
-  resident_name?: string;
+  role: string;
+  name?: string;
   email: string;
   phone?: string;
-  type?: string;
 }
 
 Deno.serve(async (req) => {
@@ -39,14 +39,19 @@ Deno.serve(async (req) => {
     if (!isPlatformAdmin && !isBoardHere) return json({ ok: false, error: 'Sin permiso' }, 403);
 
     const appUrl = (Deno.env.get('APP_URL') || '').replace(/\/+$/, '');
-
     const results: Array<{ row: number; ok: boolean; error?: string; activation_url?: string; email: string }> = [];
 
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
       try {
-        if (!r.unit || !r.email) { results.push({ row: i, ok: false, error: 'unit y email requeridos', email: r.email ?? '' }); continue; }
-        if (r.type && !['owner','tenant'].includes(r.type)) { results.push({ row: i, ok: false, error: 'type inválido', email: r.email }); continue; }
+        if (!r.unit || !r.email || !r.role) {
+          results.push({ row: i, ok: false, error: 'unit, role y email requeridos', email: r.email ?? '' });
+          continue;
+        }
+        if (!['owner', 'tenant'].includes(r.role)) {
+          results.push({ row: i, ok: false, error: 'role debe ser owner|tenant', email: r.email });
+          continue;
+        }
 
         // upsert unit
         const { data: existingUnit } = await admin.from('units')
@@ -59,19 +64,22 @@ Deno.serve(async (req) => {
           unitId = created.id;
         }
 
-        // dedupe: existing active membership or pending invite
-        const { data: existingInvite } = await admin.from('invites')
-          .select('id').eq('building_id', building_id).ilike('email', r.email).is('accepted_at', null).maybeSingle();
-        if (existingInvite) { results.push({ row: i, ok: false, error: 'ya existe invitación pendiente', email: r.email }); continue; }
+        // slot already filled?
+        const { data: activeSlot } = await admin.from('memberships')
+          .select('id').eq('building_id', building_id).eq('unit_id', unitId).eq('resident_type', r.role).maybeSingle();
+        if (activeSlot) { results.push({ row: i, ok: false, error: `ya hay un ${r.role} activo en ${r.unit}`, email: r.email }); continue; }
+        const { data: pendingSlot } = await admin.from('invites')
+          .select('id').eq('building_id', building_id).eq('unit_id', unitId).eq('resident_type', r.role).is('accepted_at', null).maybeSingle();
+        if (pendingSlot) { results.push({ row: i, ok: false, error: `ya hay una invitación pendiente de ${r.role} para ${r.unit}`, email: r.email }); continue; }
 
         const { data: invite, error: insErr } = await admin.from('invites').insert({
           email: r.email,
           role: 'resident',
           building_id,
           unit_id: unitId,
-          resident_name: r.resident_name ?? null,
+          resident_name: r.name ?? null,
           phone: r.phone ?? null,
-          resident_type: r.type ?? null,
+          resident_type: r.role,
           invited_by: user.id,
         }).select('token').single();
         if (insErr || !invite) { results.push({ row: i, ok: false, error: insErr?.message ?? 'no se creó invitación', email: r.email }); continue; }

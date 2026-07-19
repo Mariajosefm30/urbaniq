@@ -10,23 +10,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Upload, Copy, Loader2 } from "lucide-react";
 
-interface Row { unit: string; resident_name?: string; email: string; phone?: string; type?: string; }
+interface Row { unit: string; role: string; name?: string; email: string; phone?: string; }
 interface ParsedRow extends Row { _row: number; _errors: string[]; _include: boolean; }
 
-const HEADERS = ["unit", "resident_name", "email", "phone", "type"];
+const HEADERS = ["unit", "role", "name", "email", "phone"];
 
 function validate(rows: Row[]): ParsedRow[] {
-  const seen = new Set<string>();
+  const slotSeen = new Set<string>();
   return rows.map((r, i) => {
     const errors: string[] = [];
     if (!r.unit) errors.push("unit requerido");
     if (!r.email) errors.push("email requerido");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)) errors.push("email inválido");
-    if (r.type && !["owner", "tenant"].includes(r.type)) errors.push("type debe ser owner|tenant");
-    const key = `${r.unit}|${(r.email || "").toLowerCase()}`;
-    if (r.unit && r.email) {
-      if (seen.has(key)) errors.push("duplicado en archivo");
-      seen.add(key);
+    if (!r.role) errors.push("role requerido (owner|tenant)");
+    else if (!["owner", "tenant"].includes(r.role)) errors.push("role debe ser owner|tenant");
+    const slot = `${r.unit}|${r.role}`;
+    if (r.unit && r.role) {
+      if (slotSeen.has(slot)) errors.push(`ya hay un ${r.role} para ${r.unit} en el archivo`);
+      slotSeen.add(slot);
     }
     return { ...r, _row: i + 2, _errors: errors, _include: errors.length === 0 };
   });
@@ -40,7 +41,7 @@ export function BulkImport({ buildingId, onDone }: { buildingId: string; onDone:
   const [report, setReport] = useState<{ created: number; failed: number; results: any[] } | null>(null);
 
   const downloadTemplate = () => {
-    const csv = "unit,resident_name,email,phone,type\n4B,Ana Torres,ana@example.com,+51999999999,owner\n";
+    const csv = "unit,role,name,email,phone\n4B,owner,Ana Torres,ana@example.com,+51999999999\n4B,tenant,Luis Perez,luis@example.com,+51988888888\n";
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -63,10 +64,10 @@ export function BulkImport({ buildingId, onDone }: { buildingId: string; onDone:
     }
     const rows: Row[] = raw.map((r) => ({
       unit: String(r.unit ?? "").trim(),
-      resident_name: String(r.resident_name ?? "").trim() || undefined,
+      role: String(r.role ?? r.type ?? "").trim().toLowerCase(),
+      name: String(r.name ?? r.resident_name ?? "").trim() || undefined,
       email: String(r.email ?? "").trim(),
       phone: String(r.phone ?? "").trim() || undefined,
-      type: String(r.type ?? "").trim().toLowerCase() || undefined,
     }));
     setPreview(validate(rows));
   };
@@ -94,12 +95,12 @@ export function BulkImport({ buildingId, onDone }: { buildingId: string; onDone:
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div>
-          <CardTitle>Importar residentes (CSV o Excel)</CardTitle>
-          <CardDescription>Columnas: {HEADERS.join(", ")}. Descarga la plantilla como referencia.</CardDescription>
+          <CardTitle>Importar unidades y residentes</CardTitle>
+          <CardDescription>Un solo archivo (CSV o Excel). Columnas: {HEADERS.join(", ")}. Una fila por persona (owner o tenant).</CardDescription>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <Button variant="outline" size="sm" onClick={downloadTemplate}><Download className="h-4 w-4 mr-1" /> Plantilla</Button>
           <Button size="sm" onClick={() => fileRef.current?.click()}><Upload className="h-4 w-4 mr-1" /> Elegir archivo</Button>
           <input ref={fileRef} type="file" accept=".csv,.xlsx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
@@ -114,11 +115,11 @@ export function BulkImport({ buildingId, onDone }: { buildingId: string; onDone:
                   <TableRow>
                     <TableHead className="w-10"></TableHead>
                     <TableHead>Fila</TableHead>
-                    <TableHead>Unit</TableHead>
+                    <TableHead>Unidad</TableHead>
+                    <TableHead>Rol</TableHead>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Teléfono</TableHead>
-                    <TableHead>Tipo</TableHead>
                     <TableHead>Estado</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -131,10 +132,10 @@ export function BulkImport({ buildingId, onDone }: { buildingId: string; onDone:
                       </TableCell>
                       <TableCell>{r._row}</TableCell>
                       <TableCell>{r.unit}</TableCell>
-                      <TableCell>{r.resident_name}</TableCell>
+                      <TableCell>{r.role}</TableCell>
+                      <TableCell>{r.name}</TableCell>
                       <TableCell>{r.email}</TableCell>
                       <TableCell>{r.phone}</TableCell>
-                      <TableCell>{r.type}</TableCell>
                       <TableCell>
                         {r._errors.length === 0
                           ? <Badge variant="secondary">Listo</Badge>
