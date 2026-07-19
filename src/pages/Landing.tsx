@@ -135,18 +135,6 @@ export default function Landing() {
             Diseñado para edificios y condominios en Perú, desde 10 hasta más de 100 departamentos.
           </p>
           
-          {inviteOnly && (
-            <div className="max-w-md mx-auto space-y-3">
-              <p className="text-sm text-muted-foreground">¿Tienes un código de invitación?</p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ingresa el código de invitación"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
