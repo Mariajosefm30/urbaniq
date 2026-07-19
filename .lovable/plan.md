@@ -1,82 +1,96 @@
-# Rebuild: Roles, Access & Tiers (Starter only)
+# Building setup, roster & Starter data foundations
 
-## 1. Database — new clean schema (wipe old)
+Scope: Starter tier only. Build the schema + admin/roster UI now. Feed/tickets/guests/payments/analytics screens come in the next prompt — this pass creates the tables, RLS, and gating hooks so those screens can plug in.
 
-New tables in `public`:
+## 1. Schema (single migration)
 
-- **buildings** — `id, name, tier (starter|growth|pro|developer, default starter), address, created_at, updated_at`
-- **units** — `id, building_id → buildings, code (e.g. "4B"), created_at`, unique(building_id, code)
-- **memberships** — `id, user_id → auth.users, building_id → buildings, role (platform_admin|admin_board|manager|resident), unit_id → units (nullable, required for resident), created_at`, unique(user_id, building_id, role)
-- **invites** — `id, email, building_id (nullable for platform_admin), role, unit_id (nullable), token (unique), expires_at, accepted_at, invited_by, created_at`
+New per-building app tables, all with `building_id` FK, RLS on, and `service_role` + scoped `authenticated` grants.
 
-Enum `app_role_v2`: platform_admin, admin_board, manager, resident.
+- **posts** — `building_id, author_id (auth.users), body, pinned bool, created_at`
+- **tickets** — `building_id, unit_id, created_by, title, description, status (open|closed), created_at, updated_at`
+- **visits** — `building_id, unit_id, host_id, guest_name, expected_at, status (expected|arrived|left), created_at`
+- **charges** — `building_id, unit_id, concept, amount numeric, due_date date, period text, status (pending|paid), created_at, updated_at`
 
-Security-definer helpers:
-- `has_platform_admin(uid)` — true if user has platform_admin membership (no building scope needed).
-- `has_building_role(uid, building_id, role)` — checks memberships.
-- `user_buildings(uid)` — set of building_ids the user belongs to.
-- Feature-gate helper `building_has_feature(building_id, feature_key)` — maps tier → allowed features.
+Enums added: `post_visibility` not needed; reuse existing `ticket_status` (extend to include `closed` if missing — currently open/in_progress/resolved, add `closed`), add `visit_status`, keep existing `payment_status`.
 
-RLS: every table locked; policies use the helpers. Residents only see their own unit's data (tickets, payments, guests filed under their unit_id).
+RLS pattern per table:
+- `admin_board`/`platform_admin`/`manager` of that building: full read/write via `is_board_or_admin`.
+- `resident`: read building-wide for posts; own-unit only for tickets/visits/charges (`unit_id = membership.unit_id`), insert with `created_by/host_id = auth.uid()` and unit matching their membership.
 
-Wipe: drop old role tables/data (`user_roles`, `building_memberships`, `pending_admins`, `pending_residents`, `manager_buildings`, `buildings_new`, `units`, `profiles` role/org columns). Truncate app data (tickets, guests, payments, amenities, bookings, feed_posts, messages) since we're starting clean. `auth.users` is truncated too so no orphan accounts remain.
+Helper: `current_user_unit(_building_id)` security-definer returning the resident's unit_id for that building — used in resident RLS.
 
-Seed: insert one **invite** row for `mfernandezmelgar@gmail.com` role=platform_admin, no building. On first login the user opens the activation link, sets a password, and the trigger promotes them.
+Feature gating enforcement stays in code (tier check) — RLS enforces role/scope only. Add `building_has_feature(_building_id, _feature text)` security-definer that reads `buildings.tier` and matches against the Starter feature list, for future server-side gating. Not wired into the Starter policies (Starter allows everything below).
 
-Trigger `handle_new_user_v2` on `auth.users`: match by email in `invites` where `accepted_at is null` → create membership(s), mark accepted. If no invite exists → block (delete the auth user or leave orphan with no membership so route guards send them nowhere).
+## 2. Building creation & seat handover (Platform Admin)
 
-## 2. Auth & routing
+`src/pages/PlatformAdmin.tsx` gets:
+- **Create Building** form: name, tier (default starter), address.
+- Buildings list with tier badge, unit count, admin_board seat status (filled/pending/empty vs cap).
+- **Invite admin_board** action per building → calls existing `create-invite` (already enforces seat cap).
+- **Reassign admin_board seat**: opens a dialog to (a) revoke current admin_board membership (delete row — building data untouched, all FKs point to `building_id`) and (b) create a new invite. Confirms with a warning listing what stays.
+- Copy activation link for any pending invite.
 
-- **Remove public sign-up.** `/auth` shows Login only. Signup form is gone.
-- New page `/activate?token=…` — validates invite token, asks for password, calls `supabase.auth.signUp` (or admin API via edge fn) using the invite email, then routes by role.
-- Route guards rewritten around memberships (not the old `profiles.role`):
-  - `platform_admin` → `/platform` (list buildings, invite admin_board, view everything)
-  - `admin_board` → `/board` (their building's dashboard; invite residents, manage units, see tickets/payments/guests/feed, basic analytics)
-  - `manager` → `/manager` (hidden in Starter — no seats)
-  - `resident` → `/app` (feed, own tickets, own guests, own payments)
-- Every route checks: user is authenticated AND has a membership that grants access AND (for building-scoped routes) the building's tier includes the feature.
+Seat cap logic already in `create-invite`; extend it to also count invites for reassignment properly (revoke pending invites when reassigning).
 
-## 3. Tier / seat / feature gating
+## 3. Units & Residents roster (Admin Board / Platform Admin)
 
-- `TIER_FEATURES` map in `src/lib/tiers.ts`: starter = `['feed','tickets_basic','guests','payments_tracking','analytics_basic']`. Higher tiers listed but empty in UI.
-- `TIER_SEATS` map: starter = 1 admin_board seat, growth=3, pro=10, developer=null.
-- `<FeatureGate feature="…">` wrapper hides UI; server-side policies double-check.
-- Invite flow for admin_board enforces seat cap per building.
+New page `src/pages/BuildingRoster.tsx` at `/board/:buildingId/roster`, linked from `BoardHome`.
 
-## 4. UI cleanup for Starter-only
+Two tabs:
+- **Units** — list, add single unit (code), edit code, delete. Delete blocked with warning if any active resident membership references that unit; must reassign/remove first.
+- **Residents** — list of resident memberships + pending resident invites. Columns: name (from auth metadata if activated, else invite email), email, unit, status (active|pending), phone (stored on invite/membership metadata — see below), type (owner|tenant).
+  - Edit: unit reassignment, name, phone, type.
+  - Delete: revokes membership (or pending invite). Keeps building history intact (tickets/visits/charges keep `unit_id`; `created_by` remains as auth user id).
+  - Add single resident: email, unit (create if missing), name, phone, type → creates invite.
 
-Keep code for amenities, bookings, advanced messaging, manager screens, but:
-- Hide from nav via `FeatureGate`.
-- Block routes via guard when tier < required.
-- Existing MCP tools stay but each checks membership + feature gate per call.
+### Schema additions for roster
+- `invites` gets: `resident_name text`, `phone text`, `resident_type text` (owner|tenant, nullable).
+- `memberships` gets: `resident_name text`, `phone text`, `resident_type text` (nullable, only meaningful for residents).
+- `handle_new_user_v2` copies these fields from invite → membership on activation.
+
+### Bulk import (CSV + XLSX)
+- New component `src/components/roster/BulkImport.tsx`.
+- Template download button generates a CSV with headers `unit, resident_name, email, phone, type` and one example row. Same headers accepted in `.xlsx`.
+- Parse client-side: `papaparse` for CSV, `xlsx` (SheetJS) for Excel. Add both to package.json.
+- Preview table with per-row status: ok / error (missing required field, invalid email, duplicate unit within file, unit already exists with different resident conflict). Row errors do NOT block the whole import — user can uncheck bad rows and commit the good ones.
+- Commit → calls new edge function `roster-bulk-import` which, in a single transactional loop per row:
+  1. upsert unit by (building_id, code)
+  2. insert an invite (role=resident, building_id, unit_id, email, resident_name, phone, resident_type) — skip if an active membership or pending invite already exists for that email in this building.
+  3. return per-row result.
+- UI shows final report (created / skipped / failed with reason) and offers "Copy all activation links" for the created invites.
+
+## 4. Tier gating scaffolding
+
+- `src/components/FeatureGate.tsx` — hides children unless the current building's tier includes the feature (uses `tierHasFeature` from existing `src/lib/tiers.ts`).
+- `src/hooks/useBuilding.ts` — fetches building row (tier) + caches; used by gates and headers.
+- Seat cap constants stay in `src/lib/tiers.ts`; `create-invite` already reads them.
 
 ## 5. Files
 
 **New**
-- `supabase/migrations/<ts>_rebuild_roles.sql` — schema wipe + new tables + RLS + trigger + seed invite.
-- `src/pages/Activate.tsx` — token → set password → login.
-- `src/pages/PlatformAdmin.tsx` — replaces `Superadmin.tsx`.
-- `src/pages/BoardHome.tsx` — replaces admin hub.
-- `src/pages/ResidentHome.tsx` — replaces `Feed.tsx` as entry.
-- `src/lib/tiers.ts`, `src/components/FeatureGate.tsx`.
-- `src/hooks/useMemberships.ts`.
+- `supabase/migrations/<ts>_starter_foundations.sql` — schema, enums, RLS, helpers, invite/membership column additions.
+- `supabase/functions/roster-bulk-import/index.ts` + config.toml entry (`verify_jwt = true`).
+- `src/pages/BuildingRoster.tsx`
+- `src/components/roster/UnitsTable.tsx`
+- `src/components/roster/ResidentsTable.tsx`
+- `src/components/roster/BulkImport.tsx`
+- `src/components/roster/InviteResidentDialog.tsx`
+- `src/components/platform/CreateBuildingDialog.tsx`
+- `src/components/platform/ReassignSeatDialog.tsx`
+- `src/components/FeatureGate.tsx`
+- `src/hooks/useBuilding.ts`
 
 **Edited**
-- `src/App.tsx` — new routes, drop `/onboarding`, `/admin/setup`, `/admin/onboarding`.
-- `src/pages/Auth.tsx` — login only, no signup toggle.
-- `src/components/ProtectedRoute.tsx` — membership-based guards.
-- `src/contexts/AuthContext.tsx` + `SessionContext.tsx` — load memberships instead of single role.
-- `supabase/functions/whoami/index.ts` — return memberships array + tier per building.
-- `supabase/functions/invite-*` — one unified `create-invite` edge function returning copyable link.
-- Nav components — filter by tier.
+- `src/pages/PlatformAdmin.tsx` — building creation, seat status, reassignment.
+- `src/pages/BoardHome.tsx` — link to `/board/:buildingId/roster`, tier badge.
+- `src/App.tsx` — add `/board/:buildingId/roster` route.
+- `supabase/functions/create-invite/index.ts` — accept `resident_name`, `phone`, `resident_type`; on reassignment path revoke prior pending invites.
+- `package.json` — add `papaparse`, `@types/papaparse`, `xlsx`.
 
-**Deleted / disabled**
-- `Onboarding.tsx`, `AdminSetup.tsx`, `AdminOnboarding.tsx` route registrations.
-- Old `pending_admins`/`pending_residents` tables and their edge functions.
+## 6. Deferrals / assumptions to confirm after build
 
-## 6. Seed activation
-
-After migration runs, I'll print the activation URL for `mfernandezmelgar@gmail.com` in the migration output (or you can grab it from the `invites` table). You open it, set a password, and you're in as platform_admin.
-
-## Open question
-The activation link needs a password chosen by you — no password required upfront. Confirm and I'll ship.
+- Feed/tickets/visits/charges/analytics **UI screens** are next prompt — this pass only creates their tables + policies.
+- No email sending; activation is still copy-link (matches current setup).
+- Phone/type live on `memberships` and `invites` directly (no separate `resident_profiles` table) to keep Starter simple.
+- "Manager" role has no seats in Starter but policies already grant it building access if one exists — Starter UI won't expose creating them.
+- Delete = hard delete for units (blocked while residents attached) and for resident memberships/invites; building-level history rows keep raw `unit_id`/`created_by` even if those are later deleted (FKs use `ON DELETE SET NULL` for `unit_id` on tickets/visits/charges).
