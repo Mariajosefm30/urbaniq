@@ -44,8 +44,9 @@ export function ResidentsTable({
 
   const remove = async (r: ResidentRow) => {
     if (!confirm(`¿Eliminar a ${r.email}? El historial del edificio se conserva.`)) return;
-    const table = r.kind === "invite" ? "invites" : "memberships";
-    const { error } = await supabase.from(table).delete().eq("id", r.id);
+    const { error } = r.kind === "invite"
+      ? await supabase.from("invites").delete().eq("id", r.id)
+      : await supabase.from("memberships").delete().eq("id", r.id);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     onChange();
   };
