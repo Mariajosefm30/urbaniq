@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSession } from "@/contexts/SessionContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,54 +13,17 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { user } = useAuth();
-  const { session, loading } = useSession();
-  const [inviteCode, setInviteCode] = useState("");
+  const { user, loading } = useAuth();
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
-  const [demoFormData, setDemoFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    message: "",
-  });
+  const [demoFormData, setDemoFormData] = useState({ name: "", email: "", company: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
-  
-  const inviteOnly = false;
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (!loading && user) navigate("/home");
+  }, [user, loading, navigate]);
 
-    if (user.email === "mfernandezmelgar@gmail.com") {
-      navigate("/admin");
-      return;
-    }
-    if (user.email === "manager@test.com") {
-      navigate("/manager");
-      return;
-    }
-    if (user.email === "mariajof@tepper.cmu.edu") {
-      navigate("/feed");
-      return;
-    }
-
-    if (session?.role === "admin") {
-      navigate("/admin");
-    } else if (session?.role === "manager") {
-      navigate("/manager");
-    } else if (session?.role === "resident") {
-      navigate("/feed");
-    }
-  }, [user, session, loading, navigate]);
-
-  const handleGetStarted = () => {
-    if (inviteOnly && inviteCode) {
-      navigate(`/auth?code=${inviteCode}`);
-    } else {
-      navigate("/auth");
-    }
-  };
+  const handleGetStarted = () => navigate("/auth");
 
   const handleBookDemo = () => {
     setDemoDialogOpen(true);
@@ -173,18 +135,6 @@ export default function Landing() {
             Diseñado para edificios y condominios en Perú, desde 10 hasta más de 100 departamentos.
           </p>
           
-          {inviteOnly && (
-            <div className="max-w-md mx-auto space-y-3">
-              <p className="text-sm text-muted-foreground">¿Tienes un código de invitación?</p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ingresa el código de invitación"
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>

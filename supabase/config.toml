@@ -1,22 +1,10 @@
 project_id = "nlkrylgakpugonsvnycj"
 
-[functions.create-guest-pass]
-verify_jwt = true
-
-[functions.verify-guest-pass]
-verify_jwt = false
-
 [functions.whoami]
 verify_jwt = false
 
-[functions.suggest-technicians]
-verify_jwt = true
-
-[functions.validate-ticket]
-verify_jwt = true
-
-[functions.generate-demo-code]
-verify_jwt = true
-
-[functions.verify-guest-static]
+[functions.activate-invite]
 verify_jwt = false
+
+[functions.create-invite]
+verify_jwt = true
