@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSession } from "@/contexts/SessionContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,54 +13,17 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { user } = useAuth();
-  const { session, loading } = useSession();
-  const [inviteCode, setInviteCode] = useState("");
+  const { user, loading } = useAuth();
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
-  const [demoFormData, setDemoFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    message: "",
-  });
+  const [demoFormData, setDemoFormData] = useState({ name: "", email: "", company: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
-  
-  const inviteOnly = false;
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (!loading && user) navigate("/home");
+  }, [user, loading, navigate]);
 
-    if (user.email === "mfernandezmelgar@gmail.com") {
-      navigate("/admin");
-      return;
-    }
-    if (user.email === "manager@test.com") {
-      navigate("/manager");
-      return;
-    }
-    if (user.email === "mariajof@tepper.cmu.edu") {
-      navigate("/feed");
-      return;
-    }
-
-    if (session?.role === "admin") {
-      navigate("/admin");
-    } else if (session?.role === "manager") {
-      navigate("/manager");
-    } else if (session?.role === "resident") {
-      navigate("/feed");
-    }
-  }, [user, session, loading, navigate]);
-
-  const handleGetStarted = () => {
-    if (inviteOnly && inviteCode) {
-      navigate(`/auth?code=${inviteCode}`);
-    } else {
-      navigate("/auth");
-    }
-  };
+  const handleGetStarted = () => navigate("/auth");
 
   const handleBookDemo = () => {
     setDemoDialogOpen(true);
