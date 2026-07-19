@@ -8,10 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Building2, LogOut, ArrowLeft } from "lucide-react";
 import { TIER_FEATURES, TIER_LABELS, type Tier, type Feature } from "@/lib/tiers";
-import { UnitsTable, type Unit } from "@/components/roster/UnitsTable";
-import { ResidentsTable, type ResidentRow } from "@/components/roster/ResidentsTable";
-import { InviteResidentDialog } from "@/components/roster/InviteResidentDialog";
+import type { Unit } from "@/components/roster/UnitsTable";
+import type { ResidentRow } from "@/components/roster/ResidentsTable";
+import { UnitRoster } from "@/components/roster/UnitRoster";
 import { BulkImport } from "@/components/roster/BulkImport";
+import { NotificationsBell } from "@/components/NotificationsBell";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -27,7 +28,6 @@ export default function BoardHome() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0 });
-  const [inviteOpen, setInviteOpen] = useState(false);
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
 
   const myMembership = memberships.find((m) => m.building_id === buildingId);
@@ -53,10 +53,8 @@ export default function BoardHome() {
         type: i.resident_type, unit_id: i.unit_id, status: "pending" as const, token: i.token,
       })),
     ];
-    // resolve emails for memberships from auth is not accessible; leave as user_id placeholder
     setResidents(rows);
 
-    // analytics
     const [tk, vs, ch] = await Promise.all([
       supabase.from("tickets").select("id, status", { count: "exact" }).eq("building_id", buildingId),
       supabase.from("visits").select("id, expected_at", { count: "exact" }).eq("building_id", buildingId).eq("status", "expected"),
@@ -73,12 +71,6 @@ export default function BoardHome() {
   };
 
   useEffect(() => { if (buildingId) load(); }, [buildingId]);
-
-  const residentCountByUnit = useMemo(() => {
-    const m: Record<string, number> = {};
-    for (const r of residents) if (r.unit_id) m[r.unit_id] = (m[r.unit_id] ?? 0) + 1;
-    return m;
-  }, [residents]);
 
   if (!building) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Cargando...</div>;
 
@@ -101,14 +93,17 @@ export default function BoardHome() {
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4 mr-2" /> Salir</Button>
+          <div className="flex items-center gap-1">
+            <NotificationsBell />
+            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4 mr-2" /> Salir</Button>
+          </div>
         </div>
       </header>
 
       <main className="container py-8">
         <Tabs defaultValue="roster">
           <TabsList>
-            <TabsTrigger value="roster">Personas y unidades</TabsTrigger>
+            <TabsTrigger value="roster">Unidades y residentes</TabsTrigger>
             {has("feed") && <TabsTrigger value="feed">Live Feed</TabsTrigger>}
             {has("tickets_basic") && <TabsTrigger value="tickets">Tickets</TabsTrigger>}
             {has("guests") && <TabsTrigger value="guests">Visitas</TabsTrigger>}
@@ -119,22 +114,20 @@ export default function BoardHome() {
           <TabsContent value="roster" className="space-y-6 pt-4">
             {isBoard ? (
               <>
-                <Card>
-                  <CardHeader><CardTitle>Unidades</CardTitle><CardDescription>Crea y edita las unidades del edificio.</CardDescription></CardHeader>
-                  <CardContent>
-                    <UnitsTable units={units} buildingId={buildingId} residentCountByUnit={residentCountByUnit} onChange={load} />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader><CardTitle>Residentes</CardTitle><CardDescription>Invita, edita o elimina residentes.</CardDescription></CardHeader>
-                  <CardContent>
-                    <ResidentsTable rows={residents} units={units} buildingId={buildingId}
-                      onChange={load} onInvite={() => setInviteOpen(true)} />
-                  </CardContent>
-                </Card>
-
                 <BulkImport buildingId={buildingId} onDone={load} />
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Unidades y residentes</CardTitle>
+                    <CardDescription>Cada unidad puede tener un propietario y un inquilino.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <UnitRoster
+                      units={units} residents={residents} buildingId={buildingId}
+                      onChange={load}
+                      onInvited={(url) => setLinkDialog({ open: true, url })}
+                    />
+                  </CardContent>
+                </Card>
               </>
             ) : (
               <Card><CardHeader><CardTitle>Sin permiso</CardTitle><CardDescription>No puedes administrar el roster.</CardDescription></CardHeader></Card>
@@ -160,14 +153,11 @@ export default function BoardHome() {
         </Tabs>
       </main>
 
-      <InviteResidentDialog open={inviteOpen} onOpenChange={setInviteOpen} buildingId={buildingId} units={units}
-        onCreated={(url) => { setLinkDialog({ open: true, url }); load(); }} />
-
       <Dialog open={linkDialog.open} onOpenChange={(o) => setLinkDialog({ ...linkDialog, open: o })}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Enlace de activación</DialogTitle>
-            <DialogDescription>Compártelo con el residente. Es de un solo uso.</DialogDescription>
+            <DialogDescription>Compártelo con la persona. Es de un solo uso.</DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
             <Input readOnly value={linkDialog.url} />
