@@ -111,11 +111,8 @@ export default function Landing() {
             <span className="text-xl font-bold">PropPass</span>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => navigate("/auth?mode=signin")} variant="outline">
+            <Button onClick={() => navigate("/auth")} variant="outline">
               Iniciar Sesión
-            </Button>
-            <Button onClick={() => navigate("/auth?mode=signup")}>
-              Registrarse
             </Button>
           </div>
         </div>
