@@ -53,14 +53,15 @@ export function ResidentsTable({
   const save = async () => {
     if (!edit) return;
     setBusy(true);
-    const table = edit.kind === "invite" ? "invites" : "memberships";
-    const payload: Record<string, any> = {
+    const payload = {
       unit_id: edit.unit_id,
       resident_name: edit.name,
       phone: edit.phone,
       resident_type: edit.type,
     };
-    const { error } = await supabase.from(table).update(payload).eq("id", edit.id);
+    const { error } = edit.kind === "invite"
+      ? await supabase.from("invites").update(payload).eq("id", edit.id)
+      : await supabase.from("memberships").update(payload).eq("id", edit.id);
     setBusy(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     setEdit(null); onChange();
