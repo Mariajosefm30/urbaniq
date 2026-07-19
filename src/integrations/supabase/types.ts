@@ -41,6 +41,60 @@ export type Database = {
         }
         Relationships: []
       }
+      charges: {
+        Row: {
+          amount: number
+          building_id: string
+          concept: string
+          created_at: string
+          due_date: string | null
+          id: string
+          period: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          building_id: string
+          concept: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          period?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          building_id?: string
+          concept?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          period?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charges_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charges_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invites: {
         Row: {
           accepted_at: string | null
@@ -50,6 +104,9 @@ export type Database = {
           expires_at: string
           id: string
           invited_by: string | null
+          phone: string | null
+          resident_name: string | null
+          resident_type: string | null
           role: Database["public"]["Enums"]["app_role_v2"]
           token: string
           unit_id: string | null
@@ -62,6 +119,9 @@ export type Database = {
           expires_at?: string
           id?: string
           invited_by?: string | null
+          phone?: string | null
+          resident_name?: string | null
+          resident_type?: string | null
           role: Database["public"]["Enums"]["app_role_v2"]
           token?: string
           unit_id?: string | null
@@ -74,6 +134,9 @@ export type Database = {
           expires_at?: string
           id?: string
           invited_by?: string | null
+          phone?: string | null
+          resident_name?: string | null
+          resident_type?: string | null
           role?: Database["public"]["Enums"]["app_role_v2"]
           token?: string
           unit_id?: string | null
@@ -100,6 +163,9 @@ export type Database = {
           building_id: string | null
           created_at: string
           id: string
+          phone: string | null
+          resident_name: string | null
+          resident_type: string | null
           role: Database["public"]["Enums"]["app_role_v2"]
           unit_id: string | null
           user_id: string
@@ -108,6 +174,9 @@ export type Database = {
           building_id?: string | null
           created_at?: string
           id?: string
+          phone?: string | null
+          resident_name?: string | null
+          resident_type?: string | null
           role: Database["public"]["Enums"]["app_role_v2"]
           unit_id?: string | null
           user_id: string
@@ -116,6 +185,9 @@ export type Database = {
           building_id?: string | null
           created_at?: string
           id?: string
+          phone?: string | null
+          resident_name?: string | null
+          resident_type?: string | null
           role?: Database["public"]["Enums"]["app_role_v2"]
           unit_id?: string | null
           user_id?: string
@@ -130,6 +202,92 @@ export type Database = {
           },
           {
             foreignKeyName: "memberships_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at: string
+          id: string
+          pinned: boolean
+        }
+        Insert: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at?: string
+          id?: string
+          pinned?: boolean
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          building_id?: string
+          created_at?: string
+          id?: string
+          pinned?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          building_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          status: Database["public"]["Enums"]["ticket_status"]
+          title: string
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          building_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          title: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          building_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          title?: string
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
@@ -166,11 +324,64 @@ export type Database = {
           },
         ]
       }
+      visits: {
+        Row: {
+          building_id: string
+          created_at: string
+          expected_at: string | null
+          guest_name: string
+          host_id: string
+          id: string
+          status: Database["public"]["Enums"]["visit_status"]
+          unit_id: string | null
+        }
+        Insert: {
+          building_id: string
+          created_at?: string
+          expected_at?: string | null
+          guest_name: string
+          host_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["visit_status"]
+          unit_id?: string | null
+        }
+        Update: {
+          building_id?: string
+          created_at?: string
+          expected_at?: string | null
+          guest_name?: string
+          host_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["visit_status"]
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visits_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visits_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      building_has_feature: {
+        Args: { _building_id: string; _feature: string }
+        Returns: boolean
+      }
+      current_user_unit: { Args: { _building_id: string }; Returns: string }
       has_any_building_access: {
         Args: { _building_id: string; _uid: string }
         Returns: boolean
@@ -195,7 +406,8 @@ export type Database = {
       guest_status: "scheduled" | "expired" | "revoked"
       payment_status: "pending" | "paid" | "overdue" | "cancelled"
       payment_type: "rental" | "maintenance" | "utilities" | "other"
-      ticket_status: "open" | "in_progress" | "resolved"
+      ticket_status: "open" | "in_progress" | "resolved" | "closed"
+      visit_status: "expected" | "arrived" | "left"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -328,7 +540,8 @@ export const Constants = {
       guest_status: ["scheduled", "expired", "revoked"],
       payment_status: ["pending", "paid", "overdue", "cancelled"],
       payment_type: ["rental", "maintenance", "utilities", "other"],
-      ticket_status: ["open", "in_progress", "resolved"],
+      ticket_status: ["open", "in_progress", "resolved", "closed"],
+      visit_status: ["expected", "arrived", "left"],
     },
   },
 } as const
