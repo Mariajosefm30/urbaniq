@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, CheckCircle2, XCircle, Image as ImageIcon } from "lucide-react";
+import { Upload, CheckCircle2, XCircle, Image as ImageIcon, Bell } from "lucide-react";
 
 type Charge = {
   id: string; unit_id: string | null; concept: string; amount: number;
@@ -164,16 +164,18 @@ function CreateChargeDialog({ buildingId, units, open, onOpenChange, onCreated }
 }
 
 // ------------- Board Payments panel -------------
-export function PaymentsBoardPanel({ buildingId }: { buildingId: string }) {
+export function PaymentsBoardPanel({ buildingId, canRemind = false }: { buildingId: string; canRemind?: boolean }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [building, setBuilding] = useState<Building | null>(null);
   const [charges, setCharges] = useState<Charge[]>([]);
   const [units, setUnits] = useState<{ id: string; code: string }[]>([]);
+  const [reminders, setReminders] = useState<Record<string, { id: string; sent_at: string; sent_by: string | null; sender_name?: string }[]>>({});
   const [createOpen, setCreateOpen] = useState(false);
   const [reviewing, setReviewing] = useState<Charge | null>(null);
   const [proofUrl, setProofUrl] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [remindingId, setRemindingId] = useState<string | null>(null);
 
   const load = async () => {
     const [{ data: b }, { data: c }, { data: u }] = await Promise.all([
@@ -188,9 +190,30 @@ export function PaymentsBoardPanel({ buildingId }: { buildingId: string }) {
     const uMap = new Map(uList.map((x) => [x.id, x.code]));
     rows.forEach((r) => { r.unit_code = r.unit_id ? uMap.get(r.unit_id) : undefined; });
     setCharges(rows);
+
+    if (canRemind && rows.length) {
+      const { data: rr } = await supabase.from("charge_reminders")
+        .select("id, charge_id, sent_at, sent_by")
+        .in("charge_id", rows.map((r) => r.id))
+        .order("sent_at", { ascending: false });
+      const senderIds = Array.from(new Set(((rr ?? []) as any[]).map((r) => r.sent_by).filter(Boolean)));
+      const nMap = new Map<string, string>();
+      if (senderIds.length) {
+        const { data: ms } = await supabase.from("memberships").select("user_id, resident_name, role").in("user_id", senderIds);
+        (ms ?? []).forEach((m: any) => { if (!nMap.has(m.user_id)) nMap.set(m.user_id, m.resident_name || (m.role === "admin_board" ? "Administración" : "Manager")); });
+      }
+      const grouped: Record<string, any[]> = {};
+      ((rr ?? []) as any[]).forEach((r) => {
+        (grouped[r.charge_id] ||= []).push({ ...r, sender_name: r.sent_by ? nMap.get(r.sent_by) || "Usuario" : "Sistema" });
+      });
+      setReminders(grouped);
+    } else {
+      setReminders({});
+    }
   };
 
-  useEffect(() => { load(); }, [buildingId]);
+  useEffect(() => { load(); }, [buildingId, canRemind]);
+
 
   useEffect(() => {
     if (reviewing?.proof_url) signedUrl(reviewing.proof_url, "payment-receipts").then(setProofUrl);
@@ -224,6 +247,33 @@ export function PaymentsBoardPanel({ buildingId }: { buildingId: string }) {
     else load();
   };
 
+  const sendReminder = async (c: Charge) => {
+    if (!user) return;
+    setRemindingId(c.id);
+    // find owner(s) of the unit
+    const { data: owners } = await supabase
+      .from("memberships")
+      .select("user_id, resident_name")
+      .eq("building_id", buildingId)
+      .eq("unit_id", c.unit_id!)
+      .eq("resident_type", "owner")
+      .is("revoked_at", null);
+    const { error } = await supabase.from("charge_reminders").insert({
+      charge_id: c.id, building_id: buildingId, sent_by: user.id,
+    });
+    if (!error && owners && owners.length) {
+      await supabase.from("notifications").insert(
+        owners.map((o: any) => ({
+          user_id: o.user_id, building_id: buildingId, kind: "payment_reminder",
+          payload: { charge_id: c.id, concept: c.concept, amount: c.amount, currency: c.currency, unit: c.unit_code },
+        }))
+      );
+    }
+    setRemindingId(null);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Recordatorio enviado" }); load(); }
+  };
+
   if (!building) return null;
 
   return (
@@ -243,31 +293,50 @@ export function PaymentsBoardPanel({ buildingId }: { buildingId: string }) {
           <div className="space-y-2">
             {charges.map((c) => {
               const meta = STATUS_META[c.status] ?? { label: c.status, variant: "outline" as const };
+              const overdue = c.status !== "paid" && c.status !== "pagado" && c.due_date && new Date(c.due_date) < new Date();
+              const pendingLike = c.status === "pending" || c.status === "pendiente" || c.status === "overdue" || overdue;
+              const list = reminders[c.id] || [];
+              const last = list[0];
               return (
-                <div key={c.id} className="flex items-center justify-between gap-3 border rounded-lg p-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">{c.concept}</span>
-                      <Badge variant={meta.variant}>{meta.label}</Badge>
-                      {c.unit_code && <Badge variant="outline">Unidad {c.unit_code}</Badge>}
-                      {c.period && <Badge variant="outline">{c.period}</Badge>}
+                <div key={c.id} className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium">{c.concept}</span>
+                        <Badge variant={meta.variant}>{meta.label}</Badge>
+                        {c.unit_code && <Badge variant="outline">Unidad {c.unit_code}</Badge>}
+                        {c.period && <Badge variant="outline">{c.period}</Badge>}
+                        {overdue && <Badge variant="destructive">Vencido</Badge>}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {fmt(c.amount, c.currency)} {c.due_date && `· Vence ${new Date(c.due_date).toLocaleDateString("es-PE")}`}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {fmt(c.amount, c.currency)} {c.due_date && `· Vence ${new Date(c.due_date).toLocaleDateString("es-PE")}`}
+                    <div className="flex gap-1">
+                      {canRemind && pendingLike && c.unit_id && (
+                        <Button size="sm" variant="outline" disabled={remindingId === c.id} onClick={() => sendReminder(c)}>
+                          <Bell className="h-3 w-3 mr-1" />Recordar
+                        </Button>
+                      )}
+                      {c.proof_url && <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>Revisar</Button>}
+                      {c.status !== "paid" && !c.proof_url && (
+                        <Button size="sm" variant="outline" onClick={() => markPaidDirect(c)}>Marcar pagado</Button>
+                      )}
+                    </div>
+                  </div>
+                  {canRemind && list.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Último recordatorio: {new Date(last.sent_at).toLocaleString("es-PE")} · {last.sender_name}
+                      {list.length > 1 && ` · ${list.length} recordatorios en total`}
                     </p>
-                  </div>
-                  <div className="flex gap-1">
-                    {c.proof_url && <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>Revisar</Button>}
-                    {c.status !== "paid" && !c.proof_url && (
-                      <Button size="sm" variant="outline" onClick={() => markPaidDirect(c)}>Marcar pagado</Button>
-                    )}
-                  </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </CardContent>
       </Card>
+
 
       <CreateChargeDialog buildingId={buildingId} units={units} open={createOpen} onOpenChange={setCreateOpen} onCreated={load} />
 

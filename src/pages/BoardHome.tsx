@@ -34,6 +34,7 @@ export default function BoardHome() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0, avgResolutionHours: 0 });
+  const [ownerUnits, setOwnerUnits] = useState<{ owned: string[]; total: number }>({ owned: [], total: 0 });
   const [securityInvite, setSecurityInvite] = useState<{ open: boolean; email: string; name: string; busy: boolean }>({ open: false, email: "", name: "", busy: false });
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string; email?: string; phone?: string; name?: string }>({ open: false, url: "" });
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -94,9 +95,29 @@ export default function BoardHome() {
       paidCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "paid" || c.status === "pagado").length,
       avgResolutionHours: avgMs ? Math.round((avgMs / 3600000) * 10) / 10 : 0,
     });
+
+    // owners for polls tally
+    const owners = ((mem ?? []) as any[]).filter((m) => m.resident_type === "owner" && m.unit_id);
+    const ownedByMe = owners.filter((m) => m.user_id === user?.id).map((m) => m.unit_id) as string[];
+    const totalOwnerUnits = new Set(owners.map((m) => m.unit_id)).size;
+    setOwnerUnits({ owned: ownedByMe, total: totalOwnerUnits });
   };
 
   useEffect(() => { if (buildingId) load(); }, [buildingId]);
+
+  // Realtime analytics (Growth+): re-fetch on relevant table changes
+  useEffect(() => {
+    if (!buildingId || !building) return;
+    if (!TIER_FEATURES[building.tier].includes("analytics_realtime")) return;
+    const ch = supabase
+      .channel(`board-live-${buildingId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tickets", filter: `building_id=eq.${buildingId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "charges", filter: `building_id=eq.${buildingId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "visits", filter: `building_id=eq.${buildingId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "polls", filter: `building_id=eq.${buildingId}` }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [buildingId, building?.tier]);
 
   if (!building) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Cargando...</div>;
 
@@ -156,10 +177,24 @@ export default function BoardHome() {
             </TabsContent>
           )}
 
-          {has("feed") && canArea("feed") && <TabsContent value="feed" className="pt-4"><FeedPanel buildingId={buildingId} isBoard={true} /></TabsContent>}
-          {has("tickets_basic") && canArea("maintenance") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={true} canCreate={false} /></TabsContent>}
+          {has("feed") && canArea("feed") && (
+            <TabsContent value="feed" className="pt-4">
+              <FeedPanel
+                buildingId={buildingId}
+                isBoard={true}
+                polls={has("polls") ? {
+                  enabled: true,
+                  canCreate: isAdminBoard || (isManager && managerAreas.includes("feed")),
+                  canClose: isAdminBoard || (isManager && managerAreas.includes("feed")),
+                  ownerUnitIds: ownerUnits.owned,
+                  totalOwnerUnits: ownerUnits.total,
+                } : undefined}
+              />
+            </TabsContent>
+          )}
+          {has("tickets_basic") && canArea("maintenance") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={true} canCreate={false} advancedStates={has("tickets_states")} /></TabsContent>}
           {has("guests") && canArea("guests") && <TabsContent value="guests" className="pt-4"><GuestsPanel buildingId={buildingId} isBoard={true} canCreate={false} /></TabsContent>}
-          {has("payments_tracking") && canArea("payments") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} /></TabsContent>}
+          {has("payments_tracking") && canArea("payments") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} canRemind={has("payments_reminders")} /></TabsContent>}
           {isAdminBoard && has("analytics_basic") && (
             <TabsContent value="analytics" className="pt-4">
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">

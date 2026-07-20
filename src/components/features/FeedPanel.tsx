@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Pin, PinOff, Trash2, MessageSquare } from "lucide-react";
+import { PollsSection } from "./PollsSection";
 
 interface Post {
   id: string;
@@ -27,7 +28,11 @@ interface Comment {
   author_name?: string;
 }
 
-export function FeedPanel({ buildingId, isBoard }: { buildingId: string; isBoard: boolean }) {
+export function FeedPanel({ buildingId, isBoard, polls }: {
+  buildingId: string;
+  isBoard: boolean;
+  polls?: { enabled: boolean; canCreate: boolean; canClose: boolean; ownerUnitIds: string[]; totalOwnerUnits: number };
+}) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -145,6 +150,15 @@ export function FeedPanel({ buildingId, isBoard }: { buildingId: string; isBoard
 
   return (
     <div className="space-y-4">
+      {polls?.enabled && (
+        <PollsSection
+          buildingId={buildingId}
+          canCreate={polls.canCreate}
+          canClose={polls.canClose}
+          ownerUnitIds={polls.ownerUnitIds}
+          totalOwnerUnits={polls.totalOwnerUnits}
+        />
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Publicar</CardTitle>

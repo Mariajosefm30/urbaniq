@@ -59,6 +59,51 @@ export type Database = {
         }
         Relationships: []
       }
+      charge_reminders: {
+        Row: {
+          building_id: string
+          channel: string
+          charge_id: string
+          created_at: string
+          id: string
+          note: string | null
+          sent_by: string
+        }
+        Insert: {
+          building_id: string
+          channel?: string
+          charge_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          sent_by: string
+        }
+        Update: {
+          building_id?: string
+          channel?: string
+          charge_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          sent_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charge_reminders_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charge_reminders_charge_id_fkey"
+            columns: ["charge_id"]
+            isOneToOne: false
+            referencedRelation: "charges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       charges: {
         Row: {
           amount: number
@@ -301,6 +346,95 @@ export type Database = {
           },
         ]
       }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_indexes: number[]
+          poll_id: string
+          unit_id: string
+          voter_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_indexes: number[]
+          poll_id: string
+          unit_id: string
+          voter_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_indexes?: number[]
+          poll_id?: string
+          unit_id?: string
+          voter_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          building_id: string
+          closed_at: string | null
+          closed_by: string | null
+          closes_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          multi: boolean
+          options: Json
+          question: string
+        }
+        Insert: {
+          building_id: string
+          closed_at?: string | null
+          closed_by?: string | null
+          closes_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          multi?: boolean
+          options: Json
+          question: string
+        }
+        Update: {
+          building_id?: string
+          closed_at?: string | null
+          closed_by?: string | null
+          closes_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          multi?: boolean
+          options?: Json
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_comments: {
         Row: {
           author_id: string
@@ -434,6 +568,41 @@ export type Database = {
           },
           {
             foreignKeyName: "ticket_comments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          ticket_id: string
+          to_status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          ticket_id: string
+          to_status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          ticket_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_status_history_ticket_id_fkey"
             columns: ["ticket_id"]
             isOneToOne: false
             referencedRelation: "tickets"
@@ -627,7 +796,7 @@ export type Database = {
         | "en_revision"
         | "rechazado"
       payment_type: "rental" | "maintenance" | "utilities" | "other"
-      ticket_status: "open" | "in_progress" | "resolved" | "closed"
+      ticket_status: "open" | "in_progress" | "resolved" | "closed" | "waiting"
       visit_status: "expected" | "arrived" | "left"
     }
     CompositeTypes: {
@@ -774,7 +943,7 @@ export const Constants = {
         "rechazado",
       ],
       payment_type: ["rental", "maintenance", "utilities", "other"],
-      ticket_status: ["open", "in_progress", "resolved", "closed"],
+      ticket_status: ["open", "in_progress", "resolved", "closed", "waiting"],
       visit_status: ["expected", "arrived", "left"],
     },
   },
