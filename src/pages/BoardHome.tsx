@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, LogOut, ArrowLeft } from "lucide-react";
 import { TIER_FEATURES, TIER_LABELS, type Tier, type Feature } from "@/lib/tiers";
 import type { Unit } from "@/components/roster/UnitsTable";
-import { type ResidentRow } from "@/components/roster/ResidentsTable";
+import { ResidentsTable, type ResidentRow } from "@/components/roster/ResidentsTable";
 import { UnitRoster } from "@/components/roster/UnitRoster";
 import { BulkImport } from "@/components/roster/BulkImport";
 import { InviteResidentDialog } from "@/components/roster/InviteResidentDialog";
