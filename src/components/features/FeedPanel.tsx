@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Pin, PinOff, Trash2, MessageSquare } from "lucide-react";
+import { PollsSection } from "./PollsSection";
 
 interface Post {
   id: string;
