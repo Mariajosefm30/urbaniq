@@ -150,6 +150,15 @@ export function FeedPanel({ buildingId, isBoard, polls }: {
 
   return (
     <div className="space-y-4">
+      {polls?.enabled && (
+        <PollsSection
+          buildingId={buildingId}
+          canCreate={polls.canCreate}
+          canClose={polls.canClose}
+          ownerUnitIds={polls.ownerUnitIds}
+          totalOwnerUnits={polls.totalOwnerUnits}
+        />
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Publicar</CardTitle>
