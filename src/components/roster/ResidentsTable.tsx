@@ -98,7 +98,7 @@ export function ResidentsTable({
                 <TableCell className="text-right space-x-1">
                   {r.kind === "invite" && r.token && (
                     <Button size="sm" variant="outline" onClick={() => onInviteRow(r)}>
-                      <Mail className="h-4 w-4 mr-1" /> Invitar {firstName(r)}
+                      <Mail className="h-4 w-4 mr-1" /> Invitar
                     </Button>
                   )}
                   <Button size="icon" variant="ghost" onClick={() => setEdit(r)}><Pencil className="h-4 w-4" /></Button>
