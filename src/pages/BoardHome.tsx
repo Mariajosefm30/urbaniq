@@ -50,9 +50,17 @@ export default function BoardHome() {
     setBuilding((b as Building) ?? null);
     const uList = (u ?? []) as Unit[];
     setUnits(uList);
+
+    const memberIds = ((mem ?? []) as any[]).map((m) => m.user_id).filter(Boolean);
+    const emailById = new Map<string, string>();
+    if (memberIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("id, email").in("id", memberIds);
+      ((profs ?? []) as any[]).forEach((p) => emailById.set(p.id, p.email));
+    }
+
     const rows: ResidentRow[] = [
       ...((mem ?? []) as any[]).map((m) => ({
-        kind: "membership" as const, id: m.id, email: m.user_id, name: m.resident_name, phone: m.phone,
+        kind: "membership" as const, id: m.id, email: emailById.get(m.user_id) ?? "—", name: m.resident_name, phone: m.phone,
         type: m.resident_type, unit_id: m.unit_id, status: "active" as const,
       })),
       ...((inv ?? []) as any[]).map((i) => ({
