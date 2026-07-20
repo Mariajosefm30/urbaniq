@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
       if (cap !== null) {
         const { count: activeCount } = await admin
           .from('memberships').select('id', { count: 'exact', head: true })
-          .eq('building_id', building_id).eq('role', 'admin_board');
+          .eq('building_id', building_id).eq('role', 'admin_board').is('revoked_at', null);
         const { count: pendingCount } = await admin
           .from('invites').select('id', { count: 'exact', head: true })
           .eq('building_id', building_id).eq('role', 'admin_board').is('accepted_at', null);
@@ -109,6 +109,7 @@ Deno.serve(async (req) => {
         resident_name: resident_name ?? null,
         phone: phone ?? null,
         resident_type: resident_type ?? null,
+        areas: role === 'manager' ? areasClean : [],
         invited_by: user.id,
       })
       .select('token')
