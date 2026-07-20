@@ -14,7 +14,7 @@ export function InviteResidentDialog({
 }: {
   open: boolean; onOpenChange: (o: boolean) => void;
   buildingId: string; units: Unit[];
-  onCreated: (url: string) => void;
+  onCreated: (url: string, meta?: { email?: string; phone?: string; name?: string }) => void;
   lockedUnitId?: string;
   lockedType?: "owner" | "tenant";
 }) {
