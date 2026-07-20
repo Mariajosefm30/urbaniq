@@ -18,6 +18,11 @@ export default function RoleHome() {
       navigate(`/board/${board.building_id}`, { replace: true });
       return;
     }
+    const sec = memberships.find((m) => m.role === "security");
+    if (sec?.building_id) {
+      navigate(`/security/${sec.building_id}`, { replace: true });
+      return;
+    }
     const resident = memberships.find((m) => m.role === "resident");
     if (resident?.building_id) {
       navigate(`/app/${resident.building_id}`, { replace: true });
