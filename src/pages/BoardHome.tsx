@@ -231,20 +231,42 @@ export default function BoardHome() {
         onOpenChange={setInviteOpen}
         buildingId={buildingId}
         units={units}
-        onCreated={(url) => { setInviteOpen(false); load(); setLinkDialog({ open: true, url }); }}
+        onCreated={(url, meta) => { setInviteOpen(false); load(); setLinkDialog({ open: true, url, ...(meta ?? {}) }); }}
       />
 
       <Dialog open={linkDialog.open} onOpenChange={(o) => setLinkDialog({ ...linkDialog, open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enlace de activación</DialogTitle>
-            <DialogDescription>Compártelo con la persona. Es de un solo uso.</DialogDescription>
+            <DialogTitle>Compartir invitación</DialogTitle>
+            <DialogDescription>Envíala por WhatsApp o correo. Es un enlace de un solo uso.</DialogDescription>
           </DialogHeader>
-          <div className="flex gap-2">
-            <Input readOnly value={linkDialog.url} />
-            <Button onClick={() => { navigator.clipboard.writeText(linkDialog.url); toast({ title: "Copiado" }); }}>
-              <Copy className="h-4 w-4" />
-            </Button>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Input readOnly value={linkDialog.url} />
+              <Button variant="outline" onClick={() => { navigator.clipboard.writeText(linkDialog.url); toast({ title: "Copiado" }); }}>
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+            {(() => {
+              const nombre = linkDialog.name?.trim().split(/\s+/)[0] || "";
+              const saludo = nombre ? `Hola ${nombre}` : "Hola";
+              const msg = `${saludo}, te invito a activar tu cuenta en ${building.name} (PropPass):\n${linkDialog.url}`;
+              const phone = (linkDialog.phone ?? "").replace(/[^\d]/g, "");
+              const waUrl = phone
+                ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+                : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+              const mailUrl = `mailto:${linkDialog.email ?? ""}?subject=${encodeURIComponent(`Activa tu cuenta en ${building.name}`)}&body=${encodeURIComponent(msg)}`;
+              return (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button asChild className="bg-[#25D366] hover:bg-[#1ebe5d] text-white">
+                    <a href={waUrl} target="_blank" rel="noreferrer">WhatsApp</a>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <a href={mailUrl}>Correo</a>
+                  </Button>
+                </div>
+              );
+            })()}
           </div>
         </DialogContent>
       </Dialog>
