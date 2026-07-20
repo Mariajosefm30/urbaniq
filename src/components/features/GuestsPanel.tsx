@@ -29,7 +29,7 @@ export function GuestsPanel({ buildingId, isBoard, canCreate, myUnitId }: {
   const [visits, setVisits] = useState<Visit[]>([]);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ guest_name: "", expected_at: "", vehicle_plate: "", needs_parking: false });
+  const [form, setForm] = useState({ guest_name: "", expected_at: "", needs_parking: false });
 
   const load = async () => {
     const { data } = await supabase
@@ -60,13 +60,12 @@ export function GuestsPanel({ buildingId, isBoard, canCreate, myUnitId }: {
       building_id: buildingId, unit_id: myUnitId, host_id: user.id,
       guest_name: form.guest_name.trim(),
       expected_at: form.expected_at ? new Date(form.expected_at).toISOString() : null,
-      vehicle_plate: form.vehicle_plate.trim() || null,
       needs_parking: form.needs_parking,
       status: "expected",
     });
     setBusy(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    setForm({ guest_name: "", expected_at: "", vehicle_plate: "", needs_parking: false });
+    setForm({ guest_name: "", expected_at: "", needs_parking: false });
     setOpen(false); load();
   };
 
@@ -98,7 +97,6 @@ export function GuestsPanel({ buildingId, isBoard, canCreate, myUnitId }: {
                     <Badge>{STATUS_LABEL[v.status]}</Badge>
                     {v.unit_code && <Badge variant="outline">Unidad {v.unit_code}</Badge>}
                     {v.needs_parking && <Badge variant="secondary"><Car className="h-3 w-3 mr-1" />Estac.</Badge>}
-                    {v.vehicle_plate && <Badge variant="outline">{v.vehicle_plate}</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {v.expected_at ? `Esperado: ${new Date(v.expected_at).toLocaleString("es-PE")}` : "Sin hora"} · Anfitrión: {v.host_name}
@@ -122,7 +120,6 @@ export function GuestsPanel({ buildingId, isBoard, canCreate, myUnitId }: {
           <div className="space-y-3">
             <div><Label>Nombre del invitado</Label><Input value={form.guest_name} onChange={(e) => setForm({ ...form, guest_name: e.target.value })} /></div>
             <div><Label>Fecha/hora esperada</Label><Input type="datetime-local" value={form.expected_at} onChange={(e) => setForm({ ...form, expected_at: e.target.value })} /></div>
-            <div><Label>Placa del vehículo (opcional)</Label><Input value={form.vehicle_plate} onChange={(e) => setForm({ ...form, vehicle_plate: e.target.value })} placeholder="ABC-123" /></div>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.needs_parking} onChange={(e) => setForm({ ...form, needs_parking: e.target.checked })} />
               Necesita estacionamiento de visita
