@@ -45,7 +45,7 @@ export function InviteResidentDialog({
     setBusy(false);
     if (error || !data?.ok) { toast({ title: "Error", description: data?.error || error?.message, variant: "destructive" }); return; }
     onOpenChange(false);
-    onCreated(data.activation_url);
+    onCreated(data.activation_url, { email: form.email, phone: form.phone || undefined, name: form.name || undefined });
   };
 
   const unitLabel = lockedUnitId ? units.find((u) => u.id === lockedUnitId)?.code : null;
