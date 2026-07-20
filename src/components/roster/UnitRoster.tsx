@@ -93,13 +93,28 @@ export function UnitRoster({
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <SlotCard slot="owner" row={slots.owner} unit={u}
+              <div className={`grid gap-2 ${slots.tenant ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
+                <SlotCard
+                  slot="owner"
+                  row={slots.owner}
+                  unit={u}
+                  hasTenant={!!slots.tenant}
                   onInvite={() => setInvite({ unit: u, slot: "owner" })}
-                  onCopy={copyLink} onRemove={removePerson} />
-                <SlotCard slot="tenant" row={slots.tenant} unit={u}
-                  onInvite={() => setInvite({ unit: u, slot: "tenant" })}
-                  onCopy={copyLink} onRemove={removePerson} />
+                  onInviteTenant={() => setInvite({ unit: u, slot: "tenant" })}
+                  onCopy={copyLink}
+                  onRemove={removePerson}
+                />
+                {slots.tenant && (
+                  <SlotCard
+                    slot="tenant"
+                    row={slots.tenant}
+                    unit={u}
+                    hasTenant
+                    onInvite={() => setInvite({ unit: u, slot: "tenant" })}
+                    onCopy={copyLink}
+                    onRemove={removePerson}
+                  />
+                )}
               </div>
             </Card>
           );
