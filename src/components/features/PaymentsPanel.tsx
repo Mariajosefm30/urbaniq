@@ -247,6 +247,33 @@ export function PaymentsBoardPanel({ buildingId, canRemind = false }: { building
     else load();
   };
 
+  const sendReminder = async (c: Charge) => {
+    if (!user) return;
+    setRemindingId(c.id);
+    // find owner(s) of the unit
+    const { data: owners } = await supabase
+      .from("memberships")
+      .select("user_id, resident_name")
+      .eq("building_id", buildingId)
+      .eq("unit_id", c.unit_id!)
+      .eq("resident_type", "owner")
+      .is("revoked_at", null);
+    const { error } = await supabase.from("charge_reminders").insert({
+      charge_id: c.id, building_id: buildingId, sent_by: user.id,
+    });
+    if (!error && owners && owners.length) {
+      await supabase.from("notifications").insert(
+        owners.map((o: any) => ({
+          user_id: o.user_id, building_id: buildingId, kind: "payment_reminder",
+          payload: { charge_id: c.id, concept: c.concept, amount: c.amount, currency: c.currency, unit: c.unit_code },
+        }))
+      );
+    }
+    setRemindingId(null);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Recordatorio enviado" }); load(); }
+  };
+
   if (!building) return null;
 
   return (
@@ -266,31 +293,50 @@ export function PaymentsBoardPanel({ buildingId, canRemind = false }: { building
           <div className="space-y-2">
             {charges.map((c) => {
               const meta = STATUS_META[c.status] ?? { label: c.status, variant: "outline" as const };
+              const overdue = c.status !== "paid" && c.status !== "pagado" && c.due_date && new Date(c.due_date) < new Date();
+              const pendingLike = c.status === "pending" || c.status === "pendiente" || c.status === "overdue" || overdue;
+              const list = reminders[c.id] || [];
+              const last = list[0];
               return (
-                <div key={c.id} className="flex items-center justify-between gap-3 border rounded-lg p-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">{c.concept}</span>
-                      <Badge variant={meta.variant}>{meta.label}</Badge>
-                      {c.unit_code && <Badge variant="outline">Unidad {c.unit_code}</Badge>}
-                      {c.period && <Badge variant="outline">{c.period}</Badge>}
+                <div key={c.id} className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium">{c.concept}</span>
+                        <Badge variant={meta.variant}>{meta.label}</Badge>
+                        {c.unit_code && <Badge variant="outline">Unidad {c.unit_code}</Badge>}
+                        {c.period && <Badge variant="outline">{c.period}</Badge>}
+                        {overdue && <Badge variant="destructive">Vencido</Badge>}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {fmt(c.amount, c.currency)} {c.due_date && `· Vence ${new Date(c.due_date).toLocaleDateString("es-PE")}`}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {fmt(c.amount, c.currency)} {c.due_date && `· Vence ${new Date(c.due_date).toLocaleDateString("es-PE")}`}
+                    <div className="flex gap-1">
+                      {canRemind && pendingLike && c.unit_id && (
+                        <Button size="sm" variant="outline" disabled={remindingId === c.id} onClick={() => sendReminder(c)}>
+                          <Bell className="h-3 w-3 mr-1" />Recordar
+                        </Button>
+                      )}
+                      {c.proof_url && <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>Revisar</Button>}
+                      {c.status !== "paid" && !c.proof_url && (
+                        <Button size="sm" variant="outline" onClick={() => markPaidDirect(c)}>Marcar pagado</Button>
+                      )}
+                    </div>
+                  </div>
+                  {canRemind && list.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Último recordatorio: {new Date(last.sent_at).toLocaleString("es-PE")} · {last.sender_name}
+                      {list.length > 1 && ` · ${list.length} recordatorios en total`}
                     </p>
-                  </div>
-                  <div className="flex gap-1">
-                    {c.proof_url && <Button size="sm" variant="outline" onClick={() => setReviewing(c)}>Revisar</Button>}
-                    {c.status !== "paid" && !c.proof_url && (
-                      <Button size="sm" variant="outline" onClick={() => markPaidDirect(c)}>Marcar pagado</Button>
-                    )}
-                  </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </CardContent>
       </Card>
+
 
       <CreateChargeDialog buildingId={buildingId} units={units} open={createOpen} onOpenChange={setCreateOpen} onCreated={load} />
 
