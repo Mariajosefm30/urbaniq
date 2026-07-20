@@ -9,6 +9,7 @@ export interface Membership {
   building_id: string | null;
   role: AppRole;
   unit_id: string | null;
+  resident_type: "owner" | "tenant" | null;
 }
 
 interface AuthContextType {
