@@ -104,7 +104,7 @@ export default function BoardHome() {
       <main className="container py-8">
         <Tabs defaultValue="roster">
           <TabsList>
-            <TabsTrigger value="roster">Unidades y residentes</TabsTrigger>
+            <TabsTrigger value="roster">Residentes</TabsTrigger>
             {has("feed") && <TabsTrigger value="feed">Live Feed</TabsTrigger>}
             {has("tickets_basic") && <TabsTrigger value="tickets">Tickets</TabsTrigger>}
             {has("guests") && <TabsTrigger value="guests">Visitas</TabsTrigger>}
