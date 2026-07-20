@@ -24,23 +24,17 @@ export interface ResidentRow {
 }
 
 export function ResidentsTable({
-  rows, units, buildingId, onChange, onInvite,
+  rows, units, buildingId, onChange, onInviteRow,
 }: {
   rows: ResidentRow[]; units: Unit[]; buildingId: string;
   onChange: () => void;
-  onInvite: () => void;
+  onInviteRow: (row: ResidentRow) => void;
 }) {
   const { toast } = useToast();
   const [edit, setEdit] = useState<ResidentRow | null>(null);
   const [busy, setBusy] = useState(false);
 
   const unitCode = (id: string | null) => units.find((u) => u.id === id)?.code ?? "—";
-
-  const copyLink = (token: string) => {
-    const url = `${window.location.origin}/activate?token=${token}`;
-    navigator.clipboard.writeText(url);
-    toast({ title: "Enlace copiado" });
-  };
 
   const remove = async (r: ResidentRow) => {
     if (!confirm(`¿Eliminar a ${r.email}? El historial del edificio se conserva.`)) return;
@@ -68,11 +62,10 @@ export function ResidentsTable({
     setEdit(null); onChange();
   };
 
+  const firstName = (r: ResidentRow) => (r.name?.trim().split(/\s+/)[0]) || r.email.split("@")[0];
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button onClick={onInvite} disabled={units.length === 0}><Mail className="h-4 w-4 mr-1" /> Invitar residente</Button>
-      </div>
       <div className="rounded border">
         <Table>
           <TableHeader>
