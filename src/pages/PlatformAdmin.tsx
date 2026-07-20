@@ -177,29 +177,6 @@ export default function PlatformAdmin() {
             )}
         </div>
 
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Invitaciones ({invites.length})</h2>
-          {invites.length === 0 ? <p className="text-sm text-muted-foreground">Sin invitaciones.</p> : (
-            <div className="space-y-2">
-              {invites.map((i) => {
-                const url = `${window.location.origin}/activate?token=${i.token}`;
-                return (
-                  <Card key={i.id}>
-                    <CardContent className="flex items-center justify-between py-3">
-                      <div>
-                        <p className="text-sm font-medium">{i.email}</p>
-                        <p className="text-xs text-muted-foreground">{i.role} · {i.accepted_at ? "aceptada" : "pendiente"}</p>
-                      </div>
-                      {!i.accepted_at && (
-                        <Button size="sm" variant="outline" onClick={() => copy(url)}><Copy className="h-4 w-4 mr-1" /> Copiar link</Button>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </div>
       </main>
 
       <Dialog open={inviteDialog.open} onOpenChange={(o) => setInviteDialog({ ...inviteDialog, open: o })}>
