@@ -23,13 +23,14 @@ Deno.serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    const { data: myMems } = await admin.from('memberships').select('building_id, role').eq('user_id', user.id);
+    const { data: myMems } = await admin.from('memberships')
+      .select('building_id, role, unit_id, resident_type').eq('user_id', user.id);
     const isPlatformAdmin = (myMems ?? []).some((m) => m.role === 'platform_admin');
 
     const {
       email, role, building_id, unit_id,
       resident_name, phone, resident_type,
-      reassign, // when true and role=admin_board, revoke pending admin_board invites first
+      reassign,
     } = await req.json();
 
     if (!email || !role) return json({ ok: false, error: 'email y role requeridos' }, 400);
@@ -41,11 +42,31 @@ Deno.serve(async (req) => {
     if (role === 'admin_board' && !isPlatformAdmin) return json({ ok: false, error: 'Solo platform_admin puede invitar admin_board' }, 403);
     if (role !== 'platform_admin' && !building_id) return json({ ok: false, error: 'building_id requerido' }, 400);
     if (role === 'resident' && !unit_id) return json({ ok: false, error: 'unit_id requerido' }, 400);
+    if (role === 'resident' && !resident_type) return json({ ok: false, error: 'resident_type requerido' }, 400);
     if (resident_type && !['owner','tenant'].includes(resident_type)) return json({ ok: false, error: 'resident_type inválido' }, 400);
 
     if (role === 'resident' || role === 'manager') {
       const isBoardHere = (myMems ?? []).some((m) => m.building_id === building_id && m.role === 'admin_board');
-      if (!isBoardHere && !isPlatformAdmin) return json({ ok: false, error: 'Sin permiso para este edificio' }, 403);
+      const isOwnerHere = (myMems ?? []).some((m) =>
+        m.building_id === building_id && m.role === 'resident' && m.unit_id === unit_id && m.resident_type === 'owner'
+      );
+      // Owner can only invite a tenant for their own unit
+      const ownerInvitingTenant = role === 'resident' && resident_type === 'tenant' && isOwnerHere;
+      if (!isBoardHere && !isPlatformAdmin && !ownerInvitingTenant) {
+        return json({ ok: false, error: 'Sin permiso para este edificio' }, 403);
+      }
+    }
+
+    // Slot uniqueness for residents (active or pending)
+    if (role === 'resident') {
+      const { data: activeSlot } = await admin.from('memberships')
+        .select('id').eq('building_id', building_id).eq('unit_id', unit_id)
+        .eq('resident_type', resident_type).maybeSingle();
+      if (activeSlot) return json({ ok: false, error: `Ya hay un ${resident_type} activo en esta unidad` }, 400);
+      const { data: pendingSlot } = await admin.from('invites')
+        .select('id').eq('building_id', building_id).eq('unit_id', unit_id)
+        .eq('resident_type', resident_type).is('accepted_at', null).maybeSingle();
+      if (pendingSlot) return json({ ok: false, error: `Ya hay una invitación pendiente de ${resident_type} para esta unidad` }, 400);
     }
 
     if (role === 'admin_board' && reassign) {
