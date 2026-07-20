@@ -108,7 +108,7 @@ export default function Landing() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">PropPass</span>
+            <span className="text-xl font-bold">UrbanIQ</span>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => navigate("/auth")} variant="outline">
@@ -270,7 +270,7 @@ export default function Landing() {
       {/* BLOQUE 4 — PARA QUIÉN ES */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-12">¿Para quién es PropPass?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">¿Para quién es UrbanIQ?</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="text-center">
               <CardHeader className="pb-2">
@@ -565,7 +565,7 @@ export default function Landing() {
               <CardContent className="pt-6">
                 <Quote className="h-8 w-8 text-primary/30 mb-4" />
                 <p className="text-muted-foreground mb-6">
-                  "Antes usábamos WhatsApp para todo y era un caos. Ahora con PropPass los avisos llegan a todos y tenemos control de los pagos."
+                  "Antes usábamos WhatsApp para todo y era un caos. Ahora con UrbanIQ los avisos llegan a todos y tenemos control de los pagos."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -628,7 +628,7 @@ export default function Landing() {
             Sin contratos largos. Sin complicaciones.
           </p>
           <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-            Probar PropPass
+            Probar UrbanIQ
           </Button>
         </div>
       </section>
@@ -641,7 +641,7 @@ export default function Landing() {
             <AccordionItem value="item-1">
               <AccordionTrigger>¿Puedo empezar solo con pagos o solo avisos?</AccordionTrigger>
               <AccordionContent>
-                Sí. Puedes activar solo lo que tu edificio necesita. PropPass es modular y se adapta a tus prioridades.
+                Sí. Puedes activar solo lo que tu edificio necesita. UrbanIQ es modular y se adapta a tus prioridades.
               </AccordionContent>
             </AccordionItem>
 
@@ -669,7 +669,7 @@ export default function Landing() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-primary" />
-                <span className="font-bold">PropPass</span>
+                <span className="font-bold">UrbanIQ</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Administración de edificios moderna para Perú.
@@ -696,8 +696,8 @@ export default function Landing() {
               <h4 className="font-semibold">Contacto</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="mailto:contact@proppass.com" className="text-muted-foreground hover:text-foreground transition-colors">
-                    contact@proppass.com
+                  <a href="mailto:contact@urbaniq.com" className="text-muted-foreground hover:text-foreground transition-colors">
+                    contact@urbaniq.com
                   </a>
                 </li>
               </ul>
@@ -705,7 +705,7 @@ export default function Landing() {
           </div>
 
           <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} PropPass. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} UrbanIQ. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
