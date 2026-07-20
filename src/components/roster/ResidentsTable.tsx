@@ -97,7 +97,9 @@ export function ResidentsTable({
                 </TableCell>
                 <TableCell className="text-right space-x-1">
                   {r.kind === "invite" && r.token && (
-                    <Button size="icon" variant="ghost" onClick={() => copyLink(r.token!)}><Copy className="h-4 w-4" /></Button>
+                    <Button size="sm" variant="outline" onClick={() => onInviteRow(r)}>
+                      <Mail className="h-4 w-4 mr-1" /> Invitar {firstName(r)}
+                    </Button>
                   )}
                   <Button size="icon" variant="ghost" onClick={() => setEdit(r)}><Pencil className="h-4 w-4" /></Button>
                   <Button size="icon" variant="ghost" onClick={() => remove(r)}><Trash2 className="h-4 w-4" /></Button>
