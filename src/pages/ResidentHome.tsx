@@ -14,6 +14,11 @@ import { InviteResidentDialog } from "@/components/roster/InviteResidentDialog";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { useToast } from "@/hooks/use-toast";
 import type { Unit } from "@/components/roster/UnitsTable";
+import { FeedPanel } from "@/components/features/FeedPanel";
+import { TicketsPanel } from "@/components/features/TicketsPanel";
+import { GuestsPanel } from "@/components/features/GuestsPanel";
+import { PaymentsOwnerPanel } from "@/components/features/PaymentsPanel";
+
 
 interface Building { id: string; name: string; tier: Tier; }
 
