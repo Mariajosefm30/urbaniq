@@ -4,12 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "platform_admin" | "admin_board" | "manager" | "resident" | "security";
 
+export type ManagerArea = "maintenance" | "guests" | "payments" | "feed";
+
 export interface Membership {
   id: string;
   building_id: string | null;
   role: AppRole;
   unit_id: string | null;
   resident_type: "owner" | "tenant" | null;
+  areas: ManagerArea[];
+  revoked_at: string | null;
 }
 
 interface AuthContextType {
