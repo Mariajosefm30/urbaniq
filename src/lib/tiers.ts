@@ -13,7 +13,9 @@ export type Feature =
   | "amenities"
   | "roles_by_area"
   | "white_label"
-  | "custom_payments";
+  | "custom_payments"
+  | "polls"
+  | "visits_log";
 
 const STARTER: Feature[] = [
   "feed",
@@ -27,6 +29,8 @@ const GROWTH: Feature[] = [
   "tickets_states",
   "payments_reminders",
   "analytics_realtime",
+  "polls",
+  "visits_log",
 ];
 const PRO: Feature[] = [
   ...GROWTH,
