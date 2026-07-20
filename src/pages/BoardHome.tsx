@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, LogOut, ArrowLeft } from "lucide-react";
 import { TIER_FEATURES, TIER_LABELS, type Tier, type Feature } from "@/lib/tiers";
 import type { Unit } from "@/components/roster/UnitsTable";
-import type { ResidentRow } from "@/components/roster/ResidentsTable";
-import { UnitRoster } from "@/components/roster/UnitRoster";
+import { ResidentsTable, type ResidentRow } from "@/components/roster/ResidentsTable";
 import { BulkImport } from "@/components/roster/BulkImport";
+import { InviteResidentDialog } from "@/components/roster/InviteResidentDialog";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -29,6 +29,7 @@ export default function BoardHome() {
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0 });
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const myMembership = memberships.find((m) => m.building_id === buildingId);
   const isBoard = isPlatformAdmin || myMembership?.role === "admin_board" || myMembership?.role === "manager";
@@ -103,7 +104,7 @@ export default function BoardHome() {
       <main className="container py-8">
         <Tabs defaultValue="roster">
           <TabsList>
-            <TabsTrigger value="roster">Unidades y residentes</TabsTrigger>
+            <TabsTrigger value="roster">Residentes</TabsTrigger>
             {has("feed") && <TabsTrigger value="feed">Live Feed</TabsTrigger>}
             {has("tickets_basic") && <TabsTrigger value="tickets">Tickets</TabsTrigger>}
             {has("guests") && <TabsTrigger value="guests">Visitas</TabsTrigger>}
@@ -117,14 +118,14 @@ export default function BoardHome() {
                 <BulkImport buildingId={buildingId} onDone={load} />
                 <Card>
                   <CardHeader>
-                    <CardTitle>Unidades y residentes</CardTitle>
-                    <CardDescription>Cada unidad puede tener un propietario y un inquilino.</CardDescription>
+                    <CardTitle>Residentes</CardTitle>
+                    <CardDescription>Un representante por unidad. Si hay inquilino, se muestra junto al propietario.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <UnitRoster
-                      units={units} residents={residents} buildingId={buildingId}
+                    <ResidentsTable
+                      rows={residents} units={units} buildingId={buildingId}
                       onChange={load}
-                      onInvited={(url) => setLinkDialog({ open: true, url })}
+                      onInvite={() => setInviteOpen(true)}
                     />
                   </CardContent>
                 </Card>
@@ -152,6 +153,14 @@ export default function BoardHome() {
           )}
         </Tabs>
       </main>
+
+      <InviteResidentDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        buildingId={buildingId}
+        units={units}
+        onCreated={(url) => { setInviteOpen(false); load(); setLinkDialog({ open: true, url }); }}
+      />
 
       <Dialog open={linkDialog.open} onOpenChange={(o) => setLinkDialog({ ...linkDialog, open: o })}>
         <DialogContent>
