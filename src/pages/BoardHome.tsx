@@ -34,7 +34,7 @@ export default function BoardHome() {
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0, avgResolutionHours: 0 });
   const [securityInvite, setSecurityInvite] = useState<{ open: boolean; email: string; name: string; busy: boolean }>({ open: false, email: "", name: "", busy: false });
-  const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
+  const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string; email?: string; phone?: string; name?: string }>({ open: false, url: "" });
   const [inviteOpen, setInviteOpen] = useState(false);
 
   const myMembership = memberships.find((m) => m.building_id === buildingId);
@@ -145,7 +145,7 @@ export default function BoardHome() {
                     <ResidentsTable
                       rows={residents} units={units} buildingId={buildingId}
                       onChange={load}
-                      onInviteRow={(r) => r.token && setLinkDialog({ open: true, url: `${window.location.origin}/activate?token=${r.token}` })}
+                      onInviteRow={(r) => r.token && setLinkDialog({ open: true, url: `${window.location.origin}/activate?token=${r.token}`, email: r.email, phone: r.phone ?? undefined, name: r.name ?? undefined })}
                     />
                   </CardContent>
                 </Card>
@@ -217,7 +217,7 @@ export default function BoardHome() {
                 setSecurityInvite((s) => ({ ...s, busy: false }));
                 if (error || !data?.ok) { toast({ title: "Error", description: data?.error || error?.message, variant: "destructive" }); return; }
                 setSecurityInvite({ open: false, email: "", name: "", busy: false });
-                setLinkDialog({ open: true, url: data.activation_url });
+                setLinkDialog({ open: true, url: data.activation_url, email: securityInvite.email, name: securityInvite.name });
               }}
             >
               Crear invitación
@@ -231,20 +231,42 @@ export default function BoardHome() {
         onOpenChange={setInviteOpen}
         buildingId={buildingId}
         units={units}
-        onCreated={(url) => { setInviteOpen(false); load(); setLinkDialog({ open: true, url }); }}
+        onCreated={(url, meta) => { setInviteOpen(false); load(); setLinkDialog({ open: true, url, ...(meta ?? {}) }); }}
       />
 
       <Dialog open={linkDialog.open} onOpenChange={(o) => setLinkDialog({ ...linkDialog, open: o })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enlace de activación</DialogTitle>
-            <DialogDescription>Compártelo con la persona. Es de un solo uso.</DialogDescription>
+            <DialogTitle>Compartir invitación</DialogTitle>
+            <DialogDescription>Envíala por WhatsApp o correo. Es un enlace de un solo uso.</DialogDescription>
           </DialogHeader>
-          <div className="flex gap-2">
-            <Input readOnly value={linkDialog.url} />
-            <Button onClick={() => { navigator.clipboard.writeText(linkDialog.url); toast({ title: "Copiado" }); }}>
-              <Copy className="h-4 w-4" />
-            </Button>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Input readOnly value={linkDialog.url} />
+              <Button variant="outline" onClick={() => { navigator.clipboard.writeText(linkDialog.url); toast({ title: "Copiado" }); }}>
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+            {(() => {
+              const nombre = linkDialog.name?.trim().split(/\s+/)[0] || "";
+              const saludo = nombre ? `Hola ${nombre}` : "Hola";
+              const msg = `${saludo}, te invito a activar tu cuenta en ${building.name} (PropPass):\n${linkDialog.url}`;
+              const phone = (linkDialog.phone ?? "").replace(/[^\d]/g, "");
+              const waUrl = phone
+                ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+                : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+              const mailUrl = `mailto:${linkDialog.email ?? ""}?subject=${encodeURIComponent(`Activa tu cuenta en ${building.name}`)}&body=${encodeURIComponent(msg)}`;
+              return (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button asChild className="bg-[#25D366] hover:bg-[#1ebe5d] text-white">
+                    <a href={waUrl} target="_blank" rel="noreferrer">WhatsApp</a>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <a href={mailUrl}>Correo</a>
+                  </Button>
+                </div>
+              );
+            })()}
           </div>
         </DialogContent>
       </Dialog>
