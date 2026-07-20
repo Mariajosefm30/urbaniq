@@ -137,12 +137,19 @@ export function UnitRoster({
 }
 
 function SlotCard({
-  slot, row, unit, onInvite, onCopy, onRemove,
+  slot, row, unit, hasTenant, onInvite, onInviteTenant, onCopy, onRemove,
 }: {
   slot: "owner" | "tenant"; row?: ResidentRow; unit: Unit;
-  onInvite: () => void; onCopy: (t?: string) => void; onRemove: (r: ResidentRow) => void;
+  hasTenant?: boolean;
+  onInvite: () => void;
+  onInviteTenant?: () => void;
+  onCopy: (t?: string) => void;
+  onRemove: (r: ResidentRow) => void;
 }) {
-  const label = slot === "owner" ? "Propietario" : "Inquilino";
+  const isOwner = slot === "owner";
+  const label = isOwner ? "Propietario" : "Inquilino";
+  const showsAsResident = isOwner && !hasTenant;
+
   if (!row) {
     return (
       <div className="rounded border border-dashed p-3 flex items-center justify-between">
@@ -159,7 +166,9 @@ function SlotCard({
   return (
     <div className="rounded border p-3">
       <div className="flex items-center justify-between mb-1">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+          {label}{showsAsResident && " · Residente"}
+        </p>
         <Badge variant={row.status === "active" ? "secondary" : "outline"}>
           {row.status === "active" ? "Activo" : "Pendiente"}
         </Badge>
@@ -167,10 +176,15 @@ function SlotCard({
       <p className="text-sm font-medium truncate">{row.name ?? "(sin nombre)"}</p>
       <p className="text-xs text-muted-foreground truncate">{row.email}</p>
       {row.phone && <p className="text-xs text-muted-foreground">{row.phone}</p>}
-      <div className="mt-2 flex gap-1">
+      <div className="mt-2 flex flex-wrap gap-1">
         {row.kind === "invite" && row.token && (
           <Button size="sm" variant="ghost" onClick={() => onCopy(row.token)}>
             <Copy className="h-3 w-3 mr-1" /> Copiar link
+          </Button>
+        )}
+        {showsAsResident && onInviteTenant && (
+          <Button size="sm" variant="outline" onClick={onInviteTenant}>
+            <UserPlus className="h-3 w-3 mr-1" /> Invitar inquilino
           </Button>
         )}
         <Button size="sm" variant="ghost" onClick={() => onRemove(row)}>
