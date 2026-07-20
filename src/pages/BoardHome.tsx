@@ -118,14 +118,14 @@ export default function BoardHome() {
                 <BulkImport buildingId={buildingId} onDone={load} />
                 <Card>
                   <CardHeader>
-                    <CardTitle>Unidades y residentes</CardTitle>
-                    <CardDescription>Cada unidad puede tener un propietario y un inquilino.</CardDescription>
+                    <CardTitle>Residentes</CardTitle>
+                    <CardDescription>Un representante por unidad. Si hay inquilino, se muestra junto al propietario.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <UnitRoster
-                      units={units} residents={residents} buildingId={buildingId}
+                    <ResidentsTable
+                      rows={residents} units={units} buildingId={buildingId}
                       onChange={load}
-                      onInvited={(url) => setLinkDialog({ open: true, url })}
+                      onInvite={() => setInviteOpen(true)}
                     />
                   </CardContent>
                 </Card>
