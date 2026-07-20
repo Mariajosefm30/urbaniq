@@ -338,18 +338,38 @@ export default function Landing() {
       {/* BLOQUE 5 — PLANES Y PRECIOS */}
       <section id="pricing" className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-4">Planes simples según el tamaño de tu edificio</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Empieza con Starter hoy. Los planes superiores se activarán a partir del Q1 2026.
+            </p>
+          </div>
+
+          {/* Todos los planes incluyen */}
+          <div className="max-w-3xl mx-auto mb-10 p-4 rounded-lg bg-background border">
+            <p className="text-sm font-semibold mb-2 text-center">Todos los planes incluyen:</p>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Soporte en español</span>
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Actualizaciones automáticas</span>
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Datos seguros</span>
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Sin contratos largos</span>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Plan Starter */}
-            <Card className="relative flex flex-col border-2">
+            <Card className="relative flex flex-col border-2 border-primary shadow-lg">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
+                  Disponible ahora
+                </span>
+              </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-xs font-medium mb-2">
-                  Starter
+                  Starter · Básico
                 </div>
                 <CardTitle className="text-xl">Para edificios pequeños</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: condominios de hasta 12 deptos con 1 administrador.</p>
                 <div className="mt-4">
                   <p className="text-3xl font-bold">$20 <span className="text-base font-normal text-muted-foreground">USD</span></p>
                   <p className="text-sm text-muted-foreground">/ edificio / mes</p>
