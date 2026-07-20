@@ -186,16 +186,8 @@ export default function BoardHome() {
   );
 }
 
-function ComingSoon({ feature }: { feature: string }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{feature}</CardTitle>
-        <CardDescription>Disponible en tu plan. La UI de esta sección se habilitará próximamente.</CardDescription>
-      </CardHeader>
-    </Card>
-  );
-}
+
+
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
