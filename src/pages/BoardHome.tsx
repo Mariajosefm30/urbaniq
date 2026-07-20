@@ -126,44 +126,40 @@ export default function BoardHome() {
       </header>
 
       <main className="container py-8">
-        <Tabs defaultValue="roster">
+        <Tabs defaultValue={isAdminBoard ? "roster" : (canArea("feed") ? "feed" : canArea("maintenance") ? "tickets" : canArea("guests") ? "guests" : "payments")}>
           <TabsList>
-            <TabsTrigger value="roster">Residentes</TabsTrigger>
-            {has("feed") && <TabsTrigger value="feed">Live Feed</TabsTrigger>}
-            {has("tickets_basic") && <TabsTrigger value="tickets">Tickets</TabsTrigger>}
-            {has("guests") && <TabsTrigger value="guests">Visitas</TabsTrigger>}
-            {has("payments_tracking") && <TabsTrigger value="payments">Pagos</TabsTrigger>}
-            {has("analytics_basic") && <TabsTrigger value="analytics">Analítica</TabsTrigger>}
+            {isAdminBoard && <TabsTrigger value="roster">Residentes</TabsTrigger>}
+            {has("feed") && canArea("feed") && <TabsTrigger value="feed">Live Feed</TabsTrigger>}
+            {has("tickets_basic") && canArea("maintenance") && <TabsTrigger value="tickets">Tickets</TabsTrigger>}
+            {has("guests") && canArea("guests") && <TabsTrigger value="guests">Visitas</TabsTrigger>}
+            {has("payments_tracking") && canArea("payments") && <TabsTrigger value="payments">Pagos</TabsTrigger>}
+            {isAdminBoard && has("analytics_basic") && <TabsTrigger value="analytics">Analítica</TabsTrigger>}
           </TabsList>
 
-          <TabsContent value="roster" className="space-y-6 pt-4">
-            {isBoard ? (
-              <>
-                <BulkImport buildingId={buildingId} onDone={load} />
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Residentes</CardTitle>
-                    <CardDescription>Un representante por unidad. Si hay inquilino, se muestra junto al propietario.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResidentsTable
-                      rows={residents} units={units} buildingId={buildingId}
-                      onChange={load}
-                      onInviteRow={(r) => r.token && setLinkDialog({ open: true, url: `${window.location.origin}/activate?token=${r.token}`, email: r.email, phone: r.phone ?? undefined, name: r.name ?? undefined })}
-                    />
-                  </CardContent>
-                </Card>
-              </>
-            ) : (
-              <Card><CardHeader><CardTitle>Sin permiso</CardTitle><CardDescription>No puedes administrar el roster.</CardDescription></CardHeader></Card>
-            )}
-          </TabsContent>
+          {isAdminBoard && (
+            <TabsContent value="roster" className="space-y-6 pt-4">
+              <BulkImport buildingId={buildingId} onDone={load} />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Residentes</CardTitle>
+                  <CardDescription>Un representante por unidad. Si hay inquilino, se muestra junto al propietario.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResidentsTable
+                    rows={residents} units={units} buildingId={buildingId}
+                    onChange={load}
+                    onInviteRow={(r) => r.token && setLinkDialog({ open: true, url: `${window.location.origin}/activate?token=${r.token}`, email: r.email, phone: r.phone ?? undefined, name: r.name ?? undefined })}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
-          {has("feed") && <TabsContent value="feed" className="pt-4"><FeedPanel buildingId={buildingId} isBoard={isBoard} /></TabsContent>}
-          {has("tickets_basic") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={isBoard} canCreate={false} /></TabsContent>}
-          {has("guests") && <TabsContent value="guests" className="pt-4"><GuestsPanel buildingId={buildingId} isBoard={isBoard} canCreate={false} /></TabsContent>}
-          {has("payments_tracking") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} /></TabsContent>}
-          {has("analytics_basic") && (
+          {has("feed") && canArea("feed") && <TabsContent value="feed" className="pt-4"><FeedPanel buildingId={buildingId} isBoard={true} /></TabsContent>}
+          {has("tickets_basic") && canArea("maintenance") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={true} canCreate={false} /></TabsContent>}
+          {has("guests") && canArea("guests") && <TabsContent value="guests" className="pt-4"><GuestsPanel buildingId={buildingId} isBoard={true} canCreate={false} /></TabsContent>}
+          {has("payments_tracking") && canArea("payments") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} /></TabsContent>}
+          {isAdminBoard && has("analytics_basic") && (
             <TabsContent value="analytics" className="pt-4">
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                 <Stat label="Unidades" value={counts.units} />
@@ -179,7 +175,15 @@ export default function BoardHome() {
 
         </Tabs>
 
-        {isBoard && (
+        {isAdminBoard && (
+          <ManagersSection
+            buildingId={buildingId}
+            tier={building.tier}
+            onInvited={(url, meta) => setLinkDialog({ open: true, url, ...(meta ?? {}) })}
+          />
+        )}
+
+        {isAdminBoard && (
           <Card className="mt-8">
             <CardHeader>
               <CardTitle className="text-base">Personal de seguridad</CardTitle>
