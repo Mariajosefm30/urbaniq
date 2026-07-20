@@ -125,7 +125,7 @@ export default function BoardHome() {
                     <ResidentsTable
                       rows={residents} units={units} buildingId={buildingId}
                       onChange={load}
-                      onInvite={() => setInviteOpen(true)}
+                      onInviteRow={(r) => r.token && setLinkDialog({ open: true, url: `${window.location.origin}/activate?token=${r.token}` })}
                     />
                   </CardContent>
                 </Card>
