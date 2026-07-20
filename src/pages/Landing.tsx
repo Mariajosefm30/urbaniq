@@ -412,17 +412,18 @@ export default function Landing() {
             </Card>
 
             {/* Plan Growth */}
-            <Card className="relative flex flex-col border-2 border-primary shadow-lg">
+            <Card className="relative flex flex-col border-2 opacity-90">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
-                  Popular
+                <span className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full border">
+                  Disponible Q1 2026
                 </span>
               </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium mb-2">
-                  Growth
+                  Growth · Crecimiento
                 </div>
                 <CardTitle className="text-xl">Para juntas y HOAs</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: edificios de 13–50 deptos con junta directiva.</p>
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">Desde</p>
                   <p className="text-3xl font-bold">$2 <span className="text-base font-normal text-muted-foreground">USD</span></p>
@@ -459,19 +460,25 @@ export default function Landing() {
                 </div>
               </CardContent>
               <div className="p-6 pt-0">
-                <Button className="w-full" onClick={handleGetStarted}>
-                  Elegir Growth
+                <Button className="w-full" variant="outline" onClick={handleBookDemo}>
+                  Unirme a la lista de espera
                 </Button>
               </div>
             </Card>
 
             {/* Plan Pro */}
-            <Card className="relative flex flex-col border-2">
+            <Card className="relative flex flex-col border-2 opacity-90">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full border">
+                  Disponible Q1 2026
+                </span>
+              </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 text-xs font-medium mb-2">
-                  Pro
+                  Pro · Profesional
                 </div>
                 <CardTitle className="text-xl">Para edificios administrados</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: 50+ deptos con administrador profesional y personal por área.</p>
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">Desde</p>
                   <p className="text-3xl font-bold">$1.25 <span className="text-base font-normal text-muted-foreground">USD</span></p>
