@@ -292,6 +292,48 @@ export type Database = {
           },
         ]
       }
+      post_comments: {
+        Row: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at: string
+          id: string
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at?: string
+          id?: string
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          building_id?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           author_id: string
@@ -327,9 +369,52 @@ export type Database = {
           },
         ]
       }
+      ticket_comments: {
+        Row: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at: string
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          building_id: string
+          created_at?: string
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          building_id?: string
+          created_at?: string
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_comments_building_id_fkey"
+            columns: ["building_id"]
+            isOneToOne: false
+            referencedRelation: "buildings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_comments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tickets: {
         Row: {
           building_id: string
+          closed_at: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -341,6 +426,7 @@ export type Database = {
         }
         Insert: {
           building_id: string
+          closed_at?: string | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -352,6 +438,7 @@ export type Database = {
         }
         Update: {
           building_id?: string
+          closed_at?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -490,7 +577,12 @@ export type Database = {
       is_platform_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
-      app_role_v2: "platform_admin" | "admin_board" | "manager" | "resident"
+      app_role_v2:
+        | "platform_admin"
+        | "admin_board"
+        | "manager"
+        | "resident"
+        | "security"
       building_tier: "starter" | "growth" | "pro" | "developer"
       guest_status: "scheduled" | "expired" | "revoked"
       payment_status:
@@ -630,7 +722,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role_v2: ["platform_admin", "admin_board", "manager", "resident"],
+      app_role_v2: [
+        "platform_admin",
+        "admin_board",
+        "manager",
+        "resident",
+        "security",
+      ],
       building_tier: ["starter", "growth", "pro", "developer"],
       guest_status: ["scheduled", "expired", "revoked"],
       payment_status: [

@@ -14,7 +14,7 @@ import { BulkImport } from "@/components/roster/BulkImport";
 import { InviteResidentDialog } from "@/components/roster/InviteResidentDialog";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Copy } from "lucide-react";
 import { FeedPanel } from "@/components/features/FeedPanel";
@@ -32,7 +32,8 @@ export default function BoardHome() {
   const [building, setBuilding] = useState<Building | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [residents, setResidents] = useState<ResidentRow[]>([]);
-  const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0 });
+  const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0, avgResolutionHours: 0 });
+  const [securityInvite, setSecurityInvite] = useState<{ open: boolean; email: string; name: string; busy: boolean }>({ open: false, email: "", name: "", busy: false });
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
   const [inviteOpen, setInviteOpen] = useState(false);
 
@@ -62,17 +63,23 @@ export default function BoardHome() {
     setResidents(rows);
 
     const [tk, vs, ch] = await Promise.all([
-      supabase.from("tickets").select("id, status", { count: "exact" }).eq("building_id", buildingId),
-      supabase.from("visits").select("id, expected_at", { count: "exact" }).eq("building_id", buildingId).eq("status", "expected"),
-      supabase.from("charges").select("id, status", { count: "exact" }).eq("building_id", buildingId),
+      supabase.from("tickets").select("id, status, created_at, closed_at").eq("building_id", buildingId),
+      supabase.from("visits").select("id, expected_at").eq("building_id", buildingId).eq("status", "expected"),
+      supabase.from("charges").select("id, status").eq("building_id", buildingId),
     ]);
+    const ticketRows = (tk.data ?? []) as any[];
+    const closed = ticketRows.filter((t) => (t.status === "closed" || t.status === "resolved") && t.closed_at);
+    const avgMs = closed.length
+      ? closed.reduce((s, t) => s + (new Date(t.closed_at).getTime() - new Date(t.created_at).getTime()), 0) / closed.length
+      : 0;
     setCounts({
       units: uList.length,
       activeResidents: (mem ?? []).length,
-      openTickets: ((tk.data ?? []) as any[]).filter((t) => t.status === "open" || t.status === "in_progress").length,
+      openTickets: ticketRows.filter((t) => t.status === "open" || t.status === "in_progress").length,
       upcomingVisits: ((vs.data ?? []) as any[]).filter((v) => !v.expected_at || new Date(v.expected_at) >= new Date()).length,
-      pendingCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "pending" || c.status === "overdue").length,
-      paidCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "paid").length,
+      pendingCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "pending" || c.status === "overdue" || c.status === "en_revision").length,
+      paidCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "paid" || c.status === "pagado").length,
+      avgResolutionHours: avgMs ? Math.round((avgMs / 3600000) * 10) / 10 : 0,
     });
   };
 
@@ -150,6 +157,7 @@ export default function BoardHome() {
                 <Stat label="Unidades" value={counts.units} />
                 <Stat label="Residentes activos" value={counts.activeResidents} />
                 <Stat label="Tickets abiertos" value={counts.openTickets} />
+                <Stat label="Tiempo prom. resolución (h)" value={counts.avgResolutionHours} />
                 <Stat label="Visitas próximas" value={counts.upcomingVisits} />
                 <Stat label="Cargos pendientes" value={counts.pendingCharges} />
                 <Stat label="Cargos pagados" value={counts.paidCharges} />
@@ -158,7 +166,57 @@ export default function BoardHome() {
           )}
 
         </Tabs>
+
+        {isBoard && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="text-base">Personal de seguridad</CardTitle>
+              <CardDescription>Invita al guardia. Podrá marcar ingreso/salida de visitas.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" size="sm" onClick={() => setSecurityInvite({ open: true, email: "", name: "", busy: false })}>
+                Invitar seguridad
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </main>
+
+      <Dialog open={securityInvite.open} onOpenChange={(o) => setSecurityInvite((s) => ({ ...s, open: o }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invitar personal de seguridad</DialogTitle>
+            <DialogDescription>Se generará un enlace de activación de un solo uso.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium">Correo</label>
+              <Input type="email" value={securityInvite.email} onChange={(e) => setSecurityInvite((s) => ({ ...s, email: e.target.value }))} />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Nombre</label>
+              <Input value={securityInvite.name} onChange={(e) => setSecurityInvite((s) => ({ ...s, name: e.target.value }))} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              disabled={securityInvite.busy || !securityInvite.email}
+              onClick={async () => {
+                setSecurityInvite((s) => ({ ...s, busy: true }));
+                const { data, error } = await supabase.functions.invoke("create-invite", {
+                  body: { email: securityInvite.email, role: "security", building_id: buildingId, resident_name: securityInvite.name || null },
+                });
+                setSecurityInvite((s) => ({ ...s, busy: false }));
+                if (error || !data?.ok) { toast({ title: "Error", description: data?.error || error?.message, variant: "destructive" }); return; }
+                setSecurityInvite({ open: false, email: "", name: "", busy: false });
+                setLinkDialog({ open: true, url: data.activation_url });
+              }}
+            >
+              Crear invitación
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <InviteResidentDialog
         open={inviteOpen}

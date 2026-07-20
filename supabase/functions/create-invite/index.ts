@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
 
     if (!email || !role) return json({ ok: false, error: 'email y role requeridos' }, 400);
 
-    const validRoles = ['admin_board', 'manager', 'resident', 'platform_admin'];
+    const validRoles = ['admin_board', 'manager', 'resident', 'platform_admin', 'security'];
     if (!validRoles.includes(role)) return json({ ok: false, error: 'Rol inválido' }, 400);
 
     if (role === 'platform_admin' && !isPlatformAdmin) return json({ ok: false, error: 'Solo platform_admin' }, 403);
@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     if (role === 'resident' && !resident_type) return json({ ok: false, error: 'resident_type requerido' }, 400);
     if (resident_type && !['owner','tenant'].includes(resident_type)) return json({ ok: false, error: 'resident_type inválido' }, 400);
 
-    if (role === 'resident' || role === 'manager') {
+    if (role === 'resident' || role === 'manager' || role === 'security') {
       const isBoardHere = (myMems ?? []).some((m) => m.building_id === building_id && m.role === 'admin_board');
       const isOwnerHere = (myMems ?? []).some((m) =>
         m.building_id === building_id && m.role === 'resident' && m.unit_id === unit_id && m.resident_type === 'owner'

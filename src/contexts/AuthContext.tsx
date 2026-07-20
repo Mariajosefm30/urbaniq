@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "platform_admin" | "admin_board" | "manager" | "resident";
+export type AppRole = "platform_admin" | "admin_board" | "manager" | "resident" | "security";
 
 export interface Membership {
   id: string;
@@ -25,7 +25,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ROLE_PRIORITY: AppRole[] = ["platform_admin", "admin_board", "manager", "resident"];
+const ROLE_PRIORITY: AppRole[] = ["platform_admin", "admin_board", "manager", "security", "resident"];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

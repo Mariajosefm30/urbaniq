@@ -12,6 +12,7 @@ import RoleHome from "./pages/RoleHome";
 import PlatformAdmin from "./pages/PlatformAdmin";
 import BoardHome from "./pages/BoardHome";
 import ResidentHome from "./pages/ResidentHome";
+import SecurityHome from "./pages/SecurityHome";
 import NoAccess from "./pages/NoAccess";
 import NotFound from "./pages/NotFound";
 
@@ -46,6 +47,10 @@ const App = () => (
             <Route
               path="/app/:buildingId"
               element={<ProtectedRoute roles={["resident"]}><ResidentHome /></ProtectedRoute>}
+            />
+            <Route
+              path="/security/:buildingId"
+              element={<ProtectedRoute roles={["security"]}><SecurityHome /></ProtectedRoute>}
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
