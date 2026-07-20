@@ -63,17 +63,23 @@ export default function BoardHome() {
     setResidents(rows);
 
     const [tk, vs, ch] = await Promise.all([
-      supabase.from("tickets").select("id, status", { count: "exact" }).eq("building_id", buildingId),
-      supabase.from("visits").select("id, expected_at", { count: "exact" }).eq("building_id", buildingId).eq("status", "expected"),
-      supabase.from("charges").select("id, status", { count: "exact" }).eq("building_id", buildingId),
+      supabase.from("tickets").select("id, status, created_at, closed_at").eq("building_id", buildingId),
+      supabase.from("visits").select("id, expected_at").eq("building_id", buildingId).eq("status", "expected"),
+      supabase.from("charges").select("id, status").eq("building_id", buildingId),
     ]);
+    const ticketRows = (tk.data ?? []) as any[];
+    const closed = ticketRows.filter((t) => (t.status === "closed" || t.status === "resolved") && t.closed_at);
+    const avgMs = closed.length
+      ? closed.reduce((s, t) => s + (new Date(t.closed_at).getTime() - new Date(t.created_at).getTime()), 0) / closed.length
+      : 0;
     setCounts({
       units: uList.length,
       activeResidents: (mem ?? []).length,
-      openTickets: ((tk.data ?? []) as any[]).filter((t) => t.status === "open" || t.status === "in_progress").length,
+      openTickets: ticketRows.filter((t) => t.status === "open" || t.status === "in_progress").length,
       upcomingVisits: ((vs.data ?? []) as any[]).filter((v) => !v.expected_at || new Date(v.expected_at) >= new Date()).length,
-      pendingCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "pending" || c.status === "overdue").length,
-      paidCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "paid").length,
+      pendingCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "pending" || c.status === "overdue" || c.status === "en_revision").length,
+      paidCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "paid" || c.status === "pagado").length,
+      avgResolutionHours: avgMs ? Math.round((avgMs / 3600000) * 10) / 10 : 0,
     });
   };
 
