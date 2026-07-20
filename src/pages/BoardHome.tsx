@@ -17,6 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Copy } from "lucide-react";
+import { FeedPanel } from "@/components/features/FeedPanel";
+import { TicketsPanel } from "@/components/features/TicketsPanel";
+import { GuestsPanel } from "@/components/features/GuestsPanel";
+import { PaymentsBoardPanel } from "@/components/features/PaymentsPanel";
+
 
 interface Building { id: string; name: string; tier: Tier; address: string | null; }
 
@@ -135,10 +140,10 @@ export default function BoardHome() {
             )}
           </TabsContent>
 
-          {has("feed") && <TabsContent value="feed" className="pt-4"><ComingSoon feature="Live Feed" /></TabsContent>}
-          {has("tickets_basic") && <TabsContent value="tickets" className="pt-4"><ComingSoon feature="Tickets" /></TabsContent>}
-          {has("guests") && <TabsContent value="guests" className="pt-4"><ComingSoon feature="Registro de visitas" /></TabsContent>}
-          {has("payments_tracking") && <TabsContent value="payments" className="pt-4"><ComingSoon feature="Pagos" /></TabsContent>}
+          {has("feed") && <TabsContent value="feed" className="pt-4"><FeedPanel buildingId={buildingId} isBoard={isBoard} /></TabsContent>}
+          {has("tickets_basic") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={isBoard} canCreate={false} /></TabsContent>}
+          {has("guests") && <TabsContent value="guests" className="pt-4"><GuestsPanel buildingId={buildingId} isBoard={isBoard} canCreate={false} /></TabsContent>}
+          {has("payments_tracking") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} /></TabsContent>}
           {has("analytics_basic") && (
             <TabsContent value="analytics" className="pt-4">
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
@@ -151,6 +156,7 @@ export default function BoardHome() {
               </div>
             </TabsContent>
           )}
+
         </Tabs>
       </main>
 
@@ -180,16 +186,8 @@ export default function BoardHome() {
   );
 }
 
-function ComingSoon({ feature }: { feature: string }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{feature}</CardTitle>
-        <CardDescription>Disponible en tu plan. La UI de esta sección se habilitará próximamente.</CardDescription>
-      </CardHeader>
-    </Card>
-  );
-}
+
+
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (

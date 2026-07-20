@@ -17,27 +17,45 @@ export type Database = {
       buildings: {
         Row: {
           address: string | null
+          bank_account: string | null
+          bank_holder: string | null
+          bank_name: string | null
           created_at: string
           id: string
           name: string
+          plin_phone: string | null
+          qr_image_url: string | null
           tier: Database["public"]["Enums"]["building_tier"]
           updated_at: string
+          yape_phone: string | null
         }
         Insert: {
           address?: string | null
+          bank_account?: string | null
+          bank_holder?: string | null
+          bank_name?: string | null
           created_at?: string
           id?: string
           name: string
+          plin_phone?: string | null
+          qr_image_url?: string | null
           tier?: Database["public"]["Enums"]["building_tier"]
           updated_at?: string
+          yape_phone?: string | null
         }
         Update: {
           address?: string | null
+          bank_account?: string | null
+          bank_holder?: string | null
+          bank_name?: string | null
           created_at?: string
           id?: string
           name?: string
+          plin_phone?: string | null
+          qr_image_url?: string | null
           tier?: Database["public"]["Enums"]["building_tier"]
           updated_at?: string
+          yape_phone?: string | null
         }
         Relationships: []
       }
@@ -46,37 +64,64 @@ export type Database = {
           amount: number
           building_id: string
           concept: string
+          confirmed_at: string | null
+          confirmed_by: string | null
           created_at: string
+          currency: string
           due_date: string | null
           id: string
+          method: string | null
+          operation_code: string | null
           period: string | null
+          proof_url: string | null
+          rejection_reason: string | null
           status: Database["public"]["Enums"]["payment_status"]
           unit_id: string | null
           updated_at: string
+          uploaded_at: string | null
+          uploaded_by: string | null
         }
         Insert: {
           amount: number
           building_id: string
           concept: string
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
+          currency?: string
           due_date?: string | null
           id?: string
+          method?: string | null
+          operation_code?: string | null
           period?: string | null
+          proof_url?: string | null
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           unit_id?: string | null
           updated_at?: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
         }
         Update: {
           amount?: number
           building_id?: string
           concept?: string
+          confirmed_at?: string | null
+          confirmed_by?: string | null
           created_at?: string
+          currency?: string
           due_date?: string | null
           id?: string
+          method?: string | null
+          operation_code?: string | null
           period?: string | null
+          proof_url?: string | null
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           unit_id?: string | null
           updated_at?: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
         }
         Relationships: [
           {
@@ -370,8 +415,10 @@ export type Database = {
           guest_name: string
           host_id: string
           id: string
+          needs_parking: boolean
           status: Database["public"]["Enums"]["visit_status"]
           unit_id: string | null
+          vehicle_plate: string | null
         }
         Insert: {
           building_id: string
@@ -380,8 +427,10 @@ export type Database = {
           guest_name: string
           host_id: string
           id?: string
+          needs_parking?: boolean
           status?: Database["public"]["Enums"]["visit_status"]
           unit_id?: string | null
+          vehicle_plate?: string | null
         }
         Update: {
           building_id?: string
@@ -390,8 +439,10 @@ export type Database = {
           guest_name?: string
           host_id?: string
           id?: string
+          needs_parking?: boolean
           status?: Database["public"]["Enums"]["visit_status"]
           unit_id?: string | null
+          vehicle_plate?: string | null
         }
         Relationships: [
           {
@@ -442,7 +493,13 @@ export type Database = {
       app_role_v2: "platform_admin" | "admin_board" | "manager" | "resident"
       building_tier: "starter" | "growth" | "pro" | "developer"
       guest_status: "scheduled" | "expired" | "revoked"
-      payment_status: "pending" | "paid" | "overdue" | "cancelled"
+      payment_status:
+        | "pending"
+        | "paid"
+        | "overdue"
+        | "cancelled"
+        | "en_revision"
+        | "rechazado"
       payment_type: "rental" | "maintenance" | "utilities" | "other"
       ticket_status: "open" | "in_progress" | "resolved" | "closed"
       visit_status: "expected" | "arrived" | "left"
@@ -576,7 +633,14 @@ export const Constants = {
       app_role_v2: ["platform_admin", "admin_board", "manager", "resident"],
       building_tier: ["starter", "growth", "pro", "developer"],
       guest_status: ["scheduled", "expired", "revoked"],
-      payment_status: ["pending", "paid", "overdue", "cancelled"],
+      payment_status: [
+        "pending",
+        "paid",
+        "overdue",
+        "cancelled",
+        "en_revision",
+        "rechazado",
+      ],
       payment_type: ["rental", "maintenance", "utilities", "other"],
       ticket_status: ["open", "in_progress", "resolved", "closed"],
       visit_status: ["expected", "arrived", "left"],
