@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
     const {
       email, role, building_id, unit_id,
       resident_name, phone, resident_type,
-      reassign,
+      reassign, areas,
     } = await req.json();
 
     if (!email || !role) return json({ ok: false, error: 'email y role requeridos' }, 400);
@@ -44,6 +44,13 @@ Deno.serve(async (req) => {
     if (role === 'resident' && !unit_id) return json({ ok: false, error: 'unit_id requerido' }, 400);
     if (role === 'resident' && !resident_type) return json({ ok: false, error: 'resident_type requerido' }, 400);
     if (resident_type && !['owner','tenant'].includes(resident_type)) return json({ ok: false, error: 'resident_type inválido' }, 400);
+
+    const VALID_AREAS = ['maintenance','guests','payments','feed'];
+    let areasClean: string[] = [];
+    if (role === 'manager') {
+      areasClean = Array.isArray(areas) ? areas.filter((a: string) => VALID_AREAS.includes(a)) : [];
+      if (areasClean.length === 0) return json({ ok: false, error: 'Selecciona al menos un área para el manager' }, 400);
+    }
 
     if (role === 'resident' || role === 'manager' || role === 'security') {
       const isBoardHere = (myMems ?? []).some((m) => m.building_id === building_id && m.role === 'admin_board');
@@ -82,7 +89,7 @@ Deno.serve(async (req) => {
       if (cap !== null) {
         const { count: activeCount } = await admin
           .from('memberships').select('id', { count: 'exact', head: true })
-          .eq('building_id', building_id).eq('role', 'admin_board');
+          .eq('building_id', building_id).eq('role', 'admin_board').is('revoked_at', null);
         const { count: pendingCount } = await admin
           .from('invites').select('id', { count: 'exact', head: true })
           .eq('building_id', building_id).eq('role', 'admin_board').is('accepted_at', null);
@@ -102,6 +109,7 @@ Deno.serve(async (req) => {
         resident_name: resident_name ?? null,
         phone: phone ?? null,
         resident_type: resident_type ?? null,
+        areas: role === 'manager' ? areasClean : [],
         invited_by: user.id,
       })
       .select('token')

@@ -4,12 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "platform_admin" | "admin_board" | "manager" | "resident" | "security";
 
+export type ManagerArea = "maintenance" | "guests" | "payments" | "feed";
+
 export interface Membership {
   id: string;
   building_id: string | null;
   role: AppRole;
   unit_id: string | null;
   resident_type: "owner" | "tenant" | null;
+  areas: ManagerArea[];
+  revoked_at: string | null;
 }
 
 interface AuthContextType {
@@ -36,8 +40,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadMemberships = useCallback(async (uid: string) => {
     const { data, error } = await supabase
       .from("memberships")
-      .select("id, building_id, role, unit_id, resident_type")
-      .eq("user_id", uid);
+      .select("id, building_id, role, unit_id, resident_type, areas, revoked_at")
+      .eq("user_id", uid)
+      .is("revoked_at", null);
     if (error) {
       console.error("[auth] memberships load error", error);
       setMemberships([]);
