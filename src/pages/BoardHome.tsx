@@ -14,7 +14,7 @@ import { BulkImport } from "@/components/roster/BulkImport";
 import { InviteResidentDialog } from "@/components/roster/InviteResidentDialog";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Copy } from "lucide-react";
 import { FeedPanel } from "@/components/features/FeedPanel";
