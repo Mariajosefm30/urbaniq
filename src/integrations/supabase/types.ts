@@ -143,6 +143,7 @@ export type Database = {
       invites: {
         Row: {
           accepted_at: string | null
+          areas: string[]
           building_id: string | null
           created_at: string
           email: string
@@ -158,6 +159,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          areas?: string[]
           building_id?: string | null
           created_at?: string
           email: string
@@ -173,6 +175,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          areas?: string[]
           building_id?: string | null
           created_at?: string
           email?: string
@@ -205,34 +208,40 @@ export type Database = {
       }
       memberships: {
         Row: {
+          areas: string[]
           building_id: string | null
           created_at: string
           id: string
           phone: string | null
           resident_name: string | null
           resident_type: string | null
+          revoked_at: string | null
           role: Database["public"]["Enums"]["app_role_v2"]
           unit_id: string | null
           user_id: string
         }
         Insert: {
+          areas?: string[]
           building_id?: string | null
           created_at?: string
           id?: string
           phone?: string | null
           resident_name?: string | null
           resident_type?: string | null
+          revoked_at?: string | null
           role: Database["public"]["Enums"]["app_role_v2"]
           unit_id?: string | null
           user_id: string
         }
         Update: {
+          areas?: string[]
           building_id?: string | null
           created_at?: string
           id?: string
           phone?: string | null
           resident_name?: string | null
           resident_type?: string | null
+          revoked_at?: string | null
           role?: Database["public"]["Enums"]["app_role_v2"]
           unit_id?: string | null
           user_id?: string
@@ -576,6 +585,10 @@ export type Database = {
     Functions: {
       building_has_feature: {
         Args: { _building_id: string; _feature: string }
+        Returns: boolean
+      }
+      can_manage_area: {
+        Args: { _area: string; _building_id: string; _uid: string }
         Returns: boolean
       }
       current_user_unit: { Args: { _building_id: string }; Returns: string }
