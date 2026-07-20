@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, CheckCircle2, XCircle, Image as ImageIcon } from "lucide-react";
+import { Upload, CheckCircle2, XCircle, Image as ImageIcon, Bell } from "lucide-react";
 
 type Charge = {
   id: string; unit_id: string | null; concept: string; amount: number;
