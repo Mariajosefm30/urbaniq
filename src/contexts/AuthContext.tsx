@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadMemberships = useCallback(async (uid: string) => {
     const { data, error } = await supabase
       .from("memberships")
-      .select("id, building_id, role, unit_id")
+      .select("id, building_id, role, unit_id, resident_type")
       .eq("user_id", uid);
     if (error) {
       console.error("[auth] memberships load error", error);
