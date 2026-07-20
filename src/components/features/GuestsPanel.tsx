@@ -75,19 +75,61 @@ export function GuestsPanel({ buildingId, isBoard, canCreate, myUnitId }: {
     else load();
   };
 
+  const [filters, setFilters] = useState({ unit: "all", status: "all", from: "", to: "" });
+  const filtered = visits.filter((v) => {
+    if (filters.unit !== "all" && v.unit_id !== filters.unit) return false;
+    if (filters.status !== "all" && v.status !== filters.status) return false;
+    const ref = v.expected_at ? new Date(v.expected_at) : new Date(v.created_at);
+    if (filters.from && ref < new Date(filters.from)) return false;
+    if (filters.to && ref > new Date(new Date(filters.to).getTime() + 86400000)) return false;
+    return true;
+  });
+  const uniqueUnits = Array.from(new Map(visits.filter((v) => v.unit_id).map((v) => [v.unit_id!, v.unit_code || v.unit_id!])).entries());
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">{isBoard ? "Registro de visitas" : "Mis visitas"}</h2>
-          <p className="text-sm text-muted-foreground">Incluye información de estacionamiento de visita.</p>
+          <p className="text-sm text-muted-foreground">{isBoard ? "Historial completo del edificio." : "Incluye información de estacionamiento de visita."}</p>
         </div>
         {canCreate && <Button onClick={() => setOpen(true)}>Registrar visita</Button>}
       </div>
 
+      {isBoard && (
+        <Card>
+          <CardContent className="pt-4 grid gap-3 md:grid-cols-4">
+            <div>
+              <Label className="text-xs">Unidad</Label>
+              <Select value={filters.unit} onValueChange={(v) => setFilters({ ...filters, unit: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {uniqueUnits.map(([id, code]) => <SelectItem key={id} value={id}>{code}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Estado</Label>
+              <Select value={filters.status} onValueChange={(v) => setFilters({ ...filters, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="expected">Esperado</SelectItem>
+                  <SelectItem value="arrived">Ingresó</SelectItem>
+                  <SelectItem value="left">Salió</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label className="text-xs">Desde</Label><Input type="date" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} /></div>
+            <div><Label className="text-xs">Hasta</Label><Input type="date" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} /></div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="space-y-3">
-        {visits.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Sin visitas registradas.</p>}
-        {visits.map((v) => (
+        {filtered.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Sin visitas registradas.</p>}
+        {filtered.map((v) => (
           <Card key={v.id}>
             <CardContent className="pt-6">
               <div className="flex items-start justify-between gap-2">
