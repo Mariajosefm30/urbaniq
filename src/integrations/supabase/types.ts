@@ -796,7 +796,7 @@ export type Database = {
         | "en_revision"
         | "rechazado"
       payment_type: "rental" | "maintenance" | "utilities" | "other"
-      ticket_status: "open" | "in_progress" | "resolved" | "closed"
+      ticket_status: "open" | "in_progress" | "resolved" | "closed" | "waiting"
       visit_status: "expected" | "arrived" | "left"
     }
     CompositeTypes: {
@@ -943,7 +943,7 @@ export const Constants = {
         "rechazado",
       ],
       payment_type: ["rental", "maintenance", "utilities", "other"],
-      ticket_status: ["open", "in_progress", "resolved", "closed"],
+      ticket_status: ["open", "in_progress", "resolved", "closed", "waiting"],
       visit_status: ["expected", "arrived", "left"],
     },
   },
