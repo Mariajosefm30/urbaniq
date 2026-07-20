@@ -154,6 +154,14 @@ export default function BoardHome() {
         </Tabs>
       </main>
 
+      <InviteResidentDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        buildingId={buildingId}
+        units={units}
+        onCreated={(url) => { setInviteOpen(false); load(); setLinkDialog({ open: true, url }); }}
+      />
+
       <Dialog open={linkDialog.open} onOpenChange={(o) => setLinkDialog({ ...linkDialog, open: o })}>
         <DialogContent>
           <DialogHeader>
