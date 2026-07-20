@@ -29,6 +29,7 @@ export default function BoardHome() {
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0 });
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const myMembership = memberships.find((m) => m.building_id === buildingId);
   const isBoard = isPlatformAdmin || myMembership?.role === "admin_board" || myMembership?.role === "manager";
