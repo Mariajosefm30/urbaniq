@@ -1,0 +1,1 @@
+UPDATE public.buildings SET tier = 'starter' WHERE id = '943f7fa4-6a19-491c-82ed-e6dad2ffba0c';
