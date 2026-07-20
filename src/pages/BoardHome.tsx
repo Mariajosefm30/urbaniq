@@ -177,10 +177,24 @@ export default function BoardHome() {
             </TabsContent>
           )}
 
-          {has("feed") && canArea("feed") && <TabsContent value="feed" className="pt-4"><FeedPanel buildingId={buildingId} isBoard={true} /></TabsContent>}
-          {has("tickets_basic") && canArea("maintenance") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={true} canCreate={false} /></TabsContent>}
+          {has("feed") && canArea("feed") && (
+            <TabsContent value="feed" className="pt-4">
+              <FeedPanel
+                buildingId={buildingId}
+                isBoard={true}
+                polls={has("polls") ? {
+                  enabled: true,
+                  canCreate: isAdminBoard || (isManager && managerAreas.includes("feed")),
+                  canClose: isAdminBoard || (isManager && managerAreas.includes("feed")),
+                  ownerUnitIds: ownerUnits.owned,
+                  totalOwnerUnits: ownerUnits.total,
+                } : undefined}
+              />
+            </TabsContent>
+          )}
+          {has("tickets_basic") && canArea("maintenance") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={true} canCreate={false} advancedStates={has("tickets_states")} /></TabsContent>}
           {has("guests") && canArea("guests") && <TabsContent value="guests" className="pt-4"><GuestsPanel buildingId={buildingId} isBoard={true} canCreate={false} /></TabsContent>}
-          {has("payments_tracking") && canArea("payments") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} /></TabsContent>}
+          {has("payments_tracking") && canArea("payments") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} canRemind={has("payments_reminders")} /></TabsContent>}
           {isAdminBoard && has("analytics_basic") && (
             <TabsContent value="analytics" className="pt-4">
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
