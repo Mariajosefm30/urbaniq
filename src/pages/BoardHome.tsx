@@ -217,7 +217,7 @@ export default function BoardHome() {
                 setSecurityInvite((s) => ({ ...s, busy: false }));
                 if (error || !data?.ok) { toast({ title: "Error", description: data?.error || error?.message, variant: "destructive" }); return; }
                 setSecurityInvite({ open: false, email: "", name: "", busy: false });
-                setLinkDialog({ open: true, url: data.activation_url });
+                setLinkDialog({ open: true, url: data.activation_url, email: securityInvite.email, name: securityInvite.name });
               }}
             >
               Crear invitación
