@@ -38,7 +38,11 @@ export default function BoardHome() {
   const [inviteOpen, setInviteOpen] = useState(false);
 
   const myMembership = memberships.find((m) => m.building_id === buildingId);
-  const isBoard = isPlatformAdmin || myMembership?.role === "admin_board" || myMembership?.role === "manager";
+  const isAdminBoard = isPlatformAdmin || myMembership?.role === "admin_board";
+  const isManager = myMembership?.role === "manager";
+  const managerAreas = (myMembership?.areas ?? []) as string[];
+  const isBoard = isAdminBoard; // full board privileges (roster, seats, settings)
+  const canArea = (a: string) => isAdminBoard || (isManager && managerAreas.includes(a));
 
   const load = async () => {
     const [{ data: b }, { data: u }, { data: mem }, { data: inv }] = await Promise.all([
