@@ -17,6 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Copy } from "lucide-react";
+import { FeedPanel } from "@/components/features/FeedPanel";
+import { TicketsPanel } from "@/components/features/TicketsPanel";
+import { GuestsPanel } from "@/components/features/GuestsPanel";
+import { PaymentsBoardPanel } from "@/components/features/PaymentsPanel";
+
 
 interface Building { id: string; name: string; tier: Tier; address: string | null; }
 
