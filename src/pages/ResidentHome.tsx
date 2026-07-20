@@ -126,14 +126,5 @@ export default function ResidentHome() {
   );
 }
 
-function Placeholder({ title }: { title: string }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>Próximamente en tu plan Starter.</CardDescription>
-      </CardHeader>
-      <CardContent><p className="text-sm text-muted-foreground">Esta sección se habilitará en la próxima iteración.</p></CardContent>
-    </Card>
-  );
-}
+
+
