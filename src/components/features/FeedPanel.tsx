@@ -28,7 +28,11 @@ interface Comment {
   author_name?: string;
 }
 
-export function FeedPanel({ buildingId, isBoard }: { buildingId: string; isBoard: boolean }) {
+export function FeedPanel({ buildingId, isBoard, polls }: {
+  buildingId: string;
+  isBoard: boolean;
+  polls?: { enabled: boolean; canCreate: boolean; canClose: boolean; ownerUnitIds: string[]; totalOwnerUnits: number };
+}) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
