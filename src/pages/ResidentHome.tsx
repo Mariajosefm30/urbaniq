@@ -88,10 +88,11 @@ export default function ResidentHome() {
             {has("guests") && <TabsTrigger value="guests">Mis visitas</TabsTrigger>}
             {has("payments_tracking") && isOwner && <TabsTrigger value="payments">Mis pagos</TabsTrigger>}
           </TabsList>
-          {has("feed") && <TabsContent value="feed" className="pt-4"><Placeholder title="Novedades del edificio" /></TabsContent>}
-          {has("tickets_basic") && <TabsContent value="tickets" className="pt-4"><Placeholder title="Tickets de mantenimiento" /></TabsContent>}
-          {has("guests") && <TabsContent value="guests" className="pt-4"><Placeholder title="Registro de visitas" /></TabsContent>}
-          {has("payments_tracking") && isOwner && <TabsContent value="payments" className="pt-4"><Placeholder title="Estado de pagos" /></TabsContent>}
+          {has("feed") && <TabsContent value="feed" className="pt-4"><FeedPanel buildingId={buildingId} isBoard={false} /></TabsContent>}
+          {has("tickets_basic") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={false} canCreate={!!unit} myUnitId={unit?.id ?? null} /></TabsContent>}
+          {has("guests") && <TabsContent value="guests" className="pt-4"><GuestsPanel buildingId={buildingId} isBoard={false} canCreate={!!unit} myUnitId={unit?.id ?? null} /></TabsContent>}
+          {has("payments_tracking") && isOwner && unit && <TabsContent value="payments" className="pt-4"><PaymentsOwnerPanel buildingId={buildingId} unitId={unit.id} /></TabsContent>}
+
         </Tabs>
       </main>
 
