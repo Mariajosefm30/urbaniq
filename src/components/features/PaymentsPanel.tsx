@@ -164,16 +164,18 @@ function CreateChargeDialog({ buildingId, units, open, onOpenChange, onCreated }
 }
 
 // ------------- Board Payments panel -------------
-export function PaymentsBoardPanel({ buildingId }: { buildingId: string }) {
+export function PaymentsBoardPanel({ buildingId, canRemind = false }: { buildingId: string; canRemind?: boolean }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [building, setBuilding] = useState<Building | null>(null);
   const [charges, setCharges] = useState<Charge[]>([]);
   const [units, setUnits] = useState<{ id: string; code: string }[]>([]);
+  const [reminders, setReminders] = useState<Record<string, { id: string; sent_at: string; sent_by: string | null; sender_name?: string }[]>>({});
   const [createOpen, setCreateOpen] = useState(false);
   const [reviewing, setReviewing] = useState<Charge | null>(null);
   const [proofUrl, setProofUrl] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [remindingId, setRemindingId] = useState<string | null>(null);
 
   const load = async () => {
     const [{ data: b }, { data: c }, { data: u }] = await Promise.all([
@@ -188,9 +190,30 @@ export function PaymentsBoardPanel({ buildingId }: { buildingId: string }) {
     const uMap = new Map(uList.map((x) => [x.id, x.code]));
     rows.forEach((r) => { r.unit_code = r.unit_id ? uMap.get(r.unit_id) : undefined; });
     setCharges(rows);
+
+    if (canRemind && rows.length) {
+      const { data: rr } = await supabase.from("charge_reminders")
+        .select("id, charge_id, sent_at, sent_by")
+        .in("charge_id", rows.map((r) => r.id))
+        .order("sent_at", { ascending: false });
+      const senderIds = Array.from(new Set(((rr ?? []) as any[]).map((r) => r.sent_by).filter(Boolean)));
+      const nMap = new Map<string, string>();
+      if (senderIds.length) {
+        const { data: ms } = await supabase.from("memberships").select("user_id, resident_name, role").in("user_id", senderIds);
+        (ms ?? []).forEach((m: any) => { if (!nMap.has(m.user_id)) nMap.set(m.user_id, m.resident_name || (m.role === "admin_board" ? "Administración" : "Manager")); });
+      }
+      const grouped: Record<string, any[]> = {};
+      ((rr ?? []) as any[]).forEach((r) => {
+        (grouped[r.charge_id] ||= []).push({ ...r, sender_name: r.sent_by ? nMap.get(r.sent_by) || "Usuario" : "Sistema" });
+      });
+      setReminders(grouped);
+    } else {
+      setReminders({});
+    }
   };
 
-  useEffect(() => { load(); }, [buildingId]);
+  useEffect(() => { load(); }, [buildingId, canRemind]);
+
 
   useEffect(() => {
     if (reviewing?.proof_url) signedUrl(reviewing.proof_url, "payment-receipts").then(setProofUrl);
