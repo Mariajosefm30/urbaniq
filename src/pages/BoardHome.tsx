@@ -95,9 +95,29 @@ export default function BoardHome() {
       paidCharges: ((ch.data ?? []) as any[]).filter((c) => c.status === "paid" || c.status === "pagado").length,
       avgResolutionHours: avgMs ? Math.round((avgMs / 3600000) * 10) / 10 : 0,
     });
+
+    // owners for polls tally
+    const owners = ((mem ?? []) as any[]).filter((m) => m.resident_type === "owner" && m.unit_id);
+    const ownedByMe = owners.filter((m) => m.user_id === user?.id).map((m) => m.unit_id) as string[];
+    const totalOwnerUnits = new Set(owners.map((m) => m.unit_id)).size;
+    setOwnerUnits({ owned: ownedByMe, total: totalOwnerUnits });
   };
 
   useEffect(() => { if (buildingId) load(); }, [buildingId]);
+
+  // Realtime analytics (Growth+): re-fetch on relevant table changes
+  useEffect(() => {
+    if (!buildingId || !building) return;
+    if (!TIER_FEATURES[building.tier].includes("analytics_realtime")) return;
+    const ch = supabase
+      .channel(`board-live-${buildingId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tickets", filter: `building_id=eq.${buildingId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "charges", filter: `building_id=eq.${buildingId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "visits", filter: `building_id=eq.${buildingId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "polls", filter: `building_id=eq.${buildingId}` }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [buildingId, building?.tier]);
 
   if (!building) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Cargando...</div>;
 
