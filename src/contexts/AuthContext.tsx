@@ -51,13 +51,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, loadMemberships]);
 
   useEffect(() => {
+    let currentUserId: string | null = null;
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       setUser(s?.user ?? null);
-      if (s?.user) {
+      const newId = s?.user?.id ?? null;
+      if (newId && newId !== currentUserId) {
+        currentUserId = newId;
         setLoading(true);
-        setTimeout(() => loadMemberships(s.user.id).finally(() => setLoading(false)), 0);
-      } else {
+        setTimeout(() => loadMemberships(newId).finally(() => setLoading(false)), 0);
+      } else if (!newId) {
+        currentUserId = null;
         setMemberships([]);
         setLoading(false);
       }
@@ -66,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
+        currentUserId = s.user.id;
         setLoading(true);
         loadMemberships(s.user.id).finally(() => setLoading(false));
       } else {
