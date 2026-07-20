@@ -140,10 +140,10 @@ export default function BoardHome() {
             )}
           </TabsContent>
 
-          {has("feed") && <TabsContent value="feed" className="pt-4"><ComingSoon feature="Live Feed" /></TabsContent>}
-          {has("tickets_basic") && <TabsContent value="tickets" className="pt-4"><ComingSoon feature="Tickets" /></TabsContent>}
-          {has("guests") && <TabsContent value="guests" className="pt-4"><ComingSoon feature="Registro de visitas" /></TabsContent>}
-          {has("payments_tracking") && <TabsContent value="payments" className="pt-4"><ComingSoon feature="Pagos" /></TabsContent>}
+          {has("feed") && <TabsContent value="feed" className="pt-4"><FeedPanel buildingId={buildingId} isBoard={isBoard} /></TabsContent>}
+          {has("tickets_basic") && <TabsContent value="tickets" className="pt-4"><TicketsPanel buildingId={buildingId} isBoard={isBoard} canCreate={false} /></TabsContent>}
+          {has("guests") && <TabsContent value="guests" className="pt-4"><GuestsPanel buildingId={buildingId} isBoard={isBoard} canCreate={false} /></TabsContent>}
+          {has("payments_tracking") && <TabsContent value="payments" className="pt-4"><PaymentsBoardPanel buildingId={buildingId} /></TabsContent>}
           {has("analytics_basic") && (
             <TabsContent value="analytics" className="pt-4">
               <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
@@ -156,6 +156,7 @@ export default function BoardHome() {
               </div>
             </TabsContent>
           )}
+
         </Tabs>
       </main>
 
