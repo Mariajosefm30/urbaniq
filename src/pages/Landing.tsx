@@ -108,7 +108,7 @@ export default function Landing() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">PropPass</span>
+            <span className="text-xl font-bold">UrbanIQ</span>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => navigate("/auth")} variant="outline">
@@ -270,7 +270,7 @@ export default function Landing() {
       {/* BLOQUE 4 — PARA QUIÉN ES */}
       <section className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold text-center mb-12">¿Para quién es PropPass?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">¿Para quién es UrbanIQ?</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="text-center">
               <CardHeader className="pb-2">
@@ -338,18 +338,38 @@ export default function Landing() {
       {/* BLOQUE 5 — PLANES Y PRECIOS */}
       <section id="pricing" className="container py-16 bg-muted/30">
         <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-4">Planes simples según el tamaño de tu edificio</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Empieza con Starter hoy. Los planes superiores se activarán a partir del Q1 2026.
+            </p>
+          </div>
+
+          {/* Todos los planes incluyen */}
+          <div className="max-w-3xl mx-auto mb-10 p-4 rounded-lg bg-background border">
+            <p className="text-sm font-semibold mb-2 text-center">Todos los planes incluyen:</p>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Soporte en español</span>
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Actualizaciones automáticas</span>
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Datos seguros</span>
+              <span className="flex items-center gap-1"><Check className="h-4 w-4 text-primary" /> Sin contratos largos</span>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Plan Starter */}
-            <Card className="relative flex flex-col border-2">
+            <Card className="relative flex flex-col border-2 border-primary shadow-lg">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
+                  Disponible ahora
+                </span>
+              </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-xs font-medium mb-2">
-                  Starter
+                  Starter · Básico
                 </div>
                 <CardTitle className="text-xl">Para edificios pequeños</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: condominios de hasta 12 deptos con 1 administrador.</p>
                 <div className="mt-4">
                   <p className="text-3xl font-bold">$20 <span className="text-base font-normal text-muted-foreground">USD</span></p>
                   <p className="text-sm text-muted-foreground">/ edificio / mes</p>
@@ -392,17 +412,18 @@ export default function Landing() {
             </Card>
 
             {/* Plan Growth */}
-            <Card className="relative flex flex-col border-2 border-primary shadow-lg">
+            <Card className="relative flex flex-col border-2 opacity-90">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
-                  Popular
+                <span className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full border">
+                  Disponible Q1 2026
                 </span>
               </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 text-xs font-medium mb-2">
-                  Growth
+                  Growth · Crecimiento
                 </div>
                 <CardTitle className="text-xl">Para juntas y HOAs</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: edificios de 13–50 deptos con junta directiva.</p>
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">Desde</p>
                   <p className="text-3xl font-bold">$2 <span className="text-base font-normal text-muted-foreground">USD</span></p>
@@ -439,19 +460,25 @@ export default function Landing() {
                 </div>
               </CardContent>
               <div className="p-6 pt-0">
-                <Button className="w-full" onClick={handleGetStarted}>
-                  Elegir Growth
+                <Button className="w-full" variant="outline" onClick={handleBookDemo}>
+                  Unirme a la lista de espera
                 </Button>
               </div>
             </Card>
 
             {/* Plan Pro */}
-            <Card className="relative flex flex-col border-2">
+            <Card className="relative flex flex-col border-2 opacity-90">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full border">
+                  Disponible Q1 2026
+                </span>
+              </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-purple-500/10 text-purple-600 text-xs font-medium mb-2">
-                  Pro
+                  Pro · Profesional
                 </div>
                 <CardTitle className="text-xl">Para edificios administrados</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: 50+ deptos con administrador profesional y personal por área.</p>
                 <div className="mt-4">
                   <p className="text-sm text-muted-foreground">Desde</p>
                   <p className="text-3xl font-bold">$1.25 <span className="text-base font-normal text-muted-foreground">USD</span></p>
@@ -489,18 +516,24 @@ export default function Landing() {
               </CardContent>
               <div className="p-6 pt-0">
                 <Button className="w-full" variant="outline" onClick={handleBookDemo}>
-                  Hablar con ventas
+                  Unirme a la lista de espera
                 </Button>
               </div>
             </Card>
 
             {/* Plan Developer / Enterprise */}
-            <Card className="relative flex flex-col border-2">
+            <Card className="relative flex flex-col border-2 opacity-90">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full border">
+                  Disponible Q1 2026
+                </span>
+              </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-gray-500/10 text-gray-600 text-xs font-medium mb-2">
-                  Developer / Enterprise
+                  Developer · Empresarial
                 </div>
                 <CardTitle className="text-xl">Para proyectos inmobiliarios</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: desarrolladoras con múltiples proyectos y reglas propias.</p>
                 <div className="mt-4">
                   <p className="text-3xl font-bold">Personalizado</p>
                   <p className="text-sm text-muted-foreground">Precio a medida</p>
@@ -565,7 +598,7 @@ export default function Landing() {
               <CardContent className="pt-6">
                 <Quote className="h-8 w-8 text-primary/30 mb-4" />
                 <p className="text-muted-foreground mb-6">
-                  "Antes usábamos WhatsApp para todo y era un caos. Ahora con PropPass los avisos llegan a todos y tenemos control de los pagos."
+                  "Antes usábamos WhatsApp para todo y era un caos. Ahora con UrbanIQ los avisos llegan a todos y tenemos control de los pagos."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -628,7 +661,7 @@ export default function Landing() {
             Sin contratos largos. Sin complicaciones.
           </p>
           <Button size="lg" className="text-lg px-8" onClick={handleGetStarted}>
-            Probar PropPass
+            Probar UrbanIQ
           </Button>
         </div>
       </section>
@@ -641,7 +674,7 @@ export default function Landing() {
             <AccordionItem value="item-1">
               <AccordionTrigger>¿Puedo empezar solo con pagos o solo avisos?</AccordionTrigger>
               <AccordionContent>
-                Sí. Puedes activar solo lo que tu edificio necesita. PropPass es modular y se adapta a tus prioridades.
+                Sí. Puedes activar solo lo que tu edificio necesita. UrbanIQ es modular y se adapta a tus prioridades.
               </AccordionContent>
             </AccordionItem>
 
@@ -669,7 +702,7 @@ export default function Landing() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-primary" />
-                <span className="font-bold">PropPass</span>
+                <span className="font-bold">UrbanIQ</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Administración de edificios moderna para Perú.
@@ -696,8 +729,8 @@ export default function Landing() {
               <h4 className="font-semibold">Contacto</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="mailto:contact@proppass.com" className="text-muted-foreground hover:text-foreground transition-colors">
-                    contact@proppass.com
+                  <a href="mailto:contact@urbaniq.com" className="text-muted-foreground hover:text-foreground transition-colors">
+                    contact@urbaniq.com
                   </a>
                 </li>
               </ul>
@@ -705,7 +738,7 @@ export default function Landing() {
           </div>
 
           <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} PropPass. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} UrbanIQ. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>

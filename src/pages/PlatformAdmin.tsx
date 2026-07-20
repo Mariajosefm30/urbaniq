@@ -91,7 +91,7 @@ export default function PlatformAdmin() {
           <div className="flex items-center gap-2">
             <Building2 className="h-6 w-6 text-primary" />
             <div>
-              <p className="text-sm font-semibold">PropPass · Platform Admin</p>
+              <p className="text-sm font-semibold">UrbanIQ · Platform Admin</p>
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </div>
           </div>

@@ -109,7 +109,7 @@ export default function Activate() {
         <CardHeader>
           <CardTitle>Activa tu cuenta</CardTitle>
           <CardDescription>
-            Bienvenido a PropPass. Crea una contraseña para <strong>{info?.email}</strong>.
+            Bienvenido a UrbanIQ. Crea una contraseña para <strong>{info?.email}</strong>.
             <br />
             Rol: <strong>{info?.role}</strong>
             {info?.building_name && <> — {info.building_name}</>}

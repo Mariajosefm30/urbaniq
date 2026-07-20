@@ -294,7 +294,7 @@ export default function BoardHome() {
             {(() => {
               const nombre = linkDialog.name?.trim().split(/\s+/)[0] || "";
               const saludo = nombre ? `Hola ${nombre}` : "Hola";
-              const msg = `${saludo}, te invito a activar tu cuenta en ${building.name} (PropPass):\n${linkDialog.url}`;
+              const msg = `${saludo}, te invito a activar tu cuenta en ${building.name} (UrbanIQ):\n${linkDialog.url}`;
               const phone = (linkDialog.phone ?? "").replace(/[^\d]/g, "");
               const waUrl = phone
                 ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`

@@ -43,7 +43,7 @@ export default function Auth() {
           <div className="flex justify-center mb-2">
             <Building2 className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle>PropPass</CardTitle>
+          <CardTitle>UrbanIQ</CardTitle>
           <CardDescription>Inicia sesión con tu cuenta</CardDescription>
         </CardHeader>
         <CardContent>
