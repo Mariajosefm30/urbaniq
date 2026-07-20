@@ -516,18 +516,24 @@ export default function Landing() {
               </CardContent>
               <div className="p-6 pt-0">
                 <Button className="w-full" variant="outline" onClick={handleBookDemo}>
-                  Hablar con ventas
+                  Unirme a la lista de espera
                 </Button>
               </div>
             </Card>
 
             {/* Plan Developer / Enterprise */}
-            <Card className="relative flex flex-col border-2">
+            <Card className="relative flex flex-col border-2 opacity-90">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="bg-muted text-muted-foreground text-xs font-medium px-3 py-1 rounded-full border">
+                  Disponible Q1 2026
+                </span>
+              </div>
               <CardHeader className="text-center pb-2">
                 <div className="inline-block px-3 py-1 rounded-full bg-gray-500/10 text-gray-600 text-xs font-medium mb-2">
-                  Developer / Enterprise
+                  Developer · Empresarial
                 </div>
                 <CardTitle className="text-xl">Para proyectos inmobiliarios</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">Ideal para: desarrolladoras con múltiples proyectos y reglas propias.</p>
                 <div className="mt-4">
                   <p className="text-3xl font-bold">Personalizado</p>
                   <p className="text-sm text-muted-foreground">Precio a medida</p>
