@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
         resident_name: resident_name ?? null,
         phone: phone ?? null,
         resident_type: resident_type ?? null,
-        areas: role === 'manager' ? areasClean : [],
+        areas: (role === 'manager' || role === 'security') ? areasClean : [],
         invited_by: user.id,
       })
       .select('token')
