@@ -778,6 +778,7 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: { _uid: string }; Returns: boolean }
+      shares_building_with: { Args: { _other_user: string }; Returns: boolean }
     }
     Enums: {
       app_role_v2:
