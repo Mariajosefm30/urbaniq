@@ -229,6 +229,14 @@ export default function PlatformAdmin() {
         currentMembershipId={reassign.membershipId}
         onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
       />
+
+      <InviteSecurityDialog
+        open={securityOpen}
+        onOpenChange={setSecurityOpen}
+        buildings={buildings.map((b) => ({ id: b.id, name: b.name }))}
+        onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
+      />
+
     </div>
   );
 }
