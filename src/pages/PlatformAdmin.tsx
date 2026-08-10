@@ -14,6 +14,7 @@ import { TIER_LABELS, TIER_SEATS, type Tier } from "@/lib/tiers";
 import { Link } from "react-router-dom";
 import { ReassignSeatDialog } from "@/components/platform/ReassignSeatDialog";
 import { InviteSecurityDialog } from "@/components/platform/InviteSecurityDialog";
+import { InviteManagerDialog } from "@/components/platform/InviteManagerDialog";
 
 
 interface Building { id: string; name: string; tier: Tier; address: string | null; created_at: string; }
@@ -35,6 +36,7 @@ export default function PlatformAdmin() {
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
   const [reassign, setReassign] = useState<{ open: boolean; buildingId: string; membershipId: string | null }>({ open: false, buildingId: "", membershipId: null });
   const [securityOpen, setSecurityOpen] = useState(false);
+  const [managerOpen, setManagerOpen] = useState(false);
 
 
   const load = async () => {
@@ -117,6 +119,26 @@ export default function PlatformAdmin() {
             </Button>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Managers (sub-admins por área)</CardTitle>
+            <CardDescription>
+              Invita managers desde aquí y elige en el checklist qué áreas puede administrar en cada edificio.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              onClick={() => setManagerOpen(true)}
+              disabled={buildings.filter((b) => b.tier !== "starter").length === 0}
+            >
+              <UserCog className="h-4 w-4 mr-1" /> Invitar manager
+            </Button>
+          </CardContent>
+        </Card>
+
+
 
         <Card>
           <CardHeader>
@@ -236,6 +258,14 @@ export default function PlatformAdmin() {
         buildings={buildings.map((b) => ({ id: b.id, name: b.name }))}
         onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
       />
+
+      <InviteManagerDialog
+        open={managerOpen}
+        onOpenChange={setManagerOpen}
+        buildings={buildings.map((b) => ({ id: b.id, name: b.name, tier: b.tier }))}
+        onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
+      />
+
 
     </div>
   );
