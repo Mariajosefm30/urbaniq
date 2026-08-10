@@ -46,11 +46,16 @@ Deno.serve(async (req) => {
     if (resident_type && !['owner','tenant'].includes(resident_type)) return json({ ok: false, error: 'resident_type inválido' }, 400);
 
     const VALID_AREAS = ['maintenance','guests','payments','feed'];
+    const SECURITY_AREAS = ['maintenance','guests','payments','feed','residents'];
     let areasClean: string[] = [];
     if (role === 'manager') {
       areasClean = Array.isArray(areas) ? areas.filter((a: string) => VALID_AREAS.includes(a)) : [];
       if (areasClean.length === 0) return json({ ok: false, error: 'Selecciona al menos un área para el manager' }, 400);
     }
+    if (role === 'security') {
+      areasClean = Array.isArray(areas) ? areas.filter((a: string) => SECURITY_AREAS.includes(a)) : [];
+    }
+
 
     if (role === 'resident' || role === 'manager' || role === 'security') {
       const isBoardHere = (myMems ?? []).some((m) => m.building_id === building_id && m.role === 'admin_board');
@@ -109,7 +114,7 @@ Deno.serve(async (req) => {
         resident_name: resident_name ?? null,
         phone: phone ?? null,
         resident_type: resident_type ?? null,
-        areas: role === 'manager' ? areasClean : [],
+        areas: (role === 'manager' || role === 'security') ? areasClean : [],
         invited_by: user.id,
       })
       .select('token')

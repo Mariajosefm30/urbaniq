@@ -9,10 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, LogOut, Copy, Plus, Mail, UserCog } from "lucide-react";
+import { Building2, LogOut, Copy, Plus, Mail, UserCog, ShieldCheck } from "lucide-react";
 import { TIER_LABELS, TIER_SEATS, type Tier } from "@/lib/tiers";
 import { Link } from "react-router-dom";
 import { ReassignSeatDialog } from "@/components/platform/ReassignSeatDialog";
+import { InviteSecurityDialog } from "@/components/platform/InviteSecurityDialog";
+
 
 interface Building { id: string; name: string; tier: Tier; address: string | null; created_at: string; }
 interface Invite { id: string; email: string; role: string; building_id: string | null; token: string; accepted_at: string | null; }
@@ -32,6 +34,8 @@ export default function PlatformAdmin() {
   const [inviteBusy, setInviteBusy] = useState(false);
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
   const [reassign, setReassign] = useState<{ open: boolean; buildingId: string; membershipId: string | null }>({ open: false, buildingId: "", membershipId: null });
+  const [securityOpen, setSecurityOpen] = useState(false);
+
 
   const load = async () => {
     setLoading(true);
@@ -102,9 +106,24 @@ export default function PlatformAdmin() {
       <main className="container py-8 space-y-8">
         <Card>
           <CardHeader>
+            <CardTitle>Personal de seguridad</CardTitle>
+            <CardDescription>
+              Invita a la portería con un correo centralizado y define qué información puede ver.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" onClick={() => setSecurityOpen(true)} disabled={buildings.length === 0}>
+              <ShieldCheck className="h-4 w-4 mr-1" /> Invitar seguridad
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Crear edificio</CardTitle>
             <CardDescription>Registra un edificio y elige su plan.</CardDescription>
           </CardHeader>
+
           <CardContent className="grid gap-4 sm:grid-cols-4">
             <div className="space-y-2 sm:col-span-2">
               <Label>Nombre</Label>
@@ -210,6 +229,14 @@ export default function PlatformAdmin() {
         currentMembershipId={reassign.membershipId}
         onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
       />
+
+      <InviteSecurityDialog
+        open={securityOpen}
+        onOpenChange={setSecurityOpen}
+        buildings={buildings.map((b) => ({ id: b.id, name: b.name }))}
+        onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
+      />
+
     </div>
   );
 }
