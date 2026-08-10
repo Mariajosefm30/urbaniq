@@ -35,7 +35,7 @@ export default function BoardHome() {
   const [residents, setResidents] = useState<ResidentRow[]>([]);
   const [counts, setCounts] = useState({ units: 0, activeResidents: 0, openTickets: 0, upcomingVisits: 0, pendingCharges: 0, paidCharges: 0, avgResolutionHours: 0 });
   const [ownerUnits, setOwnerUnits] = useState<{ owned: string[]; total: number }>({ owned: [], total: 0 });
-  const [securityInvite, setSecurityInvite] = useState<{ open: boolean; email: string; name: string; busy: boolean }>({ open: false, email: "", name: "", busy: false });
+  
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string; email?: string; phone?: string; name?: string }>({ open: false, url: "" });
   const [inviteOpen, setInviteOpen] = useState(false);
 
