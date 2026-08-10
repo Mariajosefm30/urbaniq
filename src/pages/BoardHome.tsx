@@ -22,6 +22,7 @@ import { FeedPanel } from "@/components/features/FeedPanel";
 import { TicketsPanel } from "@/components/features/TicketsPanel";
 import { GuestsPanel } from "@/components/features/GuestsPanel";
 import { PaymentsBoardPanel } from "@/components/features/PaymentsPanel";
+import { ManagerGuide } from "@/components/onboarding/ManagerGuide";
 
 
 interface Building { id: string; name: string; tier: Tier; address: string | null; }
@@ -215,6 +216,8 @@ export default function BoardHome() {
       </main>
 
 
+
+      {isManager && <ManagerGuide areas={managerAreas} storageKey={`urbaniq:manager-guide:${buildingId}`} />}
 
       <InviteResidentDialog
         open={inviteOpen}
