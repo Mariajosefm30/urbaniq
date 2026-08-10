@@ -102,9 +102,24 @@ export default function PlatformAdmin() {
       <main className="container py-8 space-y-8">
         <Card>
           <CardHeader>
+            <CardTitle>Personal de seguridad</CardTitle>
+            <CardDescription>
+              Invita a la portería con un correo centralizado y define qué información puede ver.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" onClick={() => setSecurityOpen(true)} disabled={buildings.length === 0}>
+              <ShieldCheck className="h-4 w-4 mr-1" /> Invitar seguridad
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Crear edificio</CardTitle>
             <CardDescription>Registra un edificio y elige su plan.</CardDescription>
           </CardHeader>
+
           <CardContent className="grid gap-4 sm:grid-cols-4">
             <div className="space-y-2 sm:col-span-2">
               <Label>Nombre</Label>
