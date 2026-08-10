@@ -219,56 +219,9 @@ export default function BoardHome() {
           />
         )}
 
-        {isAdminBoard && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle className="text-base">Personal de seguridad</CardTitle>
-              <CardDescription>Invita al guardia. Podrá marcar ingreso/salida de visitas.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" size="sm" onClick={() => setSecurityInvite({ open: true, email: "", name: "", busy: false })}>
-                Invitar seguridad
-              </Button>
-            </CardContent>
-          </Card>
-        )}
       </main>
 
-      <Dialog open={securityInvite.open} onOpenChange={(o) => setSecurityInvite((s) => ({ ...s, open: o }))}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Invitar personal de seguridad</DialogTitle>
-            <DialogDescription>Se generará un enlace de activación de un solo uso.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">Correo</label>
-              <Input type="email" value={securityInvite.email} onChange={(e) => setSecurityInvite((s) => ({ ...s, email: e.target.value }))} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Nombre</label>
-              <Input value={securityInvite.name} onChange={(e) => setSecurityInvite((s) => ({ ...s, name: e.target.value }))} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              disabled={securityInvite.busy || !securityInvite.email}
-              onClick={async () => {
-                setSecurityInvite((s) => ({ ...s, busy: true }));
-                const { data, error } = await supabase.functions.invoke("create-invite", {
-                  body: { email: securityInvite.email, role: "security", building_id: buildingId, resident_name: securityInvite.name || null },
-                });
-                setSecurityInvite((s) => ({ ...s, busy: false }));
-                if (error || !data?.ok) { toast({ title: "Error", description: data?.error || error?.message, variant: "destructive" }); return; }
-                setSecurityInvite({ open: false, email: "", name: "", busy: false });
-                setLinkDialog({ open: true, url: data.activation_url, email: securityInvite.email, name: securityInvite.name });
-              }}
-            >
-              Crear invitación
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
 
       <InviteResidentDialog
         open={inviteOpen}
