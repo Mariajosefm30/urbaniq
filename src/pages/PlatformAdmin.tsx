@@ -9,10 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, LogOut, Copy, Plus, Mail, UserCog } from "lucide-react";
+import { Building2, LogOut, Copy, Plus, Mail, UserCog, ShieldCheck } from "lucide-react";
 import { TIER_LABELS, TIER_SEATS, type Tier } from "@/lib/tiers";
 import { Link } from "react-router-dom";
 import { ReassignSeatDialog } from "@/components/platform/ReassignSeatDialog";
+import { InviteSecurityDialog } from "@/components/platform/InviteSecurityDialog";
+
 
 interface Building { id: string; name: string; tier: Tier; address: string | null; created_at: string; }
 interface Invite { id: string; email: string; role: string; building_id: string | null; token: string; accepted_at: string | null; }
