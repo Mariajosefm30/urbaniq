@@ -122,6 +122,26 @@ export default function PlatformAdmin() {
 
         <Card>
           <CardHeader>
+            <CardTitle>Managers (sub-admins por área)</CardTitle>
+            <CardDescription>
+              Invita managers desde aquí y elige en el checklist qué áreas puede administrar en cada edificio.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              onClick={() => setManagerOpen(true)}
+              disabled={buildings.filter((b) => b.tier !== "starter").length === 0}
+            >
+              <UserCog className="h-4 w-4 mr-1" /> Invitar manager
+            </Button>
+          </CardContent>
+        </Card>
+
+
+
+        <Card>
+          <CardHeader>
             <CardTitle>Crear edificio</CardTitle>
             <CardDescription>Registra un edificio y elige su plan.</CardDescription>
           </CardHeader>
