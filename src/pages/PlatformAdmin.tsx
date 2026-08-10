@@ -34,6 +34,8 @@ export default function PlatformAdmin() {
   const [inviteBusy, setInviteBusy] = useState(false);
   const [linkDialog, setLinkDialog] = useState<{ open: boolean; url: string }>({ open: false, url: "" });
   const [reassign, setReassign] = useState<{ open: boolean; buildingId: string; membershipId: string | null }>({ open: false, buildingId: "", membershipId: null });
+  const [securityOpen, setSecurityOpen] = useState(false);
+
 
   const load = async () => {
     setLoading(true);
