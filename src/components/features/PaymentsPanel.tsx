@@ -391,9 +391,11 @@ export function PaymentsOwnerPanel({ buildingId, unitId }: { buildingId: string;
 
   const uploadProof = async () => {
     if (!paying || !form.file || !user) return;
+    const chargeUnitId = paying.unit_id ?? unitId;
+    if (!chargeUnitId) { toast({ title: "Error", description: "No se pudo determinar la unidad del cargo.", variant: "destructive" }); return; }
     setBusy(true);
     const ext = form.file.name.split(".").pop() || "jpg";
-    const path = `${buildingId}/${paying.id}/${Date.now()}.${ext}`;
+    const path = `${buildingId}/${chargeUnitId}/${paying.id}-${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from("payment-receipts").upload(path, form.file, { upsert: true });
     if (upErr) { setBusy(false); toast({ title: "Error", description: upErr.message, variant: "destructive" }); return; }
     const { error } = await supabase.from("charges").update({
