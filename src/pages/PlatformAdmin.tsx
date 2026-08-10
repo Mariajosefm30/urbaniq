@@ -14,6 +14,7 @@ import { TIER_LABELS, TIER_SEATS, type Tier } from "@/lib/tiers";
 import { Link } from "react-router-dom";
 import { ReassignSeatDialog } from "@/components/platform/ReassignSeatDialog";
 import { InviteSecurityDialog } from "@/components/platform/InviteSecurityDialog";
+import { InviteManagerDialog } from "@/components/platform/InviteManagerDialog";
 
 
 interface Building { id: string; name: string; tier: Tier; address: string | null; created_at: string; }
