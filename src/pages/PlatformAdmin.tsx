@@ -259,6 +259,14 @@ export default function PlatformAdmin() {
         onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
       />
 
+      <InviteManagerDialog
+        open={managerOpen}
+        onOpenChange={setManagerOpen}
+        buildings={buildings.map((b) => ({ id: b.id, name: b.name, tier: b.tier }))}
+        onDone={(url) => { setLinkDialog({ open: true, url }); load(); }}
+      />
+
+
     </div>
   );
 }
